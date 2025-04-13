@@ -333,6 +333,15 @@ class ModScripts {
             }
             return false;
         });
+
+        interp.variables.set("getOptionValue", function(name:String):Bool {
+            for (option in Config.customOptions) {
+                if (option.name == name) {
+                    return option.value;
+                }
+            }
+            return false;
+        });
     }
 
     public function loadScript(path:String):Void {
@@ -499,6 +508,15 @@ class ModScriptState extends MusicBeatState {
                 PlayState.instance.closeSubState();
                 ModScriptSubstate.instance = null;
                 return true;
+            }
+            return false;
+        });
+
+        interp.variables.set("getOptionValue", function(name:String):Bool {
+            for (option in Config.customOptions) {
+                if (option.name == name) {
+                    return option.value;
+                }
             }
             return false;
         });
@@ -683,6 +701,15 @@ class ModScriptSubstate extends MusicBeatSubstate {
                 PlayState.instance.closeSubState();
                 ModScriptSubstate.instance = null;
                 return true;
+            }
+            return false;
+        });
+
+        interp.variables.set("getOptionValue", function(name:String):Bool {
+            for (option in Config.customOptions) {
+                if (option.name == name) {
+                    return option.value;
+                }
             }
             return false;
         });
