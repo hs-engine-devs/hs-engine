@@ -1,60 +1,217 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
-<!-- 
-	@brandybuizel
-	@ninja_muffin2.4
--->
-
-<!--Let's get meta bois-->
 <head>
-	<meta charset="utf-8">
-	<title>Friday Night Funkin'</title>
-	<meta name="description" content="A dope ass rhythm game">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="styles.css" rel="stylesheet" type="text/css">
-	<!-- <link href="website/mm.ico" rel="icon" type="image/x-icon"> -->
-	<link rel="shortcut icon" type="image/png" href="../art/icon.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HS Engine - Friday Night Funkin'</title>
+  <style>
+    :root {
+      --primary-color: #FF0099; /* Hot Pink */
+      --secondary-color: #FFFFFF; /* White */
+      --background-color: #2C2C2C; /* Dark Gray */
+      --text-color: #EAEAEA; /* Light Gray */
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+
+    header {
+      background-color: #111;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: var(--secondary-color);
+    }
+
+    header h1 span {
+      color: var(--primary-color);
+    }
+
+    nav a {
+      color: var(--secondary-color);
+      margin-left: 1.5rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    main img {
+      max-width: 600px;
+	    padding-left: 130px;
+    }
+
+    .download-btn {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background-color: #FFCCFF;
+    }
+
+    .section-divider {
+      width: 80%;
+      margin: 4rem auto 3rem auto;
+      border-top: 2px solid #555;
+      opacity: 0.7;
+    }
+
+    footer {
+      background-color: #111;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+
+    h3 {
+      font-size: 2.2rem;
+      color: var(--primary-color);
+      margin-top: 2.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+      letter-spacing: 1px;
+    }
+
+    .credits-table {
+      width: 60%;
+      margin: 3rem auto;
+      text-align: left;
+      border-collapse: collapse;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      margin-right: 350px;
+    }
+
+    .credits-table th,
+    .credits-table td {
+      padding: 1rem 1.2rem;
+      border: 1px solid var(--border-color);
+      font-size: 0.95rem;
+      vertical-align: middle;
+    }
+
+    .credits-table th {
+      background-color: var(--primary-color);
+      color: var(--secondary-color);
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    .credits-table td {
+      background-color: #333;
+      color: var(--text-color);
+      text-align: left;
+    }
+
+    .credits-table td img {
+      border-radius: 50%;
+      width: 64px;
+      height: 64px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .credits-table a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .credits-table a:hover {
+      text-decoration: underline;
+    }
+
+    .credits-table tr:hover {
+      background-color: var(--hover-bg-color);
+    }
+
+    @media (max-width: 768px) {
+      .credits-table {
+        width: 90%;
+      }
+
+      .credits-table th,
+      .credits-table td {
+        font-size: 0.9rem;
+        padding: 0.8rem 1rem;
+      }
+
+      .credits-table td img {
+        width: 56px;
+        height: 56px;
+      }
+    }
+  </style>
 </head>
-
 <body>
-	<!--Header-->
-	<header>
-	</header>
+  <header>
+    <h1><span>HS</span> Engine</h1>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Mod API</a>
+      <a href="https://github.com/Gidk-g/HS-Engine?tab=readme-ov-file">GitHub</a>
+    </nav>
+  </header>
+  <main>
+    <img src="img/hs-engine.png" alt="HS Engine Logo" />
+    <h2>Unleash Your Modding Creativity</h2>
+    <p>HS Engine is a powerful toolkit for creating Friday Night Funkin' mods with ease.</p>
+    <button class="download-btn">Download Now</button>
 
-	
-	<marquee width="1920" scrollamount="2" scrolldelay="10" truespeed="truespeed">Friday Night Funkin</marquee>
-	<!--Hot tortilla wrap-->
-	<div id="wrapper">
-		<h1>Friday Night Funkin' - Rhythm game extraordinaire</h1>
-		
+    <div class="section-divider"></div>
 
-		<div id="coolervidwrapper">
-			<div class='videoWrapper'>
-				<iframe width="560" height="349" src="https://www.youtube.com/embed/HMNKUo3CCpU" frameborder="0"
-				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-				allowfullscreen></iframe>
-			</div>
-		</div>
-		
-		
-		<div class="coolBox hovertext" id="twitter">
-			<p class="description">Friday Night Funkin' is a dope ass rhythm game.</p>
-			<p class='description'>It is made by <a href="https://twitter.com/ninja_muffin99">ninjamuffin99 (programmer)</a>, <a
-				href="https://twitter.com/PhantomArcade3K">PhantomArcade (animator)</a>, <a
-				href="https://twitter.com/evilsk8r">evilsk8r (artist)</a>,
-			and <a href="https://twitter.com/kawaisprite">Kawaisprite (musician)</a> originally for Ludum Dare 47.</p>
-		</div>
-
-		<div class="linktext hovertext" id="ng">
-			<a href="https://www.newgrounds.com/portal/view/770371">Play demo on Newgrounds</a>
-		</div>
-
-		<div class='linktext hovertext' id="itch">
-			<a href="https://ninja-muffin24.itch.io/funkin">Support the game on Itch.io</a>
-		</div>
-		
-	</div>
+    <h3>HS Engine Developers</h3>
+    <table class="credits-table">
+      <tr>
+        <th>Credits Icon</th>
+        <th>Username</th>
+        <th>Involvement</th>
+      </tr>
+      <tr>
+        <td><img src="img/haxel.png" width="64" height="64"/></td>
+        <td><a href="https://github.com/HaxelDev" target="_blank">HaxelDev</a></td>
+        <td>Main-Programmer of HS Engine</td>
+      </tr>
+      <tr>
+        <td><img src="img/toska.png" width="64" height="64"/></td>
+        <td><a href="https://github.com/teotm" target="_blank">teotm</a></td>
+        <td>Programmer of HS Engine</td>
+      </tr>
+      <tr>
+        <td><img src="img/kot.png" width="64" height="64"/></td>
+        <td><a href="https://github.com/CoddingCatPL" target="_blank">Codding Cat</a></td>
+        <td>Ex-Programmer of HS Engine</td>
+      </tr>
+      <tr>
+        <td><img src="img/wipek.png" width="64" height="64"/></td>
+        <td><a href="https://www.youtube.com/watch?v=lrJLIE3jGOs" target="_blank">Wipek</a></td>
+        <td>Artist of HS Engine</td>
+      </tr>
+    </table>
+  </main>
+  <footer>
+    &copy; 2025 HS Engine.
+  </footer>
 </body>
 </html>
