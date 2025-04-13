@@ -15,7 +15,7 @@ This is the repository of Friday Night Funkin': HS Engine.
 | Credits Icon | Username | Involvement |
 | ------------ | -------- | ----------- |
 | <img src="docs/img/haxel.png" width="64" height="64"/> | [HaxelDev](https://github.com/HaxelDev) | Main-Programmer of HS Engine
-| <img src="docs/img/toska.png" width="64" height="64"/> | [teotm](https://github.com/teotm) | Ex-Programmer of HS Engine
+| <img src="docs/img/toska.png" width="64" height="64"/> | [teotm](https://github.com/teotm) | Programmer of HS Engine
 | <img src="docs/img/kot.png" width="64" height="64"/> | [Codding Cat](https://github.com/CoddingCatPL) | Ex-Programmer of HS Engine
 | <img src="docs/img/wipek.png" width="64" height="64"/> | [Wipek](https://www.youtube.com/watch?v=lrJLIE3jGOs) | Artist of HS Engine
 
