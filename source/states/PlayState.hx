@@ -197,8 +197,6 @@ class PlayState extends MusicBeatState
 
     public var dialogueFile:Array<String> = [];
 
-	private var noteTypeMap:Map<String, Bool> = new Map<String, Bool>();
-
 	public static var storyDifficultyText:String = "";
 
 	#if desktop
@@ -948,17 +946,6 @@ class PlayState extends MusicBeatState
 
 		generateSong(SONG.song);
 
-		for (notetype in noteTypeMap.keys()) {
-			#if sys
-			if (sys.FileSystem.exists(ModPaths.script("data/notes/" + notetype))) {
-				script.loadScript(ModPaths.script("data/notes/" + notetype));
-			}
-			#end
-		}
-
-		noteTypeMap.clear();
-		noteTypeMap = null;
-
 		// add(strumLine);
 
 		camFollow = new FlxPoint();
@@ -1631,7 +1618,6 @@ class PlayState extends MusicBeatState
 
 				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
 				swagNote.sustainLength = songNotes[2];
-				swagNote.noteType = songNotes[3];
 				swagNote.scrollFactor.set(0, 0);
 
 				var susLength:Float = swagNote.sustainLength;
@@ -1645,7 +1631,6 @@ class PlayState extends MusicBeatState
 
 					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true);
 					sustainNote.scrollFactor.set();
-					sustainNote.noteType = swagNote.noteType;
 					unspawnNotes.push(sustainNote);
 
 					sustainNote.mustPress = gottaHitNote;
@@ -1669,10 +1654,6 @@ class PlayState extends MusicBeatState
 				else if(Config.middleScroll)
 				{
 					swagNote.x += 310;
-				}
-
-				if(!noteTypeMap.exists(swagNote.noteType)) {
-					noteTypeMap.set(swagNote.noteType, true);
 				}
 			}
 			daBeats += 1;
