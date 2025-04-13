@@ -28,7 +28,7 @@ This is the repository of Friday Night Funkin': HS Engine.
 | Credits Icon | Username | Involvement |
 | ------------ | -------- | ----------- |
 | <img src="docs/img/shadowmario.png" width="64" height="64"/> | [Shadow Mario](https://twitter.com/Shadow_Mario_) | Some Stolen Stuff
-| <img src="docs/img/CoreDev.png" width="64" height="64"/> | [CoreCat](https://github.com/Core5570RYT) | Some Stolen Stuff
+| <img src="docs/img/CoreDev.png" width="64" height="64"/> | [CoreCat](https://github.com/corecathx) | Some Stolen Stuff
 
 ### Friday Night Funkin'
 | Credits Icon | Username | Involvement |
