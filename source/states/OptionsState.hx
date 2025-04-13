@@ -94,23 +94,18 @@ class PreferencesSubstate extends MusicBeatSubstate
 {
 	private static var curSelected:Int = 0;
 
-	static var unselectableOptions:Array<String> = [
-		'GAMEPLAY',
-		'VISUALS'
-	];
-
-	static var options:Array<String> = [
-		'GAMEPLAY',
-		'BotPlay',
-		'DownScroll',
-		'MiddleScroll',
-		'Ghost Tapping',
-		'VISUALS',
-		'Note Splashes',
-		'Flashing Menu',
-		'Camera Zooms',
+	static var options:Array<Option> = [
+		{ name: 'GAMEPLAY', value: false, isUnselectable: true },
+		{ name: 'BotPlay', value: false, isUnselectable: false },
+		{ name: 'DownScroll', value: false, isUnselectable: false },
+		{ name: 'MiddleScroll', value: false, isUnselectable: false },
+		{ name: 'Ghost Tapping', value: false, isUnselectable: false },
+		{ name: 'VISUALS', value: false, isUnselectable: true },
+		{ name: 'Note Splashes', value: false, isUnselectable: false },
+		{ name: 'Flashing Menu', value: false, isUnselectable: false },
+		{ name: 'Camera Zooms', value: false, isUnselectable: false },
 		#if !mobile
-		'FPS Counter'
+		{ name: 'FPS Counter', value: false, isUnselectable: false },
 		#end
 	];
 
@@ -131,25 +126,54 @@ class PreferencesSubstate extends MusicBeatSubstate
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
+		for (custom in Config.customOptions)
+		{
+			var alreadyExists = false;
+			for (opt in options)
+			{
+				if (opt.name == custom.name)
+				{
+					alreadyExists = true;
+					break;
+				}
+			}
+			if (!alreadyExists)
+			{
+				options.push({
+					name: custom.name,
+					value: custom.value,
+					isUnselectable: custom.isUnselectable
+				});
+			}
+		}
+
 		for (i in 0...options.length)
 		{
-			var isCentered:Bool = unselectableCheck(i);
-			var optionText:Alphabet = new Alphabet(0, 70 * i, options[i], false, false);
+			var isCentered:Bool = options[i].isUnselectable;
+		
+			var optionText:Alphabet = new Alphabet(0, 70 * i, options[i].name, false, false);
 			optionText.isMenuItem = true;
-			if(isCentered) {
+		
+			if (isCentered)
+			{
 				optionText.screenCenter(X);
 				optionText.forceX = optionText.x;
-			} else {
+			}
+			else
+			{
 				optionText.x += 300;
 				optionText.forceX = 300;
 			}
+		
 			optionText.yMult = 90;
 			optionText.targetY = i;
 			grpOptions.add(optionText);
-
-			if(!isCentered) {
+		
+			if (!isCentered)
+			{
 				var useCheckbox:Bool = true;
-				if(useCheckbox) {
+				if (useCheckbox)
+				{
 					var checkbox:CheckboxThingie = new CheckboxThingie(optionText.x - 105, optionText.y, false);
 					checkbox.sprTracker = optionText;
 					checkboxArray.push(checkbox);
@@ -165,12 +189,15 @@ class PreferencesSubstate extends MusicBeatSubstate
 		descText.borderSize = 2.4;
 		add(descText);
 
-		for (i in 0...options.length) {
-			if(!unselectableCheck(i)) {
+		for (i in 0...options.length)
+		{
+			if (!options[i].isUnselectable)
+			{
 				curSelected = i;
 				break;
 			}
 		}
+
 		changeSelection();
 		reloadValues();
 	}
@@ -207,7 +234,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 		var usesCheckbox = true;
 		if(usesCheckbox) {
 			if(controls.ACCEPT && nextAccept <= 0) {
-				switch(options[curSelected]) {
+				switch(options[curSelected].name) {
 					case 'FPS Counter':
 						Config.showFPS = !Config.showFPS;
 						if(Main.fpsVar != null)
@@ -226,6 +253,13 @@ class PreferencesSubstate extends MusicBeatSubstate
 						Config.ghostTapping = !Config.ghostTapping;
 					case 'Camera Zooms':
 						Config.camZooms = !Config.camZooms;
+					default:
+						for (option in Config.customOptions) {
+							if (option.name == options[curSelected].name) {
+								option.value = !option.value;
+								Config.saveCustomOptions();
+							}
+						}						
 				}
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				reloadValues();
@@ -246,10 +280,10 @@ class PreferencesSubstate extends MusicBeatSubstate
 				curSelected = options.length - 1;
 			if (curSelected >= options.length)
 				curSelected = 0;
-		} while(unselectableCheck(curSelected));
+		} while (options[curSelected].isUnselectable);
 
 		var daText:String = '';
-		switch(options[curSelected]) {
+		switch(options[curSelected].name) {
 			case 'FPS Counter':
 				daText = "";
 			case 'BotPlay':
@@ -266,6 +300,8 @@ class PreferencesSubstate extends MusicBeatSubstate
 				daText = "";
 			case 'Camera Zooms':
 				daText = "";
+			default:
+				daText = "";
 		}
 		descText.text = daText;
 
@@ -274,14 +310,15 @@ class PreferencesSubstate extends MusicBeatSubstate
 		for (item in grpOptions.members) {
 			item.targetY = bullShit - curSelected;
 			bullShit++;
-			if(!unselectableCheck(bullShit-1)) {
+	
+			if (!options[bullShit - 1].isUnselectable) {
 				item.alpha = 0.6;
 				if (item.targetY == 0) {
 					item.alpha = 1;
 				}
 				for (j in 0...checkboxArray.length) {
 					var tracker:FlxSprite = checkboxArray[j].sprTracker;
-					if(tracker == item) {
+					if (tracker == item) {
 						checkboxArray[j].alpha = item.alpha;
 						break;
 					}
@@ -297,7 +334,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 			var checkbox:CheckboxThingie = checkboxArray[i];
 			if(checkbox != null) {
 				var daValue:Bool = false;
-				switch(options[checkboxNumber[i]]) {
+				switch(options[checkboxNumber[i]].name) {
 					case 'FPS Counter':
 						daValue = Config.showFPS;
 					case 'BotPlay':
@@ -314,19 +351,16 @@ class PreferencesSubstate extends MusicBeatSubstate
 						daValue = Config.flashingMenu;
 					case 'Camera Zooms':
 						daValue = Config.camZooms;
+					default:
+						for (opt in Config.customOptions) {
+							if (opt.name == options[checkboxNumber[i]].name) {
+								daValue = opt.value;
+							}
+						}
 				}
 				checkbox.daValue = daValue;
 			}
 		}
-	}
-
-	private function unselectableCheck(num:Int):Bool {
-		for (i in 0...unselectableOptions.length) {
-			if(options[num] == unselectableOptions[i]) {
-				return true;
-			}
-		}
-		return options[num] == '';
 	}
 }
 

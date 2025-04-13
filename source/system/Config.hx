@@ -1,6 +1,10 @@
 package system;
 
 import flixel.FlxG;
+import sys.io.File;
+import sys.FileSystem;
+
+using StringTools;
 
 class Config {
 	public static var botplay:Bool = false;
@@ -12,6 +16,7 @@ class Config {
 	public static var camZooms:Bool = true;
     public static var showFPS:Bool = true;
     public static var keyBinds:Array<String> = ['A','S','W','D','R'];
+    public static var customOptions:Array<Option> = [];
 
 	public static function save() {
 		FlxG.save.data.botplay = botplay;
@@ -46,5 +51,60 @@ class Config {
 				Main.fpsVar.visible = showFPS;
 			}
 		}
+		loadCustomOptions();
     }
+
+    public static function saveCustomOptions() {
+        #if sys
+        var optionsFilePath:String = ModPaths.data("options");
+		if (FileSystem.exists(optionsFilePath)) {
+			var optionsToSave:Array<{name:String, value:Bool, isUnselectable:Bool}> = [];
+			for (option in customOptions) {
+				optionsToSave.push({
+					name: option.name,
+					value: option.value,
+					isUnselectable: option.isUnselectable
+				});
+			}
+			var jsonData:String = haxe.Json.stringify({ options: optionsToSave }, "\t");
+			var file:sys.io.FileOutput = sys.io.File.write(optionsFilePath, false);
+			file.writeString(jsonData);
+			file.close();
+	    }
+        #end
+    }
+
+	public static function loadCustomOptions() {
+		#if sys
+		var optionsFilePath:String = ModPaths.data("options");
+		if (FileSystem.exists(optionsFilePath)) {
+			var fileContents:String = File.getContent(optionsFilePath);
+			parseCustomOption(fileContents);
+		}
+		#end
+	}
+
+    private static function parseCustomOption(data:String) {
+		var jsonData:OptionsData = haxe.Json.parse(data);
+        if (jsonData != null) {
+            for (item in jsonData.options) {
+                var option:Option = {
+                    name: item.name,
+                    value: item.value,
+					isUnselectable: item.isUnselectable
+                };
+                customOptions.push(option);
+            }
+        }
+    }
+}
+
+typedef OptionsData = {
+    var options:Array<Option>;
+}
+
+typedef Option = {
+	var name:String;
+	var value:Bool;
+	var isUnselectable:Bool;
 }
