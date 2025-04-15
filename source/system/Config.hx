@@ -14,7 +14,7 @@ class Config {
 	public static var camZooms:Bool = true;
     public static var showFPS:Bool = true;
     public static var keyBinds:Array<String> = ['A','S','W','D','R'];
-	public static var customOptions:Array<{name:String, value:Bool, isUnselectable:Bool}> = [];
+	public static var customOptions:Array<Option> = [];
 
 	public static function save() {
 		FlxG.save.data.botplay = botplay;
