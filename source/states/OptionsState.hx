@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import system.Config.Option;
 
 using StringTools;
 
@@ -102,7 +103,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 	private var descText:FlxText;
 	private var bg:FlxSprite;
 
-	static var baseOptions:Array<Option> = [
+	static final baseOptions:Array<Option> = [
 		{ name: 'GAMEPLAY', value: false, isUnselectable: true },
 		{ name: 'BotPlay', value: false, isUnselectable: false },
 		{ name: 'DownScroll', value: false, isUnselectable: false },
@@ -191,11 +192,20 @@ class PreferencesSubstate extends MusicBeatSubstate
 		options = baseOptions.copy();
 
 		#if sys
-		var filteredCustomOptions = [];
+		var filteredCustomOptions:Array<Option> = [];
 
+		// public static var customOptions:Array<Option> = [];
+		/*
+		typedef Option = {
+			var name:String;
+			var value:Bool;
+			var isUnselectable:Bool;
+		}
+		*/
 		for (custom in Config.customOptions) {
-			var found = false;
+			var found:Bool = false;
 
+			// Dobra, czyli jeśli opcja ma jakąś nazwę taką samą jak jakaś w domyślnych, to ją zmieniamy jak "należy"
 			for (opt in options) {
 				if (opt.name == custom.name) {
 					opt.value = custom.value;
@@ -205,7 +215,8 @@ class PreferencesSubstate extends MusicBeatSubstate
 				}
 			}
 
-			var modEnabled = false;
+			// PO CHUJ W FOR LOOPIE MAMY TO SPRAWDZAĆ, NIE ROZUMIEM (ale ok, na razie niech tu żyje)
+			var modEnabled:Bool = false;
 			for (modFolder in ModPaths.getModFolders()) {
 				if (modFolder.enabled) {
 					modEnabled = true;
@@ -213,6 +224,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 				}
 			}
 
+			// Nie znaleziono opcji, która ma maching imienia z jakąś istniejącą
 			if (!found && modEnabled) {
 				options.push({
 					name: custom.name,
@@ -220,7 +232,9 @@ class PreferencesSubstate extends MusicBeatSubstate
 					isUnselectable: custom.isUnselectable
 				});
 				filteredCustomOptions.push(custom);
-			} else if (found) {
+			}
+			// Znaleziono :D
+			else if (found) {
 				filteredCustomOptions.push(custom);
 			}
 		}
