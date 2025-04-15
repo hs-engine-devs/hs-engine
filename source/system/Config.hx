@@ -1,8 +1,6 @@
 package system;
 
 import flixel.FlxG;
-import sys.io.File;
-import sys.FileSystem;
 
 using StringTools;
 
@@ -16,7 +14,7 @@ class Config {
 	public static var camZooms:Bool = true;
     public static var showFPS:Bool = true;
     public static var keyBinds:Array<String> = ['A','S','W','D','R'];
-    public static var customOptions:Array<Option> = [];
+	public static var customOptions:Array<{name:String, value:Bool, isUnselectable:Bool}> = [];
 
 	public static function save() {
 		FlxG.save.data.botplay = botplay;
@@ -54,32 +52,53 @@ class Config {
 		loadCustomOptions();
     }
 
-    public static function saveCustomOptions() {
-        #if sys
-        var optionsFilePath:String = ModPaths.data("options");
-		if (FileSystem.exists(optionsFilePath)) {
-			var optionsToSave:Array<{name:String, value:Bool, isUnselectable:Bool}> = [];
-			for (option in customOptions) {
-				optionsToSave.push({
-					name: option.name,
-					value: option.value,
-					isUnselectable: option.isUnselectable
-				});
+	public static function saveCustomOptions() {
+		#if sys
+		for (modFolder in ModPaths.getModFolders()) {
+			if (modFolder.enabled) {
+				var optionsDirPath:String = 'mods/' + modFolder.folder + '/data/options/';
+				var optionsToSave:Array<{name:String, value:Bool, isUnselectable:Bool}> = [];
+				for (option in customOptions) {
+					if (sys.FileSystem.isDirectory(optionsDirPath)) {
+						for (optionJson in sys.FileSystem.readDirectory(optionsDirPath)) {
+							if (optionJson != null && optionJson.endsWith('.json')) {
+								optionsToSave.push({
+									name: option.name,
+									value: option.value,
+									isUnselectable: option.isUnselectable
+								});
+
+					            var jsonData:String = haxe.Json.stringify({ options: optionsToSave }, "\t");
+					            var optionFilePath:String = optionsDirPath + optionJson;
+
+					            var file:sys.io.FileOutput = sys.io.File.write(optionFilePath, false);
+					            file.writeString(jsonData);
+					            file.close();
+							}
+						}
+					}
+				}
 			}
-			var jsonData:String = haxe.Json.stringify({ options: optionsToSave }, "\t");
-			var file:sys.io.FileOutput = sys.io.File.write(optionsFilePath, false);
-			file.writeString(jsonData);
-			file.close();
-	    }
-        #end
-    }
+		}
+		#end
+	}
 
 	public static function loadCustomOptions() {
 		#if sys
-		var optionsFilePath:String = ModPaths.data("options");
-		if (FileSystem.exists(optionsFilePath)) {
-			var fileContents:String = File.getContent(optionsFilePath);
-			parseCustomOption(fileContents);
+		customOptions = [];
+	
+		for (modFolder in ModPaths.getModFolders()) {
+			if (modFolder.enabled) {
+				var modFolderPath:String = 'mods/' + modFolder.folder + '/data/options/';
+				if (sys.FileSystem.isDirectory(modFolderPath)) {
+					for (optionJson in sys.FileSystem.readDirectory(modFolderPath)) {
+						if (optionJson != null && optionJson.endsWith('.json')) {
+							var jsonContent:String = sys.io.File.getContent(modFolderPath + optionJson);
+							parseCustomOption(jsonContent);
+						}
+					}
+				}
+			}
 		}
 		#end
 	}
@@ -97,6 +116,13 @@ class Config {
             }
         }
     }
+
+	public static function isCustomOption(name:String):Bool {
+		for (opt in customOptions) {
+			if (opt.name == name) return true;
+		}
+		return false;
+	}
 }
 
 typedef OptionsData = {

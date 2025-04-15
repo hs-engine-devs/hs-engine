@@ -384,7 +384,7 @@ class StoryMenuState extends MusicBeatState
 					}
 				}
 			}
-		}		
+		}
 		#end
 	}
 }

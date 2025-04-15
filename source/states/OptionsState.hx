@@ -6,6 +6,8 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.group.FlxGroup.FlxTypedGroup;
 
+using StringTools;
+
 class OptionsState extends MusicBeatState {
 	var options:Array<String> = ['Preferences', 'Controls', 'Exit'];
 
@@ -94,7 +96,13 @@ class PreferencesSubstate extends MusicBeatSubstate
 {
 	private static var curSelected:Int = 0;
 
-	static var options:Array<Option> = [
+	private var grpOptions:FlxTypedGroup<Alphabet>;
+	private var checkboxArray:Array<CheckboxThingie> = [];
+	private var checkboxNumber:Array<Int> = [];
+	private var descText:FlxText;
+	private var bg:FlxSprite;
+
+	static var baseOptions:Array<Option> = [
 		{ name: 'GAMEPLAY', value: false, isUnselectable: true },
 		{ name: 'BotPlay', value: false, isUnselectable: false },
 		{ name: 'DownScroll', value: false, isUnselectable: false },
@@ -109,11 +117,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 		#end
 	];
 
-	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private var checkboxArray:Array<CheckboxThingie> = [];
-	private var checkboxNumber:Array<Int> = [];
-	private var descText:FlxText;
-	private var bg:FlxSprite;
+	static var options:Array<Option> = [];
 
 	public function new()
 	{
@@ -126,26 +130,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
-		for (custom in Config.customOptions)
-		{
-			var alreadyExists = false;
-			for (opt in options)
-			{
-				if (opt.name == custom.name)
-				{
-					alreadyExists = true;
-					break;
-				}
-			}
-			if (!alreadyExists)
-			{
-				options.push({
-					name: custom.name,
-					value: custom.value,
-					isUnselectable: custom.isUnselectable
-				});
-			}
-		}
+		buildOptions();
 
 		for (i in 0...options.length)
 		{
@@ -200,6 +185,48 @@ class PreferencesSubstate extends MusicBeatSubstate
 
 		changeSelection();
 		reloadValues();
+	}
+
+	function buildOptions():Void {
+		options = baseOptions.copy();
+
+		#if sys
+		var filteredCustomOptions = [];
+
+		for (custom in Config.customOptions) {
+			var found = false;
+
+			for (opt in options) {
+				if (opt.name == custom.name) {
+					opt.value = custom.value;
+					opt.isUnselectable = custom.isUnselectable;
+					found = true;
+					break;
+				}
+			}
+
+			var modEnabled = false;
+			for (modFolder in ModPaths.getModFolders()) {
+				if (modFolder.enabled) {
+					modEnabled = true;
+					break;
+				}
+			}
+
+			if (!found && modEnabled) {
+				options.push({
+					name: custom.name,
+					value: custom.value,
+					isUnselectable: custom.isUnselectable
+				});
+				filteredCustomOptions.push(custom);
+			} else if (found) {
+				filteredCustomOptions.push(custom);
+			}
+		}
+
+		Config.customOptions = filteredCustomOptions;
+		#end
 	}
 
 	var nextAccept:Int = 5;
@@ -261,6 +288,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 							}
 						}						
 				}
+				buildOptions(); 
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				reloadValues();
 			}
