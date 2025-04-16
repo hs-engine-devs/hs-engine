@@ -2023,10 +2023,10 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.keys.justPressed.SEVEN)
 		{
-			// FlxG.switchState(new states.editors.charting.ChartingEditorState());
+			FlxG.switchState(new states.editors.charting.ChartingEditorState());
 
 			#if desktop
-			// DiscordClient.changePresence("Chart Editor", null, null, true);
+			DiscordClient.changePresence("Chart Editor", null, null, true);
 			#end
 		}
 
