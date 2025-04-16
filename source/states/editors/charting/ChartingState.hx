@@ -1,8 +1,8 @@
-package states.editors.charting;
+package states.editors;
 
-import Conductor.BPMChangeEvent;
-import Section.SwagSection;
-import Song.SwagSong;
+import system.Conductor.BPMChangeEvent;
+import system.Section.SwagSection;
+import system.Song.SwagSong;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxGridOverlay;
@@ -165,6 +165,7 @@ class ChartingState extends MusicBeatState
 		addSongUI();
 		addSectionUI();
 		addNoteUI();
+		updateHeads();
 
 		add(curRenderedNotes);
 		add(curRenderedSustains);
@@ -183,7 +184,7 @@ class ChartingState extends MusicBeatState
 		check_voices.callback = function()
 		{
 			_song.needsVoices = check_voices.checked;
-			trace('CHECKED!');
+			Logger.log('CHECKED!');
 		};
 
 		var check_mute_inst = new FlxUICheckBox(10, 200, null, null, "Mute Instrumental (in editor)", 100);
@@ -223,17 +224,48 @@ class ChartingState extends MusicBeatState
 		stepperBPM.value = Conductor.bpm;
 		stepperBPM.name = 'song_bpm';
 
+		#if sys
+		var directories:Array<String> = [ModPaths.modFolder('data/characters/'), Paths.getPreloadPath('data/characters/')];
+		#else
+		var directories:Array<String> = [Paths.getPreloadPath('data/characters/')];
+		#end
+
+		var tempMap:Map<String, Bool> = new Map<String, Bool>();
 		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+
+		for (i in 0...characters.length) {
+			tempMap.set(characters[i], true);
+		}
+
+		#if sys
+		for (i in 0...directories.length) {
+			var directory:String = directories[i];
+			if(sys.FileSystem.exists(directory)) {
+				for (file in sys.FileSystem.readDirectory(directory)) {
+					var path = haxe.io.Path.join([directory, file]);
+					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json')) {
+						var charToCheck:String = file.substr(0, file.length - 5);
+						if(!charToCheck.endsWith('-dead') && !tempMap.exists(charToCheck)) {
+							tempMap.set(charToCheck, true);
+							characters.push(charToCheck);
+						}
+					}
+				}
+			}
+		}
+		#end
 
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player1 = characters[Std.parseInt(character)];
+			updateHeads();
 		});
 		player1DropDown.selectedLabel = _song.player1;
 
 		var player2DropDown = new FlxUIDropDownMenu(140, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player2 = characters[Std.parseInt(character)];
+			updateHeads();
 		});
 
 		player2DropDown.selectedLabel = _song.player2;
@@ -285,9 +317,10 @@ class ChartingState extends MusicBeatState
 			copySection(Std.int(stepperCopy.value));
 		});
 
-		var clearSectionButton:FlxButton = new FlxButton(10, 150, "Clear", clearSection);
+		var clearSectionButton:FlxButton = new FlxButton(10, 150, "Clear Section", clearSection);
+		var clearSongButton:FlxButton = new FlxButton(10, 170, "Clear Song", clearSong);
 
-		var swapSection:FlxButton = new FlxButton(10, 170, "Swap section", function()
+		var swapSection:FlxButton = new FlxButton(10, 190, "Swap section", function()
 		{
 			for (i in 0..._song.notes[curSection].sectionNotes.length)
 			{
@@ -317,6 +350,7 @@ class ChartingState extends MusicBeatState
 		tab_group_section.add(check_changeBPM);
 		tab_group_section.add(copyButton);
 		tab_group_section.add(clearSectionButton);
+		tab_group_section.add(clearSongButton);
 		tab_group_section.add(swapSection);
 
 		UI_box.addGroup(tab_group_section);
@@ -478,9 +512,9 @@ class ChartingState extends MusicBeatState
 
 		if (curBeat % 4 == 0 && curStep >= 16 * (curSection + 1))
 		{
-			trace(curStep);
-			trace((_song.notes[curSection].lengthInSteps) * (curSection + 1));
-			trace('DUMBSHIT');
+			Logger.log(curStep);
+			Logger.log((_song.notes[curSection].lengthInSteps) * (curSection + 1));
+			Logger.log('DUMBSHIT');
 
 			if (_song.notes[curSection + 1] == null)
 			{
@@ -507,7 +541,7 @@ class ChartingState extends MusicBeatState
 						}
 						else
 						{
-							trace('tryin to delete note...');
+							Logger.log('tryin to delete note...');
 							deleteNote(note);
 						}
 					}
@@ -520,7 +554,7 @@ class ChartingState extends MusicBeatState
 					&& FlxG.mouse.y > gridBG.y
 					&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
 				{
-					FlxG.log.add('added note');
+					Logger.log('added note');
 					addNote();
 				}
 			}
@@ -665,7 +699,11 @@ class ChartingState extends MusicBeatState
 			+ " / "
 			+ Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2))
 			+ "\nSection: "
-			+ curSection;
+			+ curSection
+			+ "\nCurBeat: "
+			+ curBeat
+			+ "\nCurStep: "
+			+ curStep;
 		super.update(elapsed);
 	}
 
@@ -728,7 +766,7 @@ class ChartingState extends MusicBeatState
 
 	function changeSection(sec:Int = 0, ?updateMusic:Bool = true):Void
 	{
-		trace('changing section' + sec);
+		Logger.log('changing section' + sec);
 
 		if (_song.notes[sec] != null)
 		{
@@ -789,16 +827,41 @@ class ChartingState extends MusicBeatState
 
 	function updateHeads():Void
 	{
+		var healthIconP1:String = loadHealthIconFromCharacter(_song.player1);
+		var healthIconP2:String = loadHealthIconFromCharacter(_song.player2);
+
 		if (check_mustHitSection.checked)
 		{
-			leftIcon.animation.play('bf');
-			rightIcon.animation.play('dad');
+			leftIcon.changeIcon(healthIconP1);
+			rightIcon.changeIcon(healthIconP2);
 		}
 		else
 		{
-			leftIcon.animation.play('dad');
-			rightIcon.animation.play('bf');
+			leftIcon.changeIcon(healthIconP2);
+			rightIcon.changeIcon(healthIconP1);
 		}
+	}
+
+	function loadHealthIconFromCharacter(char:String) {
+		var rawJson = null;
+
+		#if sys
+		var moddyFile:String = ModPaths.data("characters/" + char);
+		if(sys.FileSystem.exists(moddyFile)) {
+			rawJson = sys.io.File.getContent(moddyFile);
+		}
+		#end
+
+		if(rawJson == null) {
+			#if sys
+			rawJson = sys.io.File.getContent(Paths.json("characters/" + char));
+			#else
+			rawJson = Assets.getText(Paths.json("characters/" + char));
+			#end
+		}
+
+		var json:game.Character.CharJson = cast Json.parse(rawJson);
+		return json.healthIcon;
 	}
 
 	function updateNoteUI():Void
@@ -835,7 +898,7 @@ class ChartingState extends MusicBeatState
 					daBPM = _song.notes[i].bpm;
 			Conductor.changeBPM(daBPM);
 		}
-
+	
 		/* // PORT BULLSHIT, INCASE THERE'S NO SUSTAIN DATA FOR A NOTE
 			for (sec in 0..._song.notes.length)
 			{
@@ -843,12 +906,12 @@ class ChartingState extends MusicBeatState
 				{
 					if (_song.notes[sec].sectionNotes[notesse][2] == null)
 					{
-						trace('SUS NULL');
+						Logger.log('SUS NULL');
 						_song.notes[sec].sectionNotes[notesse][2] = 0;
 					}
 				}
 			}
-		 */
+		*/
 
 		for (i in sectionInfo)
 		{
@@ -953,8 +1016,8 @@ class ChartingState extends MusicBeatState
 			_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus]);
 		}
 
-		trace(noteStrum);
-		trace(curSection);
+		Logger.log(noteStrum);
+		Logger.log(curSection);
 
 		updateGrid();
 		updateNoteUI();
@@ -988,7 +1051,7 @@ class ChartingState extends MusicBeatState
 
 				if (sec != null && sec == i)
 				{
-					trace('swag loop??');
+					Logger.log('swag loop??');
 					break;
 				}
 			}
@@ -999,7 +1062,7 @@ class ChartingState extends MusicBeatState
 
 	function loadLevel():Void
 	{
-		trace(_song.notes);
+		Logger.log(_song.notes);
 	}
 
 	function getNotes():Array<Dynamic>
@@ -1081,6 +1144,6 @@ class ChartingState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.error("Problem saving Level data");
+		Logger.log("Error: Problem saving Level data");
 	}
 }
