@@ -94,7 +94,7 @@ class Config {
 					for (optionJson in sys.FileSystem.readDirectory(modFolderPath)) {
 						if (optionJson != null && optionJson.endsWith('.json')) {
 							var jsonContent:String = sys.io.File.getContent(modFolderPath + optionJson);
-							parseCustomOption(jsonContent);
+							parseCustomOption(jsonContent, modFolder.folder);
 						}
 					}
 				}
@@ -103,19 +103,20 @@ class Config {
 		#end
 	}
 
-    private static function parseCustomOption(data:String) {
+	private static function parseCustomOption(data:String, modSource:String) {
 		var jsonData:OptionsData = haxe.Json.parse(data);
-        if (jsonData != null) {
-            for (item in jsonData.options) {
-                var option:Option = {
-                    name: item.name,
-                    value: item.value,
-					isUnselectable: item.isUnselectable
-                };
-                customOptions.push(option);
-            }
-        }
-    }
+		if (jsonData != null) {
+			for (item in jsonData.options) {
+				var option:Option = {
+					name: item.name,
+					value: item.value,
+					isUnselectable: item.isUnselectable,
+					modSource: modSource
+				};
+				customOptions.push(option);
+			}
+		}
+	}
 
 	public static function isCustomOption(name:String):Bool {
 		for (opt in customOptions) {
@@ -133,4 +134,5 @@ typedef Option = {
 	var name:String;
 	var value:Bool;
 	var isUnselectable:Bool;
+	@:optional var modSource:String;
 }

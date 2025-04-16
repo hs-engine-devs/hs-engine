@@ -5,7 +5,6 @@ import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import system.Config.Option;
 
 using StringTools;
 
@@ -103,7 +102,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 	private var descText:FlxText;
 	private var bg:FlxSprite;
 
-	static final baseOptions:Array<Option> = [
+	static var baseOptions:Array<Option> = [
 		{ name: 'GAMEPLAY', value: false, isUnselectable: true },
 		{ name: 'BotPlay', value: false, isUnselectable: false },
 		{ name: 'DownScroll', value: false, isUnselectable: false },
@@ -192,20 +191,17 @@ class PreferencesSubstate extends MusicBeatSubstate
 		options = baseOptions.copy();
 
 		#if sys
-		var filteredCustomOptions:Array<Option> = [];
-
-		// public static var customOptions:Array<Option> = [];
-		/*
-		typedef Option = {
-			var name:String;
-			var value:Bool;
-			var isUnselectable:Bool;
+		var activeMods:Array<String> = [];
+		for (modFolder in ModPaths.getModFolders()) {
+			if (modFolder.enabled)
+				activeMods.push(modFolder.folder);
 		}
-		*/
-		for (custom in Config.customOptions) {
-			var found:Bool = false;
 
-			// Dobra, czyli jeśli opcja ma jakąś nazwę taką samą jak jakaś w domyślnych, to ją zmieniamy jak "należy"
+		for (custom in Config.customOptions) {
+			if (custom.modSource != null && !activeMods.contains(custom.modSource))
+				continue;
+
+			var found = false;
 			for (opt in options) {
 				if (opt.name == custom.name) {
 					opt.value = custom.value;
@@ -214,32 +210,15 @@ class PreferencesSubstate extends MusicBeatSubstate
 					break;
 				}
 			}
-
-			// PO CHUJ W FOR LOOPIE MAMY TO SPRAWDZAĆ, NIE ROZUMIEM (ale ok, na razie niech tu żyje)
-			var modEnabled:Bool = false;
-			for (modFolder in ModPaths.getModFolders()) {
-				if (modFolder.enabled) {
-					modEnabled = true;
-					break;
-				}
-			}
-
-			// Nie znaleziono opcji, która ma maching imienia z jakąś istniejącą
-			if (!found && modEnabled) {
+			if (!found) {
 				options.push({
 					name: custom.name,
 					value: custom.value,
-					isUnselectable: custom.isUnselectable
+					isUnselectable: custom.isUnselectable,
+					modSource: custom.modSource
 				});
-				filteredCustomOptions.push(custom);
-			}
-			// Znaleziono :D
-			else if (found) {
-				filteredCustomOptions.push(custom);
 			}
 		}
-
-		Config.customOptions = filteredCustomOptions;
 		#end
 	}
 
