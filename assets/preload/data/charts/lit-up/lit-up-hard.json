@@ -5584,6 +5584,7 @@
                 "changeBPM": null,
                 "mustHitSection": true
             }
-        ]
+        ],
+		"needsVoices": true
     }
 }
