@@ -171,11 +171,11 @@ class PlayState extends MusicBeatState
 
 	var talking:Bool = true;
 
-	// var rainShader:shaders.RainShader;
+	var rainShader:shaders.RainShader;
 	var rainInensityEnd:Float = 0;
 
 	var dimSprite:FlxSprite;
-	// var kickedCan:AtlasSprite;
+	var kickedCan:AtlasSprite;
 	var characterGlow:FlxSprite;
 
 	var phillyTraffic:FlxSprite;
@@ -1076,6 +1076,23 @@ class PlayState extends MusicBeatState
 			var spraycanPile = new FlxSprite(920, 1045).loadGraphic(Paths.image("phillyStreets/SpraycanPile", "weekend1"));
 		    spraycanPile.antialiasing = true;
 		    add(spraycanPile);
+
+			rainShader = new shaders.RainShader(0, FlxG.height / 200);
+			var shaderFilter = new ShaderFilter(rainShader.shader);
+			camGame.setFilters([shaderFilter]);
+			camGame.filtersEnabled = true;
+			add(rainShader);
+
+			if (SONG.song.toLowerCase() == 'darnell') {
+				rainShader.uIntensity = 0;
+				rainInensityEnd = 0.1;
+			} else if (SONG.song.toLowerCase() == '2hot') {
+				rainShader.uIntensity = 0.2;
+				rainInensityEnd = 0.3;
+			} else {
+				rainShader.uIntensity = 0.1;
+				rainInensityEnd = 0.2;
+			}
 		}
 
 		add(foreground);
@@ -1708,6 +1725,9 @@ class PlayState extends MusicBeatState
 
 		abot.setAudioSource(FlxG.sound.music);
 		abot.startVisualizer();
+
+		if (curStage == "phillyStreets")
+            FlxTween.tween(rainShader, {uIntensity: rainInensityEnd}, FlxG.sound.music.length / 1000);
 
 		if(startOnTime > 0)
 		{
