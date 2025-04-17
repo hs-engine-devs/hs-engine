@@ -1014,7 +1014,7 @@ class PlayState extends MusicBeatState
 				boyfriend.y = 1228 - 450;
 
                 dad.x = 900 - 275;
-				dad.y = 1110 - 450;
+				dad.y = 1110 - 475;
 
 				gf.x = 1453 - 203;
 				gf.y = 430;
