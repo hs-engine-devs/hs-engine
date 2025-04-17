@@ -4133,6 +4133,7 @@
 			}
 		],
 		"bpm": 155,
-		"song": "Darnell"
+		"song": "Darnell",
+		"needsVoices": true
 	}
 }
