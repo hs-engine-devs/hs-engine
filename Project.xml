@@ -126,7 +126,7 @@
 	<haxelib name="faxe" if='switch'/>
 
 	<haxelib name="discord_rpc" if="desktop" version="git" optional="true" />
-	<haxelib name="hxvlc" version="1.3.0" if="VIDEOS"/>
+	<haxelib name="hxvlc" version="1.6.1" if="VIDEOS"/>
 
 	<!-- Yes, I know that the Haxelibs you need to download from "git" are not supposed to be optional, the lines below have taken care of that -->
 
