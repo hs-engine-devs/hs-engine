@@ -114,18 +114,20 @@
 	<assets path="assets/fonts" embed='true'/>
 	<!-- _______________________________ Libraries ______________________________ -->
 
-	<haxelib name="flixel" />
+	<haxelib name="flixel" version="5.0.0" />
 	<haxedev set='webgl' />
 
 	<!--In case you want to use the addons package-->
-	<haxelib name="flixel-addons" />
-	<haxelib name="hscript-improved" />
+	<haxelib name="flixel-addons" version="2.11.0" />
+	<haxelib name="hscript-improved" version="git" optional="true" />
 
 	<!--In case you want to use the ui package-->
-	<haxelib name="flixel-ui" />
+	<haxelib name="flixel-ui" version="2.4.0" />
 	<haxelib name="faxe" if='switch'/>
-	<haxelib name="discord_rpc" if="desktop"/>
-	<haxelib name="hxvlc" if="VIDEOS"/>
+	<haxelib name="discord_rpc" if="desktop" version="git" optional="true" />
+	<haxelib name="hxvlc" version="1.3.0" if="VIDEOS"/>
+
+	<!-- Yes, I know that the Haxelibs you need to download from "git" are not supposed to be optional, the lines below have taken care of that -->
 
 	<haxedef name="hscriptPos" />
 	<haxeflag name="-dce" value="no"/>
@@ -138,6 +140,15 @@
 
 	<!--In case you want to use nape with flixel-->
 	<!--<haxelib name="nape-haxe4" />-->
+
+	<!-- ________________________________ Errors ________________________________ -->
+	<section unless="hscript-improved">
+		<error value="Library hscript-improved is not installed! Install it by typing &quot;haxelib git hscript-improved https://github.com/CodenameCrew/hscript-improved b96e6c8149dcd189dce39ec80a25571af9f5acc9&quot; in your cmd, in order to compile the project" />
+	</section>
+	<section if="desktop">
+		<error value="Library discord_rpc is not installed! Install it by typing &quot;haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc 2d83fa863ef0c1eace5f1cf67c3ac315d1a3a8a5&quot; in your cmd, in order to compile the project" unless="discord_rpc" />
+	</section>
+
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
