@@ -201,6 +201,9 @@ class PlayState extends MusicBeatState
 	var lightningTimer:Float = 3;
 	var lightningActive:Bool = true;
 
+	var abot:ABot;
+	var abotLookDir:Bool = false;
+
 	public var songScore:Int = 0;
 	public var songMisses:Int = 0;
 	public var scoreTxt:FlxText;
@@ -866,6 +869,12 @@ class PlayState extends MusicBeatState
 		if (SONG.song.toLowerCase() == 'stress')
 			gfVersion = 'pico-speaker';
 
+		abot = new ABot(1100, 740);
+		abot.lookLeft();
+
+		if (gfVersion == 'nene')
+			add(abot);
+
 		gf = new Character(400, 130, gfVersion);
 		gf.scrollFactor.set(0.95, 0.95);
 
@@ -1007,8 +1016,8 @@ class PlayState extends MusicBeatState
                 dad.x = 900 - 275;
 				dad.y = 1110 - 450;
 
-				gf.x = 1453;
-				gf.y = 900;
+				gf.x = 1453 - 203;
+				gf.y = 430;
 		}
 
 		gfGroup = new FlxTypedGroup<Character>();
@@ -1697,6 +1706,9 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
 
+		abot.setAudioSource(FlxG.sound.music);
+		abot.startVisualizer();
+
 		if(startOnTime > 0)
 		{
 			setSongTime(startOnTime - 500);
@@ -2248,6 +2260,11 @@ class PlayState extends MusicBeatState
                 script.callFunction("dadTurn", []);
 				#end
 
+				if (abotLookDir) {
+				    abotLookDir = !abotLookDir;
+				    abot.lookLeft();
+				}
+
 				switch (dad.curCharacter)
 				{
 					case 'mom':
@@ -2276,6 +2293,11 @@ class PlayState extends MusicBeatState
 				#if sys
                 script.callFunction("bfTurn", []);
 				#end
+
+				if (!abotLookDir) {
+				    abotLookDir = !abotLookDir;
+				    abot.lookRight();
+				}
 
 				switch (curStage)
 				{
@@ -3618,6 +3640,8 @@ class PlayState extends MusicBeatState
 			boyfriend.playAnim('hey', true);
 			dad.playAnim('cheer', true);
 		}
+
+		abot.bop();
 
 		foregroundSprites.forEach(function(spr:BGSprite)
 		{
