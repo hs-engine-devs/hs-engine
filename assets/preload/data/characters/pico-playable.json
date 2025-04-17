@@ -1,0 +1,150 @@
+{
+    "animations": [
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "idle",
+            "fps": 24,
+            "name": "Idle",
+            "indices": []
+        },
+        {
+            "offsets": [
+                -50,
+                1
+            ],
+            "loop": false,
+            "anim": "singRIGHT",
+            "fps": 24,
+            "name": "Sing Left",
+            "indices": []
+        },
+        {
+            "offsets": [
+                84,
+                -77
+            ],
+            "loop": false,
+            "anim": "singDOWN",
+            "fps": 24,
+            "name": "Sing Down",
+            "indices": []
+        },
+        {
+            "offsets": [
+                21,
+                28
+            ],
+            "loop": false,
+            "anim": "singUP",
+            "fps": 24,
+            "name": "Sing Up",
+            "indices": []
+        },
+        {
+            "offsets": [
+                84,
+                -11
+            ],
+            "loop": false,
+            "anim": "singLEFT",
+            "fps": 24,
+            "name": "Sing Right",
+            "indices": []
+        },
+        {
+            "offsets": [
+                68,
+                20
+            ],
+            "loop": false,
+            "anim": "singLEFTmiss",
+            "fps": 24,
+            "name": "Miss Right",
+            "indices": []
+        },
+        {
+            "offsets": [
+                80,
+                -40
+            ],
+            "loop": false,
+            "anim": "singDOWNmiss",
+            "fps": 24,
+            "name": "Miss Down",
+            "indices": []
+        },
+        {
+            "offsets": [
+                29,
+                70
+            ],
+            "loop": false,
+            "anim": "singUPmiss",
+            "fps": 24,
+            "name": "Miss Up",
+            "indices": []
+        },
+        {
+            "offsets": [
+                -55,
+                45
+            ],
+            "loop": false,
+            "anim": "singRIGHTmiss",
+            "fps": 24,
+            "name": "Miss Left",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "shootMISS",
+            "fps": 24,
+            "name": "Pico Hit Can0",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "cock",
+            "fps": 24,
+            "name": "Pico Reload0",
+            "indices": []
+        },
+        {
+            "offsets": [
+                300,
+                250
+            ],
+            "loop": false,
+            "anim": "shoot",
+            "fps": 24,
+            "name": "Pico Shoot Hip Full0",
+            "indices": []
+        }
+    ],
+    "antialiasing": true,
+    "cameraOffset": [
+        -200,
+        50
+    ],
+    "characterOffset": [
+        0,
+        0
+    ],
+    "spritePath": "pico_all",
+    "healthIcon": "pico",
+    "singDuration": 4,
+    "flipX": true,
+    "scale": 1
+}

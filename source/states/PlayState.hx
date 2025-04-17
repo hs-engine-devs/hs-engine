@@ -1,5 +1,6 @@
 package states;
 
+import flixel.util.FlxAxes;
 import openfl.filters.BlurFilter;
 #if desktop
 import system.Discord.DiscordClient;
@@ -17,6 +18,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxSubState;
 import flixel.math.FlxAngle;
+import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.effects.FlxTrail;
 import flixel.addons.effects.FlxTrailArea;
@@ -168,6 +170,36 @@ class PlayState extends MusicBeatState
 	var tankGround:BGSprite;
 
 	var talking:Bool = true;
+
+	// var rainShader:shaders.RainShader;
+	var rainInensityEnd:Float = 0;
+
+	var dimSprite:FlxSprite;
+	// var kickedCan:AtlasSprite;
+	var characterGlow:FlxSprite;
+
+	var phillyTraffic:FlxSprite;
+	var phillyCars:FlxSprite;
+	var phillyCarsBack:FlxSprite;
+
+	var lightsStop:Bool = false;
+	var lastChange:Int = 0;
+	var changeInterval:Int = 8;
+
+	var carWaiting:Bool = false;
+	var carInterruptable:Bool = true;
+	var car2Interruptable:Bool = true;
+
+	var scrollingSkyAdd:FlxSprite;
+	var streetBlurMultiply:FlxSprite;
+	var additionalLighten:FlxSprite;
+	var lightning:FlxSprite;
+
+	var lightningSound:FlxSound = new FlxSound();
+	var unpauseSoundCheck:Bool = false;
+
+	var lightningTimer:Float = 3;
+	var lightningActive:Bool = true;
 
 	public var songScore:Int = 0;
 	public var songMisses:Int = 0;
@@ -668,6 +700,104 @@ class PlayState extends MusicBeatState
 					var fgTank3:BGSprite = new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg']);
 					foregroundSprites.add(fgTank3);
 				  }
+				  case 'darnell' | 'lit-up' | '2hot':
+					defaultCamZoom = 0.75;
+					curStage = 'phillyStreets';
+
+					var scrollingSky = new FlxBackdrop(Paths.image("phillyStreets/phillySkybox", "weekend1"), 0x10);
+					scrollingSky.setPosition(-650, -375);
+					scrollingSky.scrollFactor.set(0.1, 0.1);
+					scrollingSky.scale.set(0.65, 0.65);
+					scrollingSky.velocity.x = -22;
+					scrollingSky.antialiasing = true;
+					add(scrollingSky);
+
+					var phillySkyline = new FlxSprite(-545, -273).loadGraphic(Paths.image("phillyStreets/phillySkyline", "weekend1"));
+					phillySkyline.scrollFactor.set(0.2, 0.2);
+					phillySkyline.antialiasing = true;
+					add(phillySkyline);
+
+					var phillyForegroundCity = new FlxSprite(625, 94).loadGraphic(Paths.image("phillyStreets/phillyForegroundCity", "weekend1"));
+					phillyForegroundCity.scrollFactor.set(0.3, 0.3);
+					phillyForegroundCity.antialiasing = true;
+					add(phillyForegroundCity);
+			
+					var phillyHighwayLights = new FlxSprite(284-400, 305).loadGraphic(Paths.image("phillyStreets/phillyHighwayLights", "weekend1"));
+					phillyHighwayLights.scrollFactor.set(0.7, 1);
+					phillyHighwayLights.antialiasing = true;
+					add(phillyHighwayLights);
+			
+					var phillyHighwayLights_lightmap = new FlxSprite(284-400, 305).loadGraphic(Paths.image("phillyStreets/phillyHighwayLights_lightmap", "weekend1"));
+					phillyHighwayLights_lightmap.scrollFactor.set(0.7, 1);
+					phillyHighwayLights_lightmap.antialiasing = true;
+					phillyHighwayLights_lightmap.blend = BlendMode.ADD;
+					phillyHighwayLights_lightmap.alpha = 0.6;
+					add(phillyHighwayLights_lightmap);
+			
+					var phillyHighway = new FlxSprite(139-400, 209).loadGraphic(Paths.image("phillyStreets/phillyHighway", "weekend1"));
+					phillyHighway.scrollFactor.set(0.7, 1);
+					phillyHighway.antialiasing = true;
+					add(phillyHighway);
+			
+					var phillyConstruction = new FlxSprite(1800, 364).loadGraphic(Paths.image("phillyStreets/phillyConstruction", "weekend1"));
+					phillyConstruction.scrollFactor.set(0.7, 1);
+					phillyConstruction.antialiasing = true;
+					add(phillyConstruction);
+			
+					var phillySmog = new FlxSprite(-6, 245).loadGraphic(Paths.image("phillyStreets/phillySmog", "weekend1"));
+					phillySmog.scrollFactor.set(0.8, 1);
+					phillySmog.antialiasing = true;
+					add(phillySmog);
+					
+					phillyCarsBack = new FlxSprite(1748, 818);
+					phillyCarsBack.frames = Paths.getSparrowAtlas("phillyStreets/phillyCars", "weekend1");
+					phillyCarsBack.scrollFactor.set(0.9, 1);
+					phillyCarsBack.antialiasing = true;
+					phillyCarsBack.flipX = true;
+					phillyCarsBack.animation.addByPrefix("car1", "car1", 0, false);
+					phillyCarsBack.animation.addByPrefix("car2", "car2", 0, false);
+					phillyCarsBack.animation.addByPrefix("car3", "car3", 0, false);
+					phillyCarsBack.animation.addByPrefix("car4", "car4", 0, false);
+					add(phillyCarsBack);
+			
+					phillyCars = new FlxSprite(1748, 818);
+					phillyCars.frames = Paths.getSparrowAtlas("phillyStreets/phillyCars", "weekend1");
+					phillyCars.scrollFactor.set(0.9, 1);
+					phillyCars.antialiasing = true;
+					phillyCars.animation.addByPrefix("car1", "car1", 0, false);
+					phillyCars.animation.addByPrefix("car2", "car2", 0, false);
+					phillyCars.animation.addByPrefix("car3", "car3", 0, false);
+					phillyCars.animation.addByPrefix("car4", "car4", 0, false);
+					add(phillyCars);
+					
+					phillyTraffic = new FlxSprite(1840, 608);
+					phillyTraffic.frames = Paths.getSparrowAtlas("phillyStreets/phillyTraffic", "weekend1");
+					phillyTraffic.scrollFactor.set(0.9, 1);
+					phillyTraffic.antialiasing = true;
+					phillyTraffic.animation.addByPrefix("togreen", "redtogreen", 24, false);
+					phillyTraffic.animation.addByPrefix("tored", "greentored", 24, false);
+					add(phillyTraffic);
+			
+					resetCar(true, true);
+
+					var phillyTraffic_lightmap = new FlxSprite(1840, 608).loadGraphic(Paths.image("phillyStreets/phillyTraffic_lightmap", "weekend1"));
+					phillyTraffic_lightmap.scrollFactor.set(0.9, 1);
+					phillyTraffic_lightmap.antialiasing = true;
+					phillyTraffic_lightmap.blend = BlendMode.ADD;
+					phillyTraffic_lightmap.alpha = 0.6;
+					add(phillyTraffic_lightmap);
+
+					var phillyForeground = new FlxSprite(88, 317).loadGraphic(Paths.image("phillyStreets/phillyForeground", "weekend1"));
+					phillyForeground.antialiasing = true;
+					add(phillyForeground);
+
+					//dimSprite = new FlxSprite().makeGraphic(1, 1, 0xFF000000);
+					//dimSprite.scale.set(1280/.5, 720/.5);
+					//dimSprite.updateHitbox();
+					//dimSprite.screenCenter();
+					//dimSprite.scrollFactor.set();
+					//dimSprite.alpha = 0;
+					//add(dimSprite);
 		          default:
 		          {
 		                  defaultCamZoom = 0.9;
@@ -726,6 +856,8 @@ class PlayState extends MusicBeatState
 					gfVersion = 'gf-pixel';
 				case 'tank':
 					gfVersion = 'gf-tankmen';
+				case 'phillyStreets':
+					gfVersion = 'nene';
 			}
 		} else {
 			gfVersion = SONG.gfVersion;
@@ -769,6 +901,8 @@ class PlayState extends MusicBeatState
 						tankmanRun.add(tankman);
 					}
 				}
+			case 'nene':
+				gf.scrollFactor.set(1, 1);
 		}
 
 		dad = new Character(100, 100, SONG.player2);
@@ -866,6 +1000,15 @@ class PlayState extends MusicBeatState
 					gf.x -= 170;
 					gf.y -= 75;
 				}
+			case "phillyStreets":
+				boyfriend.x = 2151 - 271;
+				boyfriend.y = 1228 - 450;
+
+                dad.x = 900 - 275;
+				dad.y = 1110 - 450;
+
+				gf.x = 1453;
+				gf.y = 900;
 		}
 
 		gfGroup = new FlxTypedGroup<Character>();
@@ -918,6 +1061,12 @@ class PlayState extends MusicBeatState
 		if (SONG.song.toLowerCase() == 'tutorial') {
 			add(boyfriendGroup);
 			boyfriendGroup.add(boyfriend);
+		}
+
+        if (curStage == "phillyStreets") {
+			var spraycanPile = new FlxSprite(920, 1045).loadGraphic(Paths.image("phillyStreets/SpraycanPile", "weekend1"));
+		    spraycanPile.antialiasing = true;
+		    add(spraycanPile);
 		}
 
 		add(foreground);
@@ -3167,6 +3316,200 @@ class PlayState extends MusicBeatState
 		gf.playAnim('scared', true);
 	}
 
+	function changeLights(beat:Int):Void{
+
+		lastChange = beat;
+		lightsStop = !lightsStop;
+
+		if(lightsStop){
+			phillyTraffic.animation.play('tored');
+			changeInterval = 20;
+		} else {
+			phillyTraffic.animation.play('togreen');
+			changeInterval = 30;
+
+			if(carWaiting == true) finishCarLights(phillyCars);
+		}
+	}
+
+	function resetCar(left:Bool, right:Bool){
+		if(left){
+			carWaiting = false;
+			carInterruptable = true;
+			if (phillyCars != null) {
+				FlxTween.cancelTweensOf(phillyCars);
+				phillyCars.x = 1200;
+				phillyCars.y = 818;
+				phillyCars.angle = 0;
+			}
+		}
+
+		if(right){
+			car2Interruptable = true;
+			if (phillyCarsBack != null) {
+				FlxTween.cancelTweensOf(phillyCarsBack);
+				phillyCarsBack.x = 1200;
+				phillyCarsBack.y = 818;
+				phillyCarsBack.angle = 0;
+			}
+		}
+	}
+
+	function finishCarLights(sprite:FlxSprite):Void{
+		carWaiting = false;
+		var duration:Float = FlxG.random.float(1.8, 3);
+		var rotations:Array<Int> = [-5, 18];
+		var offset:Array<Float> = [306.6, 168.3];
+		var startdelay:Float = FlxG.random.float(0.2, 1.2);
+
+		var path:Array<FlxPoint> = [
+			FlxPoint.get(1950 - offset[0] - 80, 980 - offset[1] + 15),
+			FlxPoint.get(2400 - offset[0], 980 - offset[1] - 50),
+			FlxPoint.get(3102 - offset[0], 1127 - offset[1] + 40)
+		];
+
+		FlxTween.angle(sprite, rotations[0], rotations[1], duration, {ease: FlxEase.sineIn, startDelay: startdelay} );
+		FlxTween.quadPath(sprite, path, duration, true,
+		{
+			ease: FlxEase.sineIn,
+			startDelay: startdelay,
+			onComplete: function(_) {
+				carInterruptable = true;
+			}
+		});
+	}
+
+	function driveCarLights(sprite:FlxSprite):Void{
+		carInterruptable = false;
+		FlxTween.cancelTweensOf(sprite);
+		var variant:Int = FlxG.random.int(1,4);
+		sprite.animation.play('car' + variant);
+		var extraOffset = [0, 0];
+		var duration:Float = 2;
+
+		switch(variant){
+			case 1:
+				duration = FlxG.random.float(1, 1.7);
+			case 2:
+				extraOffset = [20, -15];
+				duration = FlxG.random.float(0.9, 1.5);
+			case 3:
+				extraOffset = [30, 50];
+				duration = FlxG.random.float(1.5, 2.5);
+			case 4:
+				extraOffset = [10, 60];
+				duration = FlxG.random.float(1.5, 2.5);
+		}
+		
+		var rotations:Array<Int> = [-7, -5];
+		var offset:Array<Float> = [306.6, 168.3];
+		sprite.offset.set(extraOffset[0], extraOffset[1]);
+
+		var path:Array<FlxPoint> = [
+			FlxPoint.get(1500 - offset[0] - 20, 1049 - offset[1] - 20),
+			FlxPoint.get(1770 - offset[0] - 80, 994 - offset[1] + 10),
+			FlxPoint.get(1950 - offset[0] - 80, 980 - offset[1] + 15)
+		];
+
+		FlxTween.angle(sprite, rotations[0], rotations[1], duration, {ease: FlxEase.cubeOut} );
+		FlxTween.quadPath(sprite, path, duration, true,
+		{
+			ease: FlxEase.cubeOut,
+			onComplete: function(_) {
+				carWaiting = true;
+				if(lightsStop == false) finishCarLights(phillyCars);
+			}
+		});
+	}
+
+	function driveCar(sprite:FlxSprite):Void{
+		carInterruptable = false;
+		FlxTween.cancelTweensOf(sprite);
+		var variant:Int = FlxG.random.int(1,4);
+		sprite.animation.play('car' + variant);
+
+		var extraOffset = [0, 0];
+		var duration:Float = 2;
+
+		switch(variant){
+			case 1:
+				duration = FlxG.random.float(1, 1.7);
+			case 2:
+				extraOffset = [20, -15];
+				duration = FlxG.random.float(0.6, 1.2);
+			case 3:
+				extraOffset = [30, 50];
+				duration = FlxG.random.float(1.5, 2.5);
+			case 4:
+				extraOffset = [10, 60];
+				duration = FlxG.random.float(1.5, 2.5);
+		}
+
+		var offset:Array<Float> = [306.6, 168.3];
+		sprite.offset.set(extraOffset[0], extraOffset[1]);
+
+		var rotations:Array<Int> = [-8, 18];
+
+		var path:Array<FlxPoint> = [
+			FlxPoint.get(1570 - offset[0], 1049 - offset[1] - 30),
+			FlxPoint.get(2400 - offset[0], 980 - offset[1] - 50),
+			FlxPoint.get(3102 - offset[0], 1127 - offset[1] + 40)
+		];
+
+		FlxTween.angle(sprite, rotations[0], rotations[1], duration, null);
+		FlxTween.quadPath(sprite, path, duration, true,
+		{
+			ease: null,
+			onComplete: function(_) {
+				carInterruptable = true;
+			}
+		});
+	}
+
+	function driveCarBack(sprite:FlxSprite):Void{
+		car2Interruptable = false;
+		FlxTween.cancelTweensOf(sprite);
+		var variant:Int = FlxG.random.int(1,4);
+		sprite.animation.play('car' + variant);
+
+		var extraOffset = [0, 0];
+		var duration:Float = 2;
+
+		switch(variant){
+			case 1:
+				duration = FlxG.random.float(1, 1.7);
+			case 2:
+				extraOffset = [20, -15];
+				duration = FlxG.random.float(0.6, 1.2);
+			case 3:
+				extraOffset = [30, 50];
+				duration = FlxG.random.float(1.5, 2.5);
+			case 4:
+				extraOffset = [10, 60];
+				duration = FlxG.random.float(1.5, 2.5);
+		}
+
+		var offset:Array<Float> = [306.6, 168.3];
+		sprite.offset.set(extraOffset[0], extraOffset[1]);
+
+		var rotations:Array<Int> = [18, -8];
+
+		var path:Array<FlxPoint> = [
+			FlxPoint.get(3102 - offset[0], 1127 - offset[1] + 60),
+			FlxPoint.get(2400 - offset[0], 980 - offset[1] - 30),
+			FlxPoint.get(1570 - offset[0], 1049 - offset[1] - 10)
+		];
+
+		FlxTween.angle(sprite, rotations[0], rotations[1], duration, null);
+		FlxTween.quadPath(sprite, path, duration, true,
+		{
+			ease: null,
+			onComplete: function(_) {
+				car2Interruptable = true;
+			}
+		});
+	}
+
 	override function stepHit()
 	{
 		super.stepHit();
@@ -3323,6 +3666,19 @@ class PlayState extends MusicBeatState
 				}
 			case 'tank':
 				tankWatchtower.dance();
+			case "phillyStreets":
+				if (FlxG.random.bool(10) && curBeat != (lastChange + changeInterval) && carInterruptable == true){
+					if(lightsStop == false){
+						driveCar(phillyCars);
+					}
+					else{
+						driveCarLights(phillyCars);
+					}
+				}
+
+				if(FlxG.random.bool(10) && curBeat != (lastChange + changeInterval) && car2Interruptable == true && lightsStop == false) driveCarBack(phillyCarsBack);
+
+				if (curBeat == (lastChange + changeInterval)) changeLights(curBeat);
 		}
 
 		if (isHalloween && FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset)

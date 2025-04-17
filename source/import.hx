@@ -14,6 +14,7 @@ import substates.MusicBeatSubstate;
 import substates.PauseSubState;
 
 // game
+import game.ABot;
 import game.Note;
 import game.Alphabet;
 import game.HealthIcon;
@@ -21,6 +22,8 @@ import game.Character;
 import game.Boyfriend;
 import game.BGSprite;
 import game.TankmenBG;
+import game.AtlasSprite;
+import game.ABotVisualizer;
 import game.BackgroundDancer;
 import game.BackgroundGirls;
 import game.DialogueBox;

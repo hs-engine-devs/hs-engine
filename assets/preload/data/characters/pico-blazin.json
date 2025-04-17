@@ -1,0 +1,238 @@
+{
+    "animations": [
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "idle",
+            "fps": 24,
+            "name": "Idle",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "block",
+            "fps": 24,
+            "name": "Block",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "dodge",
+            "fps": 24,
+            "name": "Dodge",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "fakeout",
+            "fps": 24,
+            "name": "Fake Hit",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "taunt",
+            "fps": 24,
+            "name": "Taunt",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "taunt-hold",
+            "fps": 24,
+            "name": "Taunt Laugh Loop",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "punchHigh1",
+            "fps": 24,
+            "name": "Punch High 1",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "punchHigh2",
+            "fps": 24,
+            "name": "Punch High 2",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "punchLow1",
+            "fps": 24,
+            "name": "Punch Low 1",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "punchLow2",
+            "fps": 24,
+            "name": "Punch Low 2",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "hitHigh",
+            "fps": 24,
+            "name": "Hit High",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "hitLow",
+            "fps": 24,
+            "name": "Hit Low",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "hitSpin",
+            "fps": 24,
+            "name": "Hit Spin",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "uppercutPrep",
+            "fps": 24,
+            "name": "Uppercut Prep",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "uppercut",
+            "fps": 24,
+            "name": "Uppercut Punch",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "uppercutHit",
+            "fps": 24,
+            "name": "Uppercut Hit",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "uppercut-hold",
+            "fps": 24,
+            "name": "Uppercut Punch Loop",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "firstDeath",
+            "fps": 24,
+            "name": "Low Death Intro",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "deathLoop",
+            "fps": 24,
+            "name": "Low Death Loop",
+            "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": false,
+            "anim": "deathConfirm",
+            "fps": 24,
+            "name": "Low Death Confirm",
+            "indices": []
+        }
+    ],
+    "antialiasing": true,
+    "cameraOffset": [
+        0,
+        0
+    ],
+    "characterOffset": [
+        0,
+        0
+    ],
+    "spritePath": "picoBlazin",
+    "healthIcon": "pico (blazin')",
+    "singDuration": 999.0,
+    "flipX": true,
+    "scale": 1
+}

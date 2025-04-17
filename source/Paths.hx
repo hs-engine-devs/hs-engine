@@ -186,6 +186,17 @@ class Paths
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
 	}
 
+	inline static public function getTextureAtlas(key:String, ?library:String)
+	{
+		#if sys
+		var shit:String = ModPaths.modFolder('images/$key');
+		if(sys.FileSystem.exists(shit)) {
+			return shit;
+		}
+		#end
+		return file('images/$key', library);
+	}
+
 	inline static public function fileExists(key:String, ?type:AssetType, ?library:String)
 	{
 		if(OpenFlAssets.exists(getPath(key, type, library))) {

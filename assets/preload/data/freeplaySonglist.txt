@@ -20,3 +20,6 @@ Thorns:spirit-pixel:6
 Ugh:tankman:7
 Guns:tankman:7
 Stress:tankman:7
+Darnell:darnell:8
+Lit-Up:darnell:8
+2hot:darnell:8
