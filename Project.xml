@@ -130,9 +130,9 @@
 
 	<!-- Yes, I know that the Haxelibs you need to download from "git" are not supposed to be optional, the lines below have taken care of that -->
 
-	<haxelib name="flxanimate" />
-	<haxelib name="grig.audio" />
-	<haxelib name="funkin.vis" />
+	<haxelib name="flxanimate" version="git" optional="true" />
+	<haxelib name="grig.audio" version="git" optional="true" />
+	<haxelib name="funkin.vis" version="git" optional="true" />
 
 	<haxedef name="hscriptPos" />
 	<haxeflag name="-dce" value="no"/>
@@ -152,6 +152,15 @@
 	</section>
 	<section if="desktop">
 		<error value="Library discord_rpc is not installed! Install it by typing &quot;haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc 2d83fa863ef0c1eace5f1cf67c3ac315d1a3a8a5&quot; in your cmd, in order to compile the project" unless="discord_rpc" />
+	</section>
+	<section unless="flxanimate">
+		<error value="Library flxanimate is not installed! Install it by typing &quot;haxelib git flxanimate https://github.com/Dot-Stuff/flxanimate 35692ff335033aa4e6e52ae498d32479053d6256&quot; in your cmd, in order to compile the project" />
+	</section>
+	<section unless="grig.audio">
+		<error value="Library grig.audio is not installed! Install it by typing &quot;haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git 57f5d47f2533fd0c3dcd025a86cb86c0dfa0b6d2&quot; in your cmd, in order to compile the project" />
+	</section>
+	<section unless="funkin.vis">
+		<error value="Library funkin.vis is not installed! Install it by typing &quot;haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 1966f8fbbbc509ed90d4b520f3c49c084fc92fd6&quot; in your cmd, in order to compile the project" />
 	</section>
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
