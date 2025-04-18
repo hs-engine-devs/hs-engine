@@ -2391,6 +2391,11 @@ class PlayState extends MusicBeatState
 			vocals.stop();
 			FlxG.sound.music.stop();
 
+            if (curStage == "phillyStreets") {
+				camGame.setFilters([]);
+                camGame.filtersEnabled = false;
+			}
+
 			#if sys
             script.callFunction('gameOver', []);
 			#end

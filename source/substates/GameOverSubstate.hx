@@ -2,6 +2,7 @@ package substates;
 
 import flixel.FlxG;
 import flixel.FlxObject;
+import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
@@ -17,6 +18,9 @@ class GameOverSubstate extends MusicBeatSubstate
 	var randomGameover:Int = 1;
 	var daBf:String = '';
 
+	var retryButton:FlxSprite;
+	var nene:FlxSprite;
+
 	public function new(x:Float, y:Float)
 	{
 		var daStage = PlayState.curStage;
@@ -25,6 +29,30 @@ class GameOverSubstate extends MusicBeatSubstate
 			case 'school' | 'schoolEvil':
 				stageSuffix = '-pixel';
 				daBf = 'bf-pixel-dead';
+			case 'phillyStreets':
+                // toska napraw pliz
+
+				// daBf = "pico-dead";
+
+				// retryButton = new FlxSprite(bf.x - 70, bf.y - 270);
+				// retryButton.frames = Paths.getSparrowAtlas("Pico_Death_Retry");
+				// retryButton.animation.addByPrefix("loop", "Retry Text Loop", 24);
+				// retryButton.animation.addByPrefix("confirm", "Retry Text Confirm", 24, false);
+				// retryButton.animation.play("loop");
+				// retryButton.centerOffsets();
+				// retryButton.antialiasing = true;
+				// retryButton.visible = false;
+				// add(retryButton);
+
+				// nene = new FlxSprite(PlayState.instance.gf.getScreenPosition().x + 135, PlayState.instance.gf.getScreenPosition().y - 20);
+				// nene.frames = Paths.getSparrowAtlas("NeneKnifeToss");
+				// nene.antialiasing = true;
+				// nene.animation.addByPrefix("throw", "knife toss", 24, false);
+				// nene.animation.play("throw");
+				// nene.animation.finishCallback = function(name:String){
+				// 	nene.visible = false;
+				// }
+				// add(nene);
 			default:
 				daBf = 'bf';
 		}
@@ -127,8 +155,13 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	private function coolStartDeath(?vol:Float = 1):Void
 	{
-		if (!isEnding)
-			FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix), vol);
+		if (!isEnding) {
+			if (PlayState.curStage == "phillyStreets") {
+			    FlxG.sound.playMusic(Paths.music('gameOver-pico', "weekend1"), vol);
+			} else {
+				FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix), vol);
+			}
+		}
 	}
 
 	override function beatHit()
