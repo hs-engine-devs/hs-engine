@@ -30,29 +30,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				stageSuffix = '-pixel';
 				daBf = 'bf-pixel-dead';
 			case 'phillyStreets':
-                // toska napraw pliz
-
 				// daBf = "pico-dead";
-
-				// retryButton = new FlxSprite(bf.x - 70, bf.y - 270);
-				// retryButton.frames = Paths.getSparrowAtlas("Pico_Death_Retry");
-				// retryButton.animation.addByPrefix("loop", "Retry Text Loop", 24);
-				// retryButton.animation.addByPrefix("confirm", "Retry Text Confirm", 24, false);
-				// retryButton.animation.play("loop");
-				// retryButton.centerOffsets();
-				// retryButton.antialiasing = true;
-				// retryButton.visible = false;
-				// add(retryButton);
-
-				// nene = new FlxSprite(PlayState.instance.gf.getScreenPosition().x + 135, PlayState.instance.gf.getScreenPosition().y - 20);
-				// nene.frames = Paths.getSparrowAtlas("NeneKnifeToss");
-				// nene.antialiasing = true;
-				// nene.animation.addByPrefix("throw", "knife toss", 24, false);
-				// nene.animation.play("throw");
-				// nene.animation.finishCallback = function(name:String){
-				// 	nene.visible = false;
-				// }
-				// add(nene);
 			default:
 				daBf = 'bf';
 		}
@@ -72,12 +50,41 @@ class GameOverSubstate extends MusicBeatSubstate
 		Conductor.songPosition = 0;
 
 		bf = new Boyfriend(x, y, daBf);
-		add(bf);
+
+		if (PlayState.curStage == "phillyStreets") {
+		    nene = new FlxSprite(PlayState.instance.gf.getScreenPosition().x + 135, PlayState.instance.gf.getScreenPosition().y - 20);
+		    nene.frames = Paths.getSparrowAtlas("NeneKnifeToss");
+		    nene.antialiasing = true;
+		    nene.animation.addByPrefix("throw", "knife toss", 24, false);
+		    nene.animation.play("throw");
+		    nene.animation.finishCallback = function(name:String){
+		    	nene.visible = false;
+		    }
+		    add(nene);
+
+			add(bf);
+
+			retryButton = new FlxSprite(bf.x - 70, bf.y - 270);
+			retryButton.frames = Paths.getSparrowAtlas("Pico_Death_Retry");
+			retryButton.animation.addByPrefix("loop", "Retry Text Loop", 24);
+			retryButton.animation.addByPrefix("confirm", "Retry Text Confirm", 24, false);
+			retryButton.animation.play("loop");
+			retryButton.centerOffsets();
+			retryButton.antialiasing = true;
+			retryButton.visible = false;
+			add(retryButton);
+	    } else {
+			add(bf);
+		}
 
 		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
 		add(camFollow);
 
-		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
+		if (PlayState.curStage == "phillyStreets") {
+			FlxG.sound.play(Paths.sound('fnf_loss_sfx-pico-gutpunch', 'weekend1'));
+		} else {
+		    FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
+		}
 		Conductor.changeBPM(100);
 
 		// FlxG.camera.followLerp = 1;
@@ -140,6 +147,12 @@ class GameOverSubstate extends MusicBeatSubstate
 					});
 				}
 			default:
+				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 35)
+				{
+					if (PlayState.curStage == "phillyStreets")
+						retryButton.visible = true;
+				}
+
 				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
 				{
 					bf.startedDeath = true;
@@ -179,8 +192,21 @@ class GameOverSubstate extends MusicBeatSubstate
 		{
 			isEnding = true;
 			bf.playAnim('deathConfirm', true);
+
+			if (PlayState.curStage == "phillyStreets"){
+				retryButton.visible = true;
+				retryButton.animation.play("confirm", true);
+				retryButton.centerOffsets();
+				retryButton.x += 15;
+			}
+
 			FlxG.sound.music.stop();
-			FlxG.sound.play(Paths.music('gameOverEnd' + stageSuffix));
+			if (PlayState.curStage == "phillyStreets") {
+			    FlxG.sound.play(Paths.music('gameOverEnd-pico', 'weekend1'));
+			} else {
+				FlxG.sound.play(Paths.music('gameOverEnd' + stageSuffix));
+			}
+
 			new FlxTimer().start(0.7, function(tmr:FlxTimer)
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()

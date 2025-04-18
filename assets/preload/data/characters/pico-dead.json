@@ -6,6 +6,62 @@
                 125
             ],
             "loop": false,
+            "anim": "deathConfirm",
+            "fps": 24,
+            "name": "Pico Death Stab",
+            "indices": [
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63
+            ]
+        },
+        {
+            "offsets": [
+                225,
+                125
+            ],
+            "loop": true,
+            "anim": "deathLoop",
+            "fps": 24,
+            "name": "Pico Death Stab",
+            "indices": [
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63
+            ]
+        },
+        {
+            "offsets": [
+                225,
+                125
+            ],
+            "loop": false,
             "anim": "firstDeath",
             "fps": 24,
             "name": "Pico Death Stab",
@@ -58,62 +114,6 @@
                 45,
                 46,
                 47
-            ]
-        },
-        {
-            "offsets": [
-                225,
-                125
-            ],
-            "loop": true,
-            "anim": "deathLoop",
-            "fps": 24,
-            "name": "Pico Death Stab",
-            "indices": [
-                48,
-                49,
-                50,
-                51,
-                52,
-                53,
-                54,
-                55,
-                56,
-                57,
-                58,
-                59,
-                60,
-                61,
-                62,
-                63
-            ]
-        },
-        {
-            "offsets": [
-                225,
-                125
-            ],
-            "loop": true,
-            "anim": "deathConfirm",
-            "fps": 24,
-            "name": "Pico Death Stab",
-            "indices": [
-                48,
-                49,
-                50,
-                51,
-                52,
-                53,
-                54,
-                55,
-                56,
-                57,
-                58,
-                59,
-                60,
-                61,
-                62,
-                63
             ]
         }
     ],
