@@ -3640,7 +3640,7 @@ class PlayState extends MusicBeatState
 			botplayTxt.scale.set(1.2, 1.2);
 		}
 
-		if (gf != null && curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.stunned && gf.animation.curAnim.name != null && !gf.animation.curAnim.name.startsWith("sing") && !gf.stunned)
+		if (gf != null && curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.stunned && gf.animation.curAnim.name != null && !gf.animation.curAnim.name.startsWith("sing") && !gf.stunned && !gf.danceLockout)
 		{
 			gf.dance();
 		}
@@ -3667,6 +3667,50 @@ class PlayState extends MusicBeatState
 		}
 
 		abot.bop();
+
+		if (gf != null && gfVersion == "nene" && SONG.song.toLowerCase() != "blazin")
+		{
+			var animName = gf.animation.curAnim != null ? gf.animation.curAnim.name : "";
+		
+			if (health < 0.4)
+			{
+				if (!gf.knifeRaised)
+				{
+					gf.knifeRaised = true;
+					gf.finishedLowering = false;
+					gf.danceLockout = true;
+					gf.blinkTime = FlxG.random.float(gf.BLINK_MIN, gf.BLINK_MAX);
+					gf.playAnim("raiseKnife", true);
+				}
+
+				else if (gf.knifeRaised && animName == "raiseKnife" && gf.animation.curAnim.finished)
+				{
+					gf.playAnim("idleKnife", true);
+				}
+			}
+			else if (health >= 0.4)
+			{
+				if (gf.knifeRaised && (animName == "idleKnife" || animName == "sad"))
+				{
+					gf.playAnim("lowerKnife", true);
+					gf.knifeRaised = false;
+					gf.finishedLowering = false;
+					gf.danceLockout = true;
+				}
+				else if (animName == "lowerKnife" && gf.animation.curAnim.finished)
+				{
+					gf.finishedLowering = true;
+					gf.danceLockout = false;
+					gf.dance();
+				}
+			}
+
+			if (gf.finishedLowering)
+			{
+				gf.finishedLowering = false;
+				gf.danceLockout = false;
+			}
+		}
 
 		foregroundSprites.forEach(function(spr:BGSprite)
 		{

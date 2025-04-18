@@ -37,6 +37,14 @@ class Character extends FlxSprite
 	public var originalFlipX:Bool = false;
 	public var skipDance:Bool = false;
 
+	public var knifeRaised:Bool = false;
+	public var finishedLowering:Bool = false;	
+	public var danceLockout:Bool = false;
+	public var blinkTime:Float = 0;
+
+	public var BLINK_MIN:Float = 1;
+	public var BLINK_MAX:Float = 3;
+
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
 		super(x, y);
@@ -256,6 +264,17 @@ class Character extends FlxSprite
 					if(animation.curAnim.finished) playAnim(animation.curAnim.name, false, false, animation.curAnim.frames.length - 3);
 			}
 		
+			if (curCharacter == "nene" && animation.curAnim != null && animation.curAnim.name == "idleKnife")
+			{
+				blinkTime -= elapsed;
+			
+				if (blinkTime <= 0)
+				{
+					playAnim("idleKnife", true);
+					blinkTime = FlxG.random.float(BLINK_MIN, BLINK_MAX);
+				}
+			}
+
 			switch (curCharacter)
 			{
 				case 'gf':
@@ -279,7 +298,7 @@ class Character extends FlxSprite
 	 */
 	public function dance()
 	{
-		if (!debugMode && !skipDance)
+		if (!debugMode && !skipDance && !danceLockout)
 		{
 			if (danceIdle)
 			{
@@ -295,7 +314,7 @@ class Character extends FlxSprite
 				if (curCharacter == 'tankman' && PlayState.SONG.song.toLowerCase() == 'stress' && PlayState.tankmangood == 1)
 					playAnim('singDOWN-alt');
 				else
-				    playAnim('idle');
+					playAnim('idle');
 			}
 		}
 	}
