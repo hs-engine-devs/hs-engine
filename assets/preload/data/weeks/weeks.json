@@ -55,6 +55,13 @@
             "songs": ["Ugh", "Guns", "Stress"],
             "characters": ["tankman", "bf", "gf"],
             "difficulties": ["easy", "normal", "hard"]
+        },
+        {
+            "name": "DUE DEBTS",
+            "texture": "weekend1",
+            "songs": ["Darnell", "Lit-Up", "2hot"],
+            "characters": ["darnell", "pico-player", "nene"],
+            "difficulties": ["easy", "normal", "hard"]
         }
     ]
 }

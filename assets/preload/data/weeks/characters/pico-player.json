@@ -1,0 +1,10 @@
+{
+	"spritePath": "Pico_Player",
+	"offsets": [
+		30,
+		0
+	],
+	"scale": 1,
+	"idle": "idle",
+	"confirm": "confirm"
+}

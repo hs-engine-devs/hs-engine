@@ -1,0 +1,10 @@
+{
+	"spritePath": "Darnell",
+	"offsets": [
+		0,
+		-60
+	],
+	"scale": 1.2,
+	"idle": "idle",
+	"confirm": "idle"
+}
