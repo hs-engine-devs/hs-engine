@@ -101,8 +101,8 @@
 		}
 	],
 	"antialiasing": true,
-	"cameraOffset": [0, 0],
-	"characterOffset": [0, 0],
+	"cameraOffset": [0, 50],
+	"characterOffset": [0, 300],
 	"spritePath": "Pico_FNF_assetss",
 	"healthIcon": "pico",
     "singDuration": 4,
