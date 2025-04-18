@@ -154,7 +154,7 @@
 		<error value="Library discord_rpc is not installed! Install it by typing &quot;haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc 2d83fa863ef0c1eace5f1cf67c3ac315d1a3a8a5&quot; in your cmd, in order to compile the project" unless="discord_rpc" />
 	</section>
 	<section unless="flxanimate">
-		<error value="Library flxanimate is not installed! Install it by typing &quot;haxelib git flxanimate https://github.com/Dot-Stuff/flxanimate 35692ff335033aa4e6e52ae498d32479053d6256&quot; in your cmd, in order to compile the project" />
+		<error value="Library flxanimate is not installed! Install it by typing &quot;haxelib git flxanimate https://github.com/HS-Engine-Devs/flxanimate 6546c7f91cb3d8f97adca5a93889436c6f767403&quot; in your cmd, in order to compile the project" />
 	</section>
 	<section unless="grig.audio">
 		<error value="Library grig.audio is not installed! Install it by typing &quot;haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git 57f5d47f2533fd0c3dcd025a86cb86c0dfa0b6d2&quot; in your cmd, in order to compile the project" />
