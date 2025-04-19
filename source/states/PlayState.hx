@@ -2022,6 +2022,10 @@ class PlayState extends MusicBeatState
 
 			if (!startTimer.finished)
 				startTimer.active = true;
+
+			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) if(!tmr.finished) tmr.active = true);
+			FlxTween.globalManager.forEach(function(twn:FlxTween) if(!twn.finished) twn.active = true);
+
 			paused = false;
 
 			#if desktop
@@ -2193,6 +2197,9 @@ class PlayState extends MusicBeatState
 			#if sys
 		    script.callFunction("pause", []);
 			#end
+
+			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) if(!tmr.finished) tmr.active = false);
+			FlxTween.globalManager.forEach(function(twn:FlxTween) if(!twn.finished) twn.active = false);
 
 			if (goToPause)
 			    openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
@@ -2391,6 +2398,9 @@ class PlayState extends MusicBeatState
 			vocals.stop();
 			FlxG.sound.music.stop();
 
+			FlxTimer.globalManager.clear();
+			FlxTween.globalManager.clear();
+
             if (curStage == "phillyStreets") {
 				camGame.setFilters([]);
                 camGame.filtersEnabled = false;
@@ -2401,6 +2411,9 @@ class PlayState extends MusicBeatState
 			#end
 
 			deathCounter += 1;
+
+			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) if(!tmr.finished) tmr.active = false);
+			FlxTween.globalManager.forEach(function(twn:FlxTween) if(!twn.finished) twn.active = false);
 
 			if (goToGameOver)
 			    openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
