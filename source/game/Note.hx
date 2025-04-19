@@ -34,13 +34,15 @@ class Note extends FlxSprite
 
 	private var earlyHitMult:Float = 0.5;
 
+	public var noteType:String = '';
+
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var PURP_NOTE:Int = 0;
 	public static var GREEN_NOTE:Int = 2;
 	public static var BLUE_NOTE:Int = 1;
 	public static var RED_NOTE:Int = 3;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?noteType:String = "")
 	{
 		super();
 
@@ -49,6 +51,7 @@ class Note extends FlxSprite
 
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
+		this.noteType = noteType;
 
 		x += (Config.middleScroll ? -278 : 48) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?

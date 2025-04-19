@@ -23,6 +23,7 @@ import game.Boyfriend;
 import game.BGSprite;
 import game.TankmenBG;
 import game.AtlasSprite;
+import game.PicoBullet;
 import game.ABotVisualizer;
 import game.BackgroundDancer;
 import game.BackgroundGirls;
