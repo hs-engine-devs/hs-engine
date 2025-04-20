@@ -142,6 +142,8 @@ class PlayState extends MusicBeatState
 
 	public var botplayTxt:FlxText;
 
+    public var camPos:FlxPoint;
+
 	var stageBg:FlxSprite;
 	var stageFront:FlxSprite;
     var stageCurtains:FlxSprite;
@@ -928,7 +930,7 @@ class PlayState extends MusicBeatState
         dad.x += dad.characterOffset[0];
 		dad.y += dad.characterOffset[1];
 
-		var camPos:FlxPoint = new FlxPoint(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
+		camPos = new FlxPoint(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
 
 		switch (SONG.player2)
 		{
@@ -950,6 +952,8 @@ class PlayState extends MusicBeatState
 				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
 			case 'spirit':
 				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
+			case 'darnell':
+				camPos.set(dad.getGraphicMidpoint().x + 950, dad.getGraphicMidpoint().y + 400);
 		}
 
 		boyfriend = new Boyfriend(770, 100, SONG.player1);
