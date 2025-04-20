@@ -52,6 +52,10 @@ class TitleState extends MusicBeatState
 		Highscore.load();
 		PlayerSettings.init();
 
+        #if sys
+        ModPaths.loadMods();
+		#end
+
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		super.create();
@@ -239,9 +243,15 @@ class TitleState extends MusicBeatState
 			new FlxTimer().start(1.4, function(tmr:FlxTimer)
 			{
 				#if sys
-				scriptState.callFunction("goToMenu", []);
-				#end
+                var func = scriptState.interp.variables.get("goToMenu");
+                if (func != null && Reflect.isFunction(func)) {
+                    scriptState.callFunction("goToMenu", []);
+                } else {
+                    FlxG.switchState(new MainMenuState());
+                }
+				#else
 				FlxG.switchState(new MainMenuState());
+				#end
 				closedState = true;
 			});
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
