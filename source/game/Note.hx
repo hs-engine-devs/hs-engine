@@ -77,9 +77,13 @@ class Note extends FlxSprite
 		if (noteJson != null) {
 			var spriteAntialiasing:Bool = true;
 			var spriteScale:Float = 0;
+			var isIgnoreNote = true;
 
 			if (noteJson.antialiasing != null)
 				spriteAntialiasing = noteJson.antialiasing;
+
+			if (noteJson.isIgnoreNote != null)
+				isIgnoreNote = noteJson.isIgnoreNote;
 
 			if (noteJson.scale != null)
 				spriteScale = noteJson.scale;
@@ -104,6 +108,7 @@ class Note extends FlxSprite
 			setGraphicSize(Std.int(width * (0.7 + spriteScale)));
 			updateHitbox();
 			antialiasing = spriteAntialiasing;
+			ignoreNote = isIgnoreNote;
 
 			if (isSustainNote && noteJson.alpha != null)
 				alpha = noteJson.alpha;
@@ -245,8 +250,6 @@ class Note extends FlxSprite
 					Logger.log("Error: noteJson for " + noteType + " is null after parsing.");
 				}
 			}
-		} else {
-			Logger.log("noteJson for " + noteType + " is already loaded.");
 		}
 		#end
 	}
@@ -288,6 +291,7 @@ typedef NoteJson = {
 	var ?scale:Float;
 	var ?alpha:Float;
 	var ?antialiasing:Bool;
+	var ?isIgnoreNote:Bool;
 }
 
 typedef NoteAnimations = {

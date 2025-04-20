@@ -2544,10 +2544,10 @@ class PlayState extends MusicBeatState
 				if (Config.botplay) {
 					if(daNote.mustPress) {
 					    if(daNote.isSustainNote) {
-						    if(daNote.canBeHit && !daNote.tooLate && !daNote.wasGoodHit) {
+						    if(daNote.canBeHit && !daNote.tooLate && !daNote.wasGoodHit && !daNote.ignoreNote) {
 							    goodNoteHit(daNote);
 						    }
-					    } else if(daNote.strumTime <= Conductor.songPosition || (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit)) {
+					    } else if(daNote.strumTime <= Conductor.songPosition || (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit) && !daNote.ignoreNote) {
 						    goodNoteHit(daNote);
 					    }
 					    boyfriend.holdTimer = 0;
@@ -3167,7 +3167,7 @@ class PlayState extends MusicBeatState
 
 		if (holdingArray.contains(true) && generatedMusic) {
 			notes.forEachAlive(function(daNote:Note) {
-				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdingArray[daNote.noteData])
+				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdingArray[daNote.noteData] && !daNote.ignoreNote)
 					goodNoteHit(daNote);
 			});
 		}
@@ -3180,7 +3180,7 @@ class PlayState extends MusicBeatState
 			var removeList:Array<Note> = [];
 
 			notes.forEachAlive(function(daNote:Note) {
-				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit) {
+				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.ignoreNote) {
 					if (ignoreList.contains(daNote.noteData)) {
 						for (possibleNote in possibleNotes) {
 							if (possibleNote.noteData == daNote.noteData && Math.abs(daNote.strumTime - possibleNote.strumTime) < 10) {
@@ -3254,12 +3254,13 @@ class PlayState extends MusicBeatState
 		});
 	}
 
+	public var resetMissHealth = false;
+
 	function noteMiss(note:Note):Void
 	{
 		if (!boyfriend.stunned && !Config.botplay && !note.ignoreNote)
 		{
-			var resetHealth = false;
-			if (!resetHealth)
+			if (!resetMissHealth)
 			    health -= 0.04;
 
 			if (combo > 5 && gf.animOffsets.exists('sad'))
@@ -3273,7 +3274,7 @@ class PlayState extends MusicBeatState
 			vocals.volume = 0;
 
             if (note.noteType == "weekend-1-firegun") {
-                resetHealth = true;
+                resetMissHealth = true;
 
 				boyfriend.playAnim('shootMISS', true);
 				FlxG.sound.play(Paths.sound("Pico_Bonk", "weekend1"));
@@ -3341,6 +3342,8 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	public var resetGoodNoteHitHealth = false;
+
 	function goodNoteHit(note:Note):Void
 	{
 		if (!note.wasGoodHit)
@@ -3401,10 +3404,12 @@ class PlayState extends MusicBeatState
 				combo += 1;
 			}
 
-			if (note.noteData >= 0)
-				health += 0.023;
-			else
-				health += 0.004;
+			if (!resetGoodNoteHitHealth) {
+			    if (note.noteData >= 0)
+			    	health += 0.023;
+			    else
+			    	health += 0.004;
+		    }
 
 			if (!boyfriend.danceLockout)
 			{
