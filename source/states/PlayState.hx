@@ -3167,7 +3167,7 @@ class PlayState extends MusicBeatState
 
 		if (holdingArray.contains(true) && generatedMusic) {
 			notes.forEachAlive(function(daNote:Note) {
-				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdingArray[daNote.noteData] && !daNote.ignoreNote)
+				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdingArray[daNote.noteData])
 					goodNoteHit(daNote);
 			});
 		}
@@ -3180,7 +3180,7 @@ class PlayState extends MusicBeatState
 			var removeList:Array<Note> = [];
 
 			notes.forEachAlive(function(daNote:Note) {
-				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.ignoreNote) {
+				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit) {
 					if (ignoreList.contains(daNote.noteData)) {
 						for (possibleNote in possibleNotes) {
 							if (possibleNote.noteData == daNote.noteData && Math.abs(daNote.strumTime - possibleNote.strumTime) < 10) {
