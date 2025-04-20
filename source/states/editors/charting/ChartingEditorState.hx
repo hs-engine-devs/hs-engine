@@ -672,11 +672,15 @@ class ChartingEditorState extends MusicBeatState
 		if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.A)
 			changeSection(curSection - shiftThing);
 
-		bpmTxt.text = bpmTxt.text = Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2))
-			+ " / "
-			+ Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2))
-			+ "\nSection: "
-			+ curSection;
+		bpmTxt.text = Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2))
+		    + " / "
+		    + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2))
+		    + "\nSection: "
+		    + Std.string(curSection)
+		    + "\nStep: "
+		    + Std.string(curStep)
+		    + "\nBeat: "
+		    + Std.string(curBeat);
 		super.update(elapsed);
 	}
 

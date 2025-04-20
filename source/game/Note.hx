@@ -35,6 +35,7 @@ class Note extends FlxSprite
 	private var earlyHitMult:Float = 0.5;
 
 	public var noteType:String = '';
+	static var noteJsonMap:Map<String, NoteJson> = new Map();
 
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var PURP_NOTE:Int = 0;
@@ -70,58 +71,95 @@ class Note extends FlxSprite
 			}
 		}
 
-		var daStage:String = PlayState.curStage;
+		loadNoteJson(noteType); 
 
-		switch (daStage)
-		{
-			case 'school' | 'schoolEvil':
-				loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
+		var noteJson = noteJsonMap.get(noteType);
+		if (noteJson != null) {
+			var spriteAntialiasing:Bool = true;
+			var spriteScale:Float = 0;
 
-				animation.add('greenScroll', [6]);
-				animation.add('redScroll', [7]);
-				animation.add('blueScroll', [5]);
-				animation.add('purpleScroll', [4]);
+			if (noteJson.antialiasing != null)
+				spriteAntialiasing = noteJson.antialiasing;
 
-				if (isSustainNote)
-				{
-					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
+			if (noteJson.scale != null)
+				spriteScale = noteJson.scale;
 
-					animation.add('purpleholdend', [4]);
-					animation.add('greenholdend', [6]);
-					animation.add('redholdend', [7]);
-					animation.add('blueholdend', [5]);
+			frames = Paths.getSparrowAtlas(noteJson.spritePath);
 
-					animation.add('purplehold', [0]);
-					animation.add('greenhold', [2]);
-					animation.add('redhold', [3]);
-					animation.add('bluehold', [1]);
-				}
+			animation.addByPrefix('greenScroll', noteJson.animations.greenScroll);
+			animation.addByPrefix('redScroll', noteJson.animations.redScroll);
+			animation.addByPrefix('blueScroll', noteJson.animations.blueScroll);
+			animation.addByPrefix('purpleScroll', noteJson.animations.purpleScroll);
 
-				originalHeightForCalcs = height;
-				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-				updateHitbox();
+			animation.addByPrefix('purpleholdend', noteJson.animations.purpleholdend);
+			animation.addByPrefix('greenholdend', noteJson.animations.greenholdend);
+			animation.addByPrefix('redholdend', noteJson.animations.redholdend);
+			animation.addByPrefix('blueholdend', noteJson.animations.blueholdend);
 
-			default:
-				frames = Paths.getSparrowAtlas(PlayState.instance.noteSkinPath);
+			animation.addByPrefix('purplehold', noteJson.animations.purplehold);
+			animation.addByPrefix('greenhold', noteJson.animations.greenhold);
+			animation.addByPrefix('redhold', noteJson.animations.redhold);
+			animation.addByPrefix('bluehold', noteJson.animations.bluehold);
 
-				animation.addByPrefix('greenScroll', 'green0');
-				animation.addByPrefix('redScroll', 'red0');
-				animation.addByPrefix('blueScroll', 'blue0');
-				animation.addByPrefix('purpleScroll', 'purple0');
+			setGraphicSize(Std.int(width * (0.7 + spriteScale)));
+			updateHitbox();
+			antialiasing = spriteAntialiasing;
 
-				animation.addByPrefix('purpleholdend', 'pruple end hold');
-				animation.addByPrefix('greenholdend', 'green hold end');
-				animation.addByPrefix('redholdend', 'red hold end');
-				animation.addByPrefix('blueholdend', 'blue hold end');
+			if (isSustainNote && noteJson.alpha != null)
+				alpha = noteJson.alpha;
+		} else {
+		    var daStage:String = PlayState.curStage;
 
-				animation.addByPrefix('purplehold', 'purple hold piece');
-				animation.addByPrefix('greenhold', 'green hold piece');
-				animation.addByPrefix('redhold', 'red hold piece');
-				animation.addByPrefix('bluehold', 'blue hold piece');
+		    switch (daStage)
+		    {
+		    	case 'school' | 'schoolEvil':
+		    		loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
 
-				setGraphicSize(Std.int(width * 0.7));
-				updateHitbox();
-				antialiasing = true;
+		    		animation.add('greenScroll', [6]);
+		    		animation.add('redScroll', [7]);
+		    		animation.add('blueScroll', [5]);
+		    		animation.add('purpleScroll', [4]);
+
+		    		if (isSustainNote)
+		    		{
+		    			loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
+
+		    			animation.add('purpleholdend', [4]);
+		    			animation.add('greenholdend', [6]);
+		    			animation.add('redholdend', [7]);
+		    			animation.add('blueholdend', [5]);
+    
+		    			animation.add('purplehold', [0]);
+		    			animation.add('greenhold', [2]);
+		    			animation.add('redhold', [3]);
+		    			animation.add('bluehold', [1]);
+		    		}
+
+		    		originalHeightForCalcs = height;
+		    		setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+		    		updateHitbox();
+		    	default:
+		    		frames = Paths.getSparrowAtlas(PlayState.instance.noteSkinPath);
+
+		    		animation.addByPrefix('greenScroll', 'green0');
+		    		animation.addByPrefix('redScroll', 'red0');
+		    		animation.addByPrefix('blueScroll', 'blue0');
+		    		animation.addByPrefix('purpleScroll', 'purple0');
+
+		    		animation.addByPrefix('purpleholdend', 'pruple end hold');
+		    		animation.addByPrefix('greenholdend', 'green hold end');
+		    		animation.addByPrefix('redholdend', 'red hold end');
+		    		animation.addByPrefix('blueholdend', 'blue hold end');
+
+		    		animation.addByPrefix('purplehold', 'purple hold piece');
+		    		animation.addByPrefix('greenhold', 'green hold piece');
+		    		animation.addByPrefix('redhold', 'red hold piece');
+		    		animation.addByPrefix('bluehold', 'blue hold piece');
+
+		    		setGraphicSize(Std.int(width * 0.7));
+		    		updateHitbox();
+		    		antialiasing = true;
+		    }
 		}
 
 		switch (noteData)
@@ -194,6 +232,25 @@ class Note extends FlxSprite
 		x += offsetX;
 	}
 
+	public function loadNoteJson(noteType:String):Void {
+		#if sys
+		if (!noteJsonMap.exists(noteType)) {
+			if (sys.FileSystem.exists(ModPaths.data("notes/" + noteType))) {
+				var jsonContent = sys.io.File.getContent(ModPaths.data("notes/" + noteType));
+				var parsedJson = haxe.Json.parse(jsonContent);
+				if (parsedJson != null) {
+					noteJsonMap.set(noteType, parsedJson);
+					Logger.log("noteJson for " + noteType + " loaded successfully.");
+				} else {
+					Logger.log("Error: noteJson for " + noteType + " is null after parsing.");
+				}
+			}
+		} else {
+			Logger.log("noteJson for " + noteType + " is already loaded.");
+		}
+		#end
+	}
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -223,4 +280,27 @@ class Note extends FlxSprite
 				alpha = 0.3;
 		}
 	}
+}
+
+typedef NoteJson = {
+	var ?spritePath:String;
+	var ?animations:NoteAnimations;
+	var ?scale:Float;
+	var ?alpha:Float;
+	var ?antialiasing:Bool;
+}
+
+typedef NoteAnimations = {
+	var greenScroll:String;
+	var redScroll:String;
+	var blueScroll:String;
+	var purpleScroll:String;
+	var purpleholdend:String;
+	var greenholdend:String;
+	var redholdend:String;
+	var blueholdend:String;
+	var purplehold:String;
+	var greenhold:String;
+	var redhold:String;
+	var bluehold:String;
 }
