@@ -223,7 +223,36 @@ class ChartingEditorState extends MusicBeatState
 		stepperBPM.value = Conductor.bpm;
 		stepperBPM.name = 'song_bpm';
 
-		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+		#if sys
+ 		var directories:Array<String> = [ModPaths.modFolder('data/characters/'), Paths.getPreloadPath('data/characters/')];
+ 		#else
+ 		var directories:Array<String> = [Paths.getPreloadPath('data/characters/')];
+ 		#end
+
+ 		var tempMap:Map<String, Bool> = new Map<String, Bool>();
+ 		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+
+ 		for (i in 0...characters.length) {
+ 			tempMap.set(characters[i], true);
+ 		}
+
+ 		#if sys
+ 		for (i in 0...directories.length) {
+ 			var directory:String = directories[i];
+ 			if(sys.FileSystem.exists(directory)) {
+ 				for (file in sys.FileSystem.readDirectory(directory)) {
+ 					var path = haxe.io.Path.join([directory, file]);
+ 					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json')) {
+ 						var charToCheck:String = file.substr(0, file.length - 5);
+ 						if(!charToCheck.endsWith('-dead') && !tempMap.exists(charToCheck)) {
+ 							tempMap.set(charToCheck, true);
+ 							characters.push(charToCheck);
+ 						}
+ 					}
+ 				}
+ 			}
+ 		}
+ 		#end
 
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
@@ -287,9 +316,10 @@ class ChartingEditorState extends MusicBeatState
 			copySection(Std.int(stepperCopy.value));
 		});
 
-		var clearSectionButton:FlxButton = new FlxButton(10, 150, "Clear", clearSection);
+		var clearSectionButton:FlxButton = new FlxButton(10, 150, "Clear Section", clearSection);
+ 		var clearSongButton:FlxButton = new FlxButton(10, 170, "Clear Song", clearSong);
 
-		var swapSection:FlxButton = new FlxButton(10, 170, "Swap section", function()
+		var swapSection:FlxButton = new FlxButton(10, 190, "Swap section", function()
 		{
 			for (i in 0..._song.notes[curSection].sectionNotes.length)
 			{
@@ -318,6 +348,7 @@ class ChartingEditorState extends MusicBeatState
 		tab_group_section.add(check_altAnim);
 		tab_group_section.add(check_changeBPM);
 		tab_group_section.add(copyButton);
+		tab_group_section.add(clearSongButton);
 		tab_group_section.add(clearSectionButton);
 		tab_group_section.add(swapSection);
 
