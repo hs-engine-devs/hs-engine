@@ -1576,6 +1576,10 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
+		#if sys
+		script.callFunction('startCountdown', []);
+        #end
+
 		startTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 		{
 			if (gf != null && tmr.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.stunned && gf.animation.curAnim.name != null && !gf.animation.curAnim.name.startsWith("sing") && !gf.stunned)

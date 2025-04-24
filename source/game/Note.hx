@@ -37,6 +37,8 @@ class Note extends FlxSprite
 	public var noteType:String = '';
 	static var noteJsonMap:Map<String, NoteJson> = new Map();
 
+	public var belongsToSection:Int = 0;
+
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var PURP_NOTE:Int = 0;
 	public static var GREEN_NOTE:Int = 2;
