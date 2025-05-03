@@ -238,6 +238,8 @@ class PlayState extends MusicBeatState
 
 	public static var storyDifficultyText:String = "";
 
+	var songEvents:Array<ChartEvent> = [];
+
 	#if desktop
 	// Discord RPC variables
 	var iconRPC:String = "";
@@ -252,6 +254,17 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
+
+		if (SONG.events != null) {
+			for (section in SONG.events) {
+				if (section != null) {
+					for (event in section.eventNotes) {
+						if (event != null)
+							songEvents.push(event);
+					}
+				}
+			}
+		}
 
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new FlxCamera();
@@ -2220,6 +2233,15 @@ class PlayState extends MusicBeatState
 		perfectMode = false;
 		#end
 
+		if (!inCutscene && !paused && generatedMusic && FlxG.sound.music.playing) {
+			for (event in songEvents) {
+				if (Conductor.songPosition >= event.strumtime) {
+					performEvent(event);
+					songEvents.remove(event);
+				}
+			}
+		}
+
 		if (FlxG.keys.justPressed.NINE)
 		{
 			if (iconP1.animation.curAnim.name == 'bf-old')
@@ -2777,6 +2799,80 @@ class PlayState extends MusicBeatState
 
 		#if sys
 		script.callFunction("updatePost", [elapsed]);
+		#end
+	}
+
+	function performEvent(event:ChartEvent) {
+		switch (event.event.toLowerCase()) {
+			case "bpm change":
+				var newBPM = Std.parseFloat(event.variable1);
+				if (!Math.isNaN(newBPM)) {
+					Conductor.changeBPM(newBPM);
+				}
+			case "play animation":
+				var animName = event.variable1;
+				var target = event.variable2;
+				if (animName != null && target != null) {
+					switch (target.toLowerCase()) {
+						case "bf": boyfriend.playAnim(animName, true);
+						case "dad": dad.playAnim(animName, true);
+						case "gf": gf.playAnim(animName, true);
+					}
+				}
+			case "camera follow pos":
+				var x = Std.parseFloat(event.variable1);
+				var y = Std.parseFloat(event.variable2);
+				if (!Math.isNaN(x) && !Math.isNaN(y)) {
+					camFollowPos.setPosition(x, y);
+				}
+			case "change character":
+				var target = event.variable1;
+				var charName = event.variable2;
+				if (target != null && charName != null) {
+					switch (target.toLowerCase()) {
+						case "bf": changeCharacter(charName, 0);
+						case "dad": changeCharacter(charName, 1);
+						case "gf": changeCharacter(charName, 2);
+					}
+				}
+			case "screen shake":
+				var intensity = Std.parseFloat(event.variable1);
+				var duration = Std.parseFloat(event.variable2);
+				if (!Math.isNaN(intensity) && !Math.isNaN(duration)) {
+					camGame.shake(intensity, duration);
+				}
+			case "flash":
+				var duration = Std.parseFloat(event.variable1);
+				if (!Math.isNaN(duration)) {
+					var color:FlxColor = FlxColor.WHITE;
+					if (event.variable2 != null) {
+						var parsedColor = FlxColor.fromString(event.variable2);
+						if (parsedColor != null) {
+							color = parsedColor;
+						}
+					}
+					camGame.flash(color, duration);
+				}
+			case "add camera zoom":
+				var zoom = Std.parseFloat(event.variable1);
+				if (!Math.isNaN(zoom)) {
+					FlxG.camera.zoom += zoom;
+					camHUD.zoom += zoom * 2;
+				}
+			case "tween hud alpha":
+				var alpha = Std.parseFloat(event.variable1);
+				var duration = Std.parseFloat(event.variable2);
+				if (!Math.isNaN(alpha) && !Math.isNaN(duration)) {
+					FlxTween.tween(camHUD, {alpha: alpha}, duration);
+				}
+			case "set hud alpha":
+				var alpha = Std.parseFloat(event.variable1);
+				if (!Math.isNaN(alpha)) {
+					camHUD.alpha = alpha;
+				}
+		}
+		#if sys
+		script.callFunction("performEvent", [event]);
 		#end
 	}
 
@@ -3839,6 +3935,8 @@ class PlayState extends MusicBeatState
 			FlxG.camera.zoom += 0.015;
 			camHUD.zoom += 0.03;
 		}
+
+
 
 		iconP1.scale.set(1.2, 1.2);
 		iconP2.scale.set(1.2, 1.2);

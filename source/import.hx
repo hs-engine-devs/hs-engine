@@ -16,6 +16,7 @@ import substates.PauseSubState;
 // game
 import game.ABot;
 import game.Note;
+import game.Event;
 import game.Alphabet;
 import game.HealthIcon;
 import game.Character;
