@@ -317,10 +317,9 @@ class ChartingEditorState extends MusicBeatState
 		var eventVar2InfoText = new FlxText(eventVar2.x, eventVar2.y - 20);
 
 		var eventInstructionText = new FlxText(10, 170);
-		eventInstructionText.text = "Left click to add or remove an event.\nRight click to edit events.\nClick 'Update' to save Event Changes.\nPlacing an event also saves.\n\nUse 'Add New Event' to\nadd multiple events to the same note.\n\nUse 'Next Event' to switch between\nevents of the same strumtime.";
+		eventInstructionText.text = "Left click to add or remove an event.\nRight click to edit events.\nClick 'Update' to save Event Changes.\nPlacing an event also saves.\n\nUse 'Add New Event' to\nadd multiple events to the same note.\n\nUse 'Next Event' to switch between\nevents of the same strumtime.\nUse 'Remove Event' to delete the current event.";
 
-		eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(selectedLabel:String)
-		{
+		eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(selectedLabel:String) {
 			if (curSelectedEvents.length > 0) {
 				var selected = curSelectedEvents[curEditingEventIndex];
 				selected.event = eventNames[Std.parseInt(selectedLabel)];
@@ -336,8 +335,7 @@ class ChartingEditorState extends MusicBeatState
 			}
 		});
 
-		var saveButton:FlxButton = new FlxButton(200, 20, "Update", function()
-		{
+		var saveButton:FlxButton = new FlxButton(200, 20, "Update", function() {
 			if (curSelectedEvents.length > 0) {
 				var selected = curSelectedEvents[curEditingEventIndex];
 				selected.event = eventDropDown.selectedLabel;
@@ -381,6 +379,24 @@ class ChartingEditorState extends MusicBeatState
 			}
 		});
 
+		var removeEventButton = new FlxButton(200, 140, "Remove Event", function() {
+			if (curSelectedEvents.length > 0) {
+				var selected = curSelectedEvents[curEditingEventIndex];
+				_song.events[curSection].eventNotes.remove(selected);
+
+				curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == selected.strumtime);
+
+				if (curSelectedEvents.length > 0) {
+					curEditingEventIndex = curEditingEventIndex % curSelectedEvents.length;
+				} else {
+					curEditingEventIndex = 0;
+				}
+
+				updateGrid();
+				loadCurEvent();
+			}
+		});
+
 		loadCurEvent = function() {
 			if (curSelectedEvents.length > 0) {
 				var selected = curSelectedEvents[curEditingEventIndex];
@@ -408,6 +424,7 @@ class ChartingEditorState extends MusicBeatState
 		tab_events.add(saveButton);
 		tab_events.add(addNewEventButton);
 		tab_events.add(nextEventButton);
+		tab_events.add(removeEventButton);
 		tab_events.add(eventDropDown);
 
 		UI_box.addGroup(tab_events);
