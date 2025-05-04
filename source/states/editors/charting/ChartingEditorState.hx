@@ -317,7 +317,7 @@ class ChartingEditorState extends MusicBeatState
 		var eventVar2InfoText = new FlxText(eventVar2.x, eventVar2.y - 20);
 
 		var eventInstructionText = new FlxText(10, 170);
-		eventInstructionText.text = "Left click to add or remove an event.\nRight click to edit events.\nClick 'Update' to save Event Changes.\nPlacing an event also saves.\n\nUse 'Add New Event' to\nadd multiple events to the same note.\n\nUse 'Next Event' to switch between\nevents of the same strumtime.\nUse 'Remove Event' to delete the current event.";
+		eventInstructionText.text = "Left click to add or remove an event.\nRight click to edit events.\nClick 'Update' to save Event Changes.\nPlacing an event also saves.\n\nUse 'Add New Event' to\nadd multiple events to the same note.\n\nUse 'Next Event' to switch between\nevents of the same strumtime.\n\nUse 'Remove Event' to delete the current event.";
 
 		eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(selectedLabel:String) {
 			if (curSelectedEvents.length > 0) {
