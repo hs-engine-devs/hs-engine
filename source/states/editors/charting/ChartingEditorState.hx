@@ -319,11 +319,11 @@ class ChartingEditorState extends MusicBeatState
 		var eventInstructionText = new FlxText(10, 170);
 		eventInstructionText.text = "Click to place or remove.\nClick Update to save Event Changes.\nPlacing also saves.";
 
-		eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(lol:String)
+		eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(selectedLabel:String)
 		{
 			if (curSelectedEvents.length > 0) {
 				var selected = curSelectedEvents[curEditingEventIndex];
-				selected.event = eventNames[Std.parseInt(lol)];
+				selected.event = eventNames[Std.parseInt(selectedLabel)];
 
 				for (event in events) {
 					if (event != null && event.eventName.toLowerCase() == selected.event.toLowerCase()) {
@@ -334,7 +334,7 @@ class ChartingEditorState extends MusicBeatState
 					}
 				}
 			}
-		});	
+		});
 
 		var saveButton:FlxButton = new FlxButton(200, 20, "Update", function()
 		{
@@ -976,6 +976,20 @@ class ChartingEditorState extends MusicBeatState
 				} else {
 					UI_box.selected_tab_id = 'Events';
 					addEvent();
+				}
+			}
+
+			if (FlxG.mouse.justPressedRight) {
+				if (FlxG.mouse.overlaps(curRenderedEvents)) {
+					curSelectedEvents = [];
+					curRenderedEvents.forEach(function(event:Event) {
+						if (FlxG.mouse.overlaps(event)) {
+							var strum = event.thisEvent.strumtime;
+							curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == strum);
+							curEditingEventIndex = 0;
+							loadCurEvent();
+						}
+					});
 				}
 			}
 		}
