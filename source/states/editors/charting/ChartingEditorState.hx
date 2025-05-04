@@ -346,7 +346,7 @@ class ChartingEditorState extends MusicBeatState
 			}
 		});
 
-		var addNewEventButton = new FlxButton(200, 60, "Add New Event", function() {
+		var addNewEventButton = new FlxButton(200, 60, "Add Another Event", function() {
 			if (curSelectedEvents.length > 0) {
 				var selected = curSelectedEvents[curEditingEventIndex];
 				selected.variable1 = eventVar1.text;
