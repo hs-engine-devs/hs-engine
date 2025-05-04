@@ -97,7 +97,9 @@ class ChartingEditorState extends MusicBeatState
 	 * WILL BE THE CURRENT / LAST PLACED NOTE
 	**/
 	var curSelectedNote:Array<Dynamic>;
-	var curSelectedEvent:ChartEvent;
+	var curSelectedEvents:Array<ChartEvent> = [];
+
+	var curEditingEventIndex:Int = 0;
 
 	var tempBpm:Float = 0;
 
@@ -250,9 +252,9 @@ class ChartingEditorState extends MusicBeatState
 		super.create();
 	}
 
+	var eventDropDown:FlxUIDropDownMenu;
 	var eventVar1:FlxUIInputText;
 	var eventVar2:FlxUIInputText;
-
 	var loadCurEvent:Void -> Void;
 
 	function addEventsUI():Void {
@@ -317,42 +319,83 @@ class ChartingEditorState extends MusicBeatState
 		var eventInstructionText = new FlxText(10, 170);
 		eventInstructionText.text = "Click to place or remove.\nClick Update to save Event Changes.\nPlacing also saves.";
 
-		var eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(lol:String)
+		eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(lol:String)
 		{
-			if (curSelectedEvent != null)
-				curSelectedEvent.event = eventNames[Std.parseInt(lol)];
+			if (curSelectedEvents.length > 0) {
+				var selected = curSelectedEvents[curEditingEventIndex];
+				selected.event = eventNames[Std.parseInt(lol)];
 
-			for (event in events) {
-				if (event != null && event.eventName.toLowerCase() == eventNames[Std.parseInt(lol)].toLowerCase()) {
-					eventVar1InfoText.text = event.var1Hint;
-					eventVar2InfoText.text = event.var2Hint;
-					eventInstructionText.text = event.info;
-					break;
+				for (event in events) {
+					if (event != null && event.eventName.toLowerCase() == selected.event.toLowerCase()) {
+						eventVar1InfoText.text = event.var1Hint;
+						eventVar2InfoText.text = event.var2Hint;
+						eventInstructionText.text = event.info;
+						break;
+					}
 				}
 			}
-		});
+		});	
 
 		var saveButton:FlxButton = new FlxButton(200, 20, "Update", function()
 		{
-			if (curSelectedEvent != null) {
-				curSelectedEvent.event = eventDropDown.selectedLabel;
-				curSelectedEvent.variable1 = eventVar1.text;
-				curSelectedEvent.variable2 = eventVar2.text;
+			if (curSelectedEvents.length > 0) {
+				var selected = curSelectedEvents[curEditingEventIndex];
+				selected.event = eventDropDown.selectedLabel;
+				selected.variable1 = eventVar1.text;
+				selected.variable2 = eventVar2.text;
 			}
 		});
 
-		loadCurEvent = function(){
-			eventDropDown.selectedLabel = curSelectedEvent.event;
+		var addNewEventButton = new FlxButton(200, 60, "Add New Event", function() {
+			if (curSelectedEvents.length > 0) {
+				var selected = curSelectedEvents[curEditingEventIndex];
+				selected.variable1 = eventVar1.text;
+				selected.variable2 = eventVar2.text;
+			}
 
-			eventVar1.text = curSelectedEvent.variable1;
-			eventVar2.text = curSelectedEvent.variable2;
+			var noteStrum:Float = (curSelectedEvents.length > 0) 
+				? curSelectedEvents[curEditingEventIndex].strumtime 
+				: getStrumTime(dummyArrow.y) + sectionStartTime();
 
-			for (event in events) {
-				if (event != null && event.eventName.toLowerCase() == eventNames[eventNames.indexOf(curSelectedEvent.event)].toLowerCase()) {
-					eventVar1InfoText.text = event.var1Hint;
-					eventVar2InfoText.text = event.var2Hint;
-					eventInstructionText.text = event.info;
-					break;
+			var newEvent:ChartEvent = {
+				strumtime: noteStrum,
+				event: eventDropDown.selectedLabel,
+				variable1: eventVar1.text,
+				variable2: eventVar2.text
+			};
+
+			_song.events[curSection].eventNotes.push(newEvent);
+
+			curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == noteStrum);
+			curEditingEventIndex = curSelectedEvents.length - 1;
+
+			updateGrid();
+			autosaveSong();
+			loadCurEvent();
+		});
+
+		var nextEventButton = new FlxButton(200, 100, "Next Event", function() {
+			if (curSelectedEvents.length > 1) {
+				curEditingEventIndex = (curEditingEventIndex + 1) % curSelectedEvents.length;
+				loadCurEvent();
+			}
+		});
+
+		loadCurEvent = function() {
+			if (curSelectedEvents.length > 0) {
+				var selected = curSelectedEvents[curEditingEventIndex];
+				eventDropDown.selectedLabel = selected.event;
+
+				eventVar1.text = selected.variable1;
+				eventVar2.text = selected.variable2;
+
+				for (event in events) {
+					if (event != null && event.eventName.toLowerCase() == eventNames[eventNames.indexOf(selected.event)].toLowerCase()) {
+						eventVar1InfoText.text = event.var1Hint;
+						eventVar2InfoText.text = event.var2Hint;
+						eventInstructionText.text = event.info;
+						break;
+					}
 				}
 			}
 		}
@@ -363,6 +406,8 @@ class ChartingEditorState extends MusicBeatState
 		tab_events.add(eventVar2InfoText);
 		tab_events.add(eventInstructionText);
 		tab_events.add(saveButton);
+		tab_events.add(addNewEventButton);
+		tab_events.add(nextEventButton);
 		tab_events.add(eventDropDown);
 
 		UI_box.addGroup(tab_events);
@@ -904,7 +949,7 @@ class ChartingEditorState extends MusicBeatState
 					changeSection(curSection - shiftThing, true);
 		}
 
-		if (FlxG.mouse.x < 0 && FlxG.mouse.x >= -40 && FlxG.mouse.y >= eventGridBG.y && FlxG.mouse.y < eventGridBG.height){
+		if (FlxG.mouse.x < 0 && FlxG.mouse.x >= -40 && FlxG.mouse.y >= eventGridBG.y && FlxG.mouse.y < eventGridBG.height) {
 			dummyArrow.x = eventGridBG.x;
 
 			if (FlxG.keys.pressed.SHIFT)
@@ -913,26 +958,22 @@ class ChartingEditorState extends MusicBeatState
 				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
 
 			if (FlxG.mouse.justPressed) {
-				if (FlxG.mouse.overlaps(curRenderedEvents))
-				{
-					curRenderedEvents.forEach(function(note:Event)
-					{
-						if (FlxG.mouse.overlaps(note))
-						{
-							if (FlxG.keys.pressed.CONTROL)
-							{
-								curSelectedEvent = note.thisEvent;
+				if (FlxG.mouse.overlaps(curRenderedEvents)) {
+					curSelectedEvents = [];
+
+					curRenderedEvents.forEach(function(event:Event) {
+						if (FlxG.mouse.overlaps(event)) {
+							if (FlxG.keys.pressed.CONTROL) {
+								var strum = event.thisEvent.strumtime;
+								curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == strum);
+								curEditingEventIndex = 0;
 								loadCurEvent();
-							}
-							else
-							{
-								deleteEvent(note);
+							} else {
+								deleteEvent(event);
 							}
 						}
 					});
-				}
-				else
-				{
+				} else {
 					UI_box.selected_tab_id = 'Events';
 					addEvent();
 				}
@@ -1191,7 +1232,7 @@ class ChartingEditorState extends MusicBeatState
 	    	}
 	    } else if (_song.events[curSection] == null) {
 	    	addEventSection();
-	    }	
+	    }
 	}
 
     function generateSection(i:Array<Dynamic>, ?addToSection:Int = 0, currentSection:Int) {
@@ -1357,15 +1398,24 @@ class ChartingEditorState extends MusicBeatState
 	}
 
 	private function addEvent():Void {
-		if (curSelectedEvent != null){
-			curSelectedEvent.variable1 = eventVar1.text;
-			curSelectedEvent.variable2 = eventVar2.text;
+		if (curSelectedEvents.length > 0) {
+			var selected = curSelectedEvents[curEditingEventIndex];
+			selected.variable1 = eventVar1.text;
+			selected.variable2 = eventVar2.text;
 		}
 
 		var noteStrum = getStrumTime(dummyArrow.y) + sectionStartTime();
 
-		_song.events[curSection].eventNotes.push({strumtime: noteStrum, event: 'test'});
-		curSelectedEvent = _song.events[curSection].eventNotes[_song.events[curSection].eventNotes.length - 1];
+		var newEvent:ChartEvent = {
+			strumtime: noteStrum,
+			event: eventDropDown.selectedLabel,
+			variable1: eventVar1.text,
+			variable2: eventVar2.text
+		};
+
+		_song.events[curSection].eventNotes.push(newEvent);
+		curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == noteStrum);
+		curEditingEventIndex = curSelectedEvents.length - 1;
 
 		updateGrid();
 		autosaveSong();
@@ -1506,12 +1556,12 @@ class ChartingEditorState extends MusicBeatState
 	}
 }
 
-class FakeSustain extends FlxSprite{
+class FakeSustain extends FlxSprite {
 	public var noteData:Int = 0;
 	public var mustPress:Bool;
 	public var belongsToSection:Int = 0;
 
-	public function new(x:Float, y:Float, data:Int, ?bfNote:Bool){
+	public function new(x:Float, y:Float, data:Int, ?bfNote:Bool) {
 		super(x, y);
 
 		noteData = data;
