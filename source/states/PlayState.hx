@@ -1293,6 +1293,8 @@ class PlayState extends MusicBeatState
 					startVideo('gunsCutscene');
 				case 'stress':
 					startVideo('stressCutscene');
+				case 'darnell':
+					darnellVideo();
 				default:
 					#if sys
 					if (sys.FileSystem.exists(ModPaths.script("data/cutscenes/" + SONG.song.toLowerCase()))) {
@@ -1507,6 +1509,111 @@ class PlayState extends MusicBeatState
 
 				remove(black);
 			}
+		});
+	}
+
+    function darnellVideo() {
+		#if VIDEOS
+		inCutscene = true;
+
+		var video:FlxVideo = new FlxVideo();
+		video.load(Paths.video('darnellCutscene'));
+		video.onEndReached.add(function()
+		{
+			video.dispose();
+			darnellIntro();
+			return;
+		}, true);
+
+		video.play();
+		#else
+		Logger.log('Warn: Platform not supported!');
+		darnellIntro();
+		return;
+		#end
+	}
+
+    function darnellIntro() {
+		var beatTime:Float;
+
+		var picoPos:FlxPoint;
+		var darnellPos:FlxPoint;
+
+		camHUD.visible = false;
+
+		picoPos = new FlxPoint(boyfriend.getMidpoint().x - 100 + boyfriend.cameraOffset[0], boyfriend.getMidpoint().y - 100 + boyfriend.cameraOffset[1]);
+		darnellPos = new FlxPoint(dad.getMidpoint().x + 150 + dad.cameraOffset[0], dad.getMidpoint().y - 100 + dad.cameraOffset[1]);
+
+		beatTime = Conductor.getBeatTimeFromBpm(168);
+
+		FlxG.sound.play(Paths.music("darnellCanCutscene", "weekend1"));
+		camGame.fade(0xFF000000, 2, true);
+
+		boyfriend.playAnim("pissed", true);
+		dad.dance();
+		gf.dance();
+
+		boyfriend.playAnim("pissed", true, false, 24);
+
+		FlxTween.tween(camFollowPos, {x: picoPos.x + 250, y: picoPos.y}, 0, null);
+		FlxTween.tween(this, {defaultCamZoom: 1.3}, 0, null);
+
+		new FlxTimer().start(2, function(timer) {
+			FlxTween.tween(camFollowPos, {x: darnellPos.x + 180, y: darnellPos.y}, 2.5, { ease: FlxEase.quadInOut });
+			FlxTween.tween(this, {defaultCamZoom: 0.68}, 2.5, { ease: FlxEase.quadInOut });
+		});
+
+		new FlxTimer().start(beatTime * 12, function(timer) {
+			dad.playAnim('lightCan', true);
+			FlxG.sound.play(Paths.sound("Darnell_Lighter", "weekend1"));
+		});
+
+		new FlxTimer().start(beatTime * 15, function(timer) {
+			boyfriend.playAnim('reload-cutscene', true);
+			FlxG.sound.play(Paths.sound("Gun_Prep", "weekend1"));
+			createBullet();
+		});
+
+		new FlxTimer().start(beatTime * 16, function(timer) {
+			dad.playAnim('kickUp', true);
+			FlxG.sound.play(Paths.sound("Kick_Can_UP", "weekend1"));
+			canKickSlow();
+		});
+
+		new FlxTimer().start(beatTime * 17.5, function(timer) {
+			dad.playAnim('kneeForward', true);
+			FlxG.sound.play(Paths.sound("Kick_Can_FORWARD", "weekend1"));
+			canKickForward();
+		});
+
+		new FlxTimer().start(beatTime * 18, function(timer) {
+			boyfriend.playAnim('shoot-cutscene', true);
+			FlxG.sound.play(Paths.sound("shot" + FlxG.random.int(1, 4), "weekend1"));
+			FlxTween.tween(camFollowPos, {x: darnellPos.x + 100, y: darnellPos.y}, 1, { ease: FlxEase.quadInOut });
+			stageDarken();
+			canShot();
+		});
+
+		new FlxTimer().start(beatTime * 19, function(timer) {
+			dad.playAnim('idle', true);
+		});
+
+		new FlxTimer().start(beatTime * 20, function(timer) {
+			dad.playAnim('laughCutscene', true);
+			FlxG.sound.play(Paths.sound("cutscene/darnell_laugh", "weekend1"));
+		});
+
+		new FlxTimer().start(beatTime * 20.5, function(timer) {
+			gf.playAnim('laughCutscene', true);
+			FlxG.sound.play(Paths.sound("cutscene/nene_laugh", "weekend1"));
+		});
+
+		new FlxTimer().start(9, function(timer) {
+			camHUD.visible = true;
+			startCountdown();
+
+			FlxTween.tween(camFollowPos, {x: darnellPos.x, y: darnellPos.y}, 2, { ease: FlxEase.sineInOut });
+			FlxTween.tween(this, {defaultCamZoom: 0.75}, 2, { ease: FlxEase.sineInOut });
 		});
 	}
 
@@ -3466,7 +3573,7 @@ class PlayState extends MusicBeatState
 
 				if (boyfriend.animation.curAnim.name == "shoot" && boyfriend.animation.curAnim != null)
 				{
-					boyfriend.animation.finishCallback = function(n)
+					boyfriend.animation.finishCallback = function(name)
 					{
 						if (!finishedShooting)
 						{

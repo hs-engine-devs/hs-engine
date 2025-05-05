@@ -30,7 +30,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				stageSuffix = '-pixel';
 				daBf = 'bf-pixel-dead';
 			case 'phillyStreets':
-				// daBf = "pico-dead";
+				daBf = "pico-playable";
 			default:
 				daBf = 'bf';
 		}
@@ -57,7 +57,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		    nene.antialiasing = true;
 		    nene.animation.addByPrefix("throw", "knife toss", 24, false);
 		    nene.animation.play("throw");
-		    nene.animation.finishCallback = function(name:String){
+		    nene.animation.finishCallback = function(name:String) {
 		    	nene.visible = false;
 		    }
 		    add(nene);

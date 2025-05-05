@@ -63,4 +63,8 @@ class Conductor
 		crochet = ((60 / bpm) * 1000);
 		stepCrochet = crochet / 4;
 	}
+
+	public static inline function getBeatTimeFromBpm(_bpm:Float):Float{
+		return ((60 / _bpm));
+	}
 }

@@ -131,6 +131,161 @@
             "fps": 24,
             "name": "Pico Shoot Hip Full0",
             "indices": []
+        },
+		{
+			"loop": false,
+			"offsets": [
+				57,
+				0
+			],
+			"fps": 24,
+			"anim": "pissed",
+			"indices": [],
+			"name": "Pico Gets Pissed"
+		},
+        {
+			"loop": false,
+			"offsets": [
+				-14,
+				-10
+			],
+			"fps": 24,
+            "anim": "reload-cutscene",
+			"indices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+			"name": "Pico Reload"
+		},
+		{
+			"loop": false,
+			"offsets": [
+				253,
+				230
+			],
+			"fps": 24,
+			"anim": "shoot-cutscene",
+			"indices": [],
+			"name": "shoot and return"
+		},
+        {
+            "offsets": [
+                225,
+                125
+            ],
+            "loop": false,
+            "anim": "deathConfirm",
+            "fps": 24,
+            "name": "Pico Death Stab",
+            "indices": [
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63
+            ]
+        },
+        {
+            "offsets": [
+                225,
+                125
+            ],
+            "loop": true,
+            "anim": "deathLoop",
+            "fps": 24,
+            "name": "Pico Death Stab",
+            "indices": [
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63
+            ]
+        },
+        {
+            "offsets": [
+                225,
+                125
+            ],
+            "loop": false,
+            "anim": "firstDeath",
+            "fps": 24,
+            "name": "Pico Death Stab",
+            "indices": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39,
+                40,
+                41,
+                42,
+                43,
+                44,
+                45,
+                46,
+                47
+            ]
         }
     ],
     "antialiasing": true,
