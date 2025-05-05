@@ -1554,8 +1554,8 @@ class PlayState extends MusicBeatState
 		camGame.fade(0xFF000000, 2, true);
 
 		boyfriend.playAnim("pissed", true);
-		dad.dance();
-		gf.dance();
+		dad.playAnim("idleLoop", true);
+		gf.playAnim("idleLoop", true);
 
 		boyfriend.playAnim("pissed", true, false, 24);
 

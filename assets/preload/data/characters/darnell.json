@@ -195,6 +195,17 @@
             "fps": 24,
             "name": "Gets Pissed0",
             "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": true,
+            "anim": "idleLoop",
+            "fps": 24,
+            "name": "Idle0",
+            "indices": []
         }
     ],
     "antialiasing": true,

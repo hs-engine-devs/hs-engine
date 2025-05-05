@@ -210,6 +210,17 @@
             "fps": 24,
             "name": "KnifeLower0",
             "indices": []
+        },
+        {
+            "offsets": [
+                0,
+                0
+            ],
+            "loop": true,
+            "anim": "idleLoop",
+            "fps": 24,
+            "name": "Idle0",
+            "indices": []
         }
     ],
     "antialiasing": true,
