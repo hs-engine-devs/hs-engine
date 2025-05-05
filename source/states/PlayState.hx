@@ -1513,14 +1513,20 @@ class PlayState extends MusicBeatState
 	}
 
     function darnellVideo() {
-		#if VIDEOS
 		inCutscene = true;
+		camHUD.visible = false;
+
+		#if VIDEOS
+		var black:FlxSprite = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
+		black.scrollFactor.set();
+		add(black);
 
 		var video:FlxVideo = new FlxVideo();
 		video.load(Paths.video('darnellCutscene'));
 		video.onEndReached.add(function()
 		{
 			video.dispose();
+			black.visible = false;
 			darnellIntro();
 			return;
 		}, true);
@@ -1538,8 +1544,6 @@ class PlayState extends MusicBeatState
 
 		var picoPos:FlxPoint;
 		var darnellPos:FlxPoint;
-
-		camHUD.visible = false;
 
 		picoPos = new FlxPoint(boyfriend.getMidpoint().x - 100 + boyfriend.cameraOffset[0], boyfriend.getMidpoint().y - 100 + boyfriend.cameraOffset[1]);
 		darnellPos = new FlxPoint(dad.getMidpoint().x + 150 + dad.cameraOffset[0], dad.getMidpoint().y - 100 + dad.cameraOffset[1]);
