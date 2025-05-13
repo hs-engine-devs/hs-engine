@@ -3564,7 +3564,8 @@ class PlayState extends MusicBeatState
 			#end
 
             if (note.noteType == "weekend-1-cockgun") {
-				boyfriend.playAnim('reload', true);
+				boyfriend.danceLockout = true;
+				boyfriend.playAnim('cock', true);
 				FlxG.sound.play(Paths.sound("Gun_Prep", "weekend1"));
                 createCharacterGlow();
 				createBullet();
