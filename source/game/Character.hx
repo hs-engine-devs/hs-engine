@@ -251,7 +251,7 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if(!debugMode)
+		if(!debugMode && hasAnims())
 		{
 			if (!curCharacter.startsWith('bf'))
 			{
@@ -374,6 +374,10 @@ class Character extends FlxSprite
 
 	public inline function hasAnim(name:String):Bool {
 		return (!atlasMode && animation.exists(name)) || (atlasMode && atlas.animInfoMap.exists(name));
+	}
+
+	public inline function hasAnims():Bool {
+		return (!atlasMode && animation.curAnim != null) || (atlasMode && atlas.curAnim != null);
 	}
 
 	private var danced:Bool = false;
