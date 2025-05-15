@@ -8,6 +8,7 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
+import flixel.util.FlxTimer;
 import flixel.addons.display.FlxBackdrop;
 
 class ModState extends MusicBeatState {
@@ -18,6 +19,7 @@ class ModState extends MusicBeatState {
     private var modList:FlxText;
     private var selectedIndex:Int;
     private var editorHint:FlxText;
+    private var refreshHint:FlxText;
 
     private var scrollOffset:Float = 0;
     private var targetScrollOffset:Float = 0;
@@ -69,6 +71,12 @@ class ModState extends MusicBeatState {
         editorHint.borderSize = 1.0;
         editorHint.scrollFactor.set();
         add(editorHint);
+
+        refreshHint = new FlxText(FlxG.width - 320, FlxG.height - 50, 300, "Press R to refresh mods");
+        refreshHint.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+        refreshHint.borderSize = 1.0;
+        refreshHint.scrollFactor.set();
+        add(refreshHint);
 
         super.create();
     }
