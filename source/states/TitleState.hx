@@ -52,10 +52,6 @@ class TitleState extends MusicBeatState
 		Highscore.load();
 		PlayerSettings.init();
 
-        #if sys
-        ModPaths.loadMods();
-		#end
-
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		super.create();

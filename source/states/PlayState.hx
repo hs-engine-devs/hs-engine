@@ -818,6 +818,63 @@ class PlayState extends MusicBeatState
 					dimSprite.scrollFactor.set();
 					dimSprite.alpha = 0;
 					add(dimSprite);
+				  case 'blazin':
+				    defaultCamZoom = 0.75;
+				    curStage = 'phillyBlazin';
+
+		            var scrollingSky = new FlxBackdrop(Paths.image("phillyBlazin/skyBlur", "weekend1"), 0x10);
+		            scrollingSky.setPosition(-600, -175);
+		            scrollingSky.scrollFactor.set();
+		            scrollingSky.scale.set(1.75, 1.75);
+		            scrollingSky.updateHitbox();
+		            scrollingSky.velocity.x = -35;
+		            scrollingSky.antialiasing = true;
+		            add(scrollingSky);
+
+		            scrollingSkyAdd = new FlxBackdrop(Paths.image("phillyBlazin/skyBlur", "weekend1"), 0x10);
+		            scrollingSkyAdd.setPosition(-600, -175);
+		            scrollingSkyAdd.scrollFactor.set();
+		            scrollingSkyAdd.scale.set(1.75, 1.75);
+		            scrollingSkyAdd.updateHitbox();
+		            scrollingSkyAdd.velocity.x = -35;
+		            scrollingSkyAdd.antialiasing = true;
+		            scrollingSkyAdd.blend = BlendMode.ADD;
+		            scrollingSkyAdd.visible = false;
+		            add(scrollingSkyAdd);
+
+		            lightning = new FlxSprite(50, -300);
+		            lightning.frames = Paths.getSparrowAtlas("phillyBlazin/lightning", "weekend1");
+		            lightning.animation.addByPrefix("strike", "lightning", 24, false);
+		            lightning.scrollFactor.set();
+		            lightning.scale.set(1.75, 1.75);
+		            lightning.visible = false;
+		            lightning.updateHitbox();
+		            lightning.antialiasing = true;
+		            add(lightning);
+
+		            var streetBlur = new FlxSprite(-600 + 152, -175 + 70).loadGraphic(Paths.image("phillyBlazin/streetBlur", "weekend1"));
+		            streetBlur.scrollFactor.set(0.2, 0.2);
+		            streetBlur.scale.set(1.75, 1.75);
+		            streetBlur.updateHitbox();
+		            streetBlur.antialiasing = true;
+		            add(streetBlur);
+
+		            streetBlurMultiply = new FlxSprite(-600 + 152, -175 + 70).loadGraphic(Paths.image("phillyBlazin/streetBlur", "weekend1"));
+		            streetBlurMultiply.scrollFactor.set(0.2, 0.2);
+		            streetBlurMultiply.scale.set(1.75, 1.75);
+		            streetBlurMultiply.updateHitbox();
+		            streetBlurMultiply.antialiasing = true;
+		            streetBlurMultiply.blend = BlendMode.MULTIPLY;
+		            streetBlurMultiply.visible = false;
+		            add(streetBlurMultiply);
+
+		            additionalLighten = new FlxSprite().makeGraphic(1, 1, 0xFFFFFFFF);
+		            additionalLighten.scale.set(1280/defaultCamZoom, 720/defaultCamZoom);
+		            additionalLighten.scrollFactor.set();
+		            additionalLighten.updateHitbox();
+		            additionalLighten.screenCenter();
+		            additionalLighten.visible = false;
+		            add(additionalLighten);
 		          default:
 		          {
 		                  defaultCamZoom = 0.9;
@@ -876,7 +933,7 @@ class PlayState extends MusicBeatState
 					gfVersion = 'gf-pixel';
 				case 'tank':
 					gfVersion = 'gf-tankmen';
-				case 'phillyStreets':
+				case 'phillyStreets' | 'phillyBlazin':
 					gfVersion = 'nene';
 			}
 		} else {
@@ -1037,6 +1094,17 @@ class PlayState extends MusicBeatState
 
 				gf.x = 1453 - 203;
 				gf.y = 430;
+			case "phillyBlazin":
+				var gfPosOffset:FlxPoint = new FlxPoint(-225, -110);
+
+			    boyfriend.x = 1372;
+				boyfriend.y = 411;
+
+		        dad.x = 730;
+				dad.y = 377;
+
+		        //  gf.x = 1353 + gfPosOffset.x;
+				//  gf.y = 1090 + gfPosOffset.y;
 		}
 
 		gfGroup = new FlxTypedGroup<Character>();
@@ -1117,8 +1185,20 @@ class PlayState extends MusicBeatState
 				}
 			}
 			add(kickedCan);
+		}
 
-			rainShader = new shaders.RainShader(0, FlxG.height / 200);
+        if (curStage == "phillyBlazin") {
+			boyfriend.color = 0xFFDEDEDE;
+		    dad.color = 0xFFDEDEDE;
+
+		    gf.scrollFactor.set(0.7, 0.7);
+		    gf.color = 0xFF888888;
+		}
+
+        if (curStage == "phillyStreets" || curStage == "phillyBlazin") {
+			var rainStrength = (curStage == "phillyBlazin") ? 0.5 : (curStage == "phillyStreets") ? 0 : 0;
+            rainShader = new shaders.RainShader(rainStrength, FlxG.height / 200);
+
 			var shaderFilter = new ShaderFilter(rainShader.shader);
 			camGame.setFilters([shaderFilter]);
 			camGame.filtersEnabled = true;
@@ -1515,6 +1595,7 @@ class PlayState extends MusicBeatState
     function darnellVideo() {
 		inCutscene = true;
 		camHUD.visible = false;
+		FlxG.camera.zoom = 1.3;
 
 		#if VIDEOS
 		var black:FlxSprite = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
@@ -1559,12 +1640,12 @@ class PlayState extends MusicBeatState
 
 		boyfriend.playAnim("pissed", true, false, 24);
 
-		FlxTween.tween(camFollowPos, {x: picoPos.x + 250, y: picoPos.y}, 0, null);
-		FlxTween.tween(this, {defaultCamZoom: 1.3}, 0, null);
+        camFollowPos.setPosition(picoPos.x + 250, picoPos.y);
+	    FlxTween.tween(FlxG.camera, {zoom: 1.3}, 2, { ease: FlxEase.quadInOut });
 
 		new FlxTimer().start(2, function(timer) {
 			FlxTween.tween(camFollowPos, {x: darnellPos.x + 180, y: darnellPos.y}, 2.5, { ease: FlxEase.quadInOut });
-			FlxTween.tween(this, {defaultCamZoom: 0.68}, 2.5, { ease: FlxEase.quadInOut });
+			FlxTween.tween(FlxG.camera, {zoom: 0.68}, 2.5, { ease: FlxEase.quadInOut });
 		});
 
 		new FlxTimer().start(beatTime * 12, function(timer) {
@@ -1617,7 +1698,7 @@ class PlayState extends MusicBeatState
 			startCountdown();
 
 			FlxTween.tween(camFollowPos, {x: darnellPos.x, y: darnellPos.y}, 2, { ease: FlxEase.sineInOut });
-			FlxTween.tween(this, {defaultCamZoom: 0.75}, 2, { ease: FlxEase.sineInOut });
+			FlxTween.tween(FlxG.camera, {zoom: 0.75}, 2, { ease: FlxEase.sineInOut });
 		});
 	}
 
@@ -2377,6 +2458,15 @@ class PlayState extends MusicBeatState
 				// phillyCityLights.members[curLight].alpha -= (Conductor.crochet / 1000) * FlxG.elapsed;
 			case 'tank':
 				moveTank();
+			case 'phillyBlazin':
+				if (lightningActive && !inCutscene) {
+			        lightningTimer -= FlxG.elapsed;
+		        }
+
+		        if (lightningTimer <= 0){
+		        	lightningStrike();
+		        	lightningTimer = FlxG.random.float(7, 15);
+		        }
 		}
 
 		#if sys
@@ -2415,6 +2505,11 @@ class PlayState extends MusicBeatState
 			persistentUpdate = false;
 			persistentDraw = true;
 			paused = true;
+
+		    if (curStage == "phillyBlazin" && lightningSound.playing) {
+		    	unpauseSoundCheck = true;
+		    	lightningSound.pause();
+		    }
 
 			#if sys
 		    script.callFunction("pause", []);
@@ -2984,6 +3079,17 @@ class PlayState extends MusicBeatState
 		}
 		#if sys
 		script.callFunction("performEvent", [event]);
+		#end
+	}
+
+    public function resume() {
+		if (curStage == "phillyBlazin" && unpauseSoundCheck){
+			unpauseSoundCheck = false;
+			lightningSound.play(false);
+		}
+
+		#if sys
+		script.callFunction("resume", []);
 		#end
 	}
 
@@ -3957,6 +4063,63 @@ class PlayState extends MusicBeatState
 				car2Interruptable = true;
 			}
 		});
+	}
+
+	var LIGHTNING_FULL_DURATION = 1.5;
+	var LIGHTNING_FADE_DURATION = 0.3;
+	var LIGHTNING_HOLD_DURATION = 0.15;
+	var CHARACTER_DARKEN_COLOR = 0xFF404040;
+
+	function lightningStrike(?tag:String):Void{
+		scrollingSkyAdd.visible = true;
+		scrollingSkyAdd.alpha = 0.8;
+		FlxTween.tween(scrollingSkyAdd, {alpha: 0.0}, LIGHTNING_FULL_DURATION, {startDelay: LIGHTNING_HOLD_DURATION, onComplete: cleanupLightning});
+
+		streetBlurMultiply.visible = true;
+		streetBlurMultiply.alpha = 0.8;
+		FlxTween.tween(streetBlurMultiply, {alpha: 0.0}, LIGHTNING_FULL_DURATION, {startDelay: LIGHTNING_HOLD_DURATION});
+
+		additionalLighten.visible = true;
+		additionalLighten.alpha = 0.5;
+		FlxTween.tween(additionalLighten, {alpha: 0.0}, LIGHTNING_FADE_DURATION, {startDelay: LIGHTNING_HOLD_DURATION});
+
+		lightning.visible = true;
+		lightning.animation.play('strike');
+
+		if(FlxG.random.bool(65)){
+			lightning.x = FlxG.random.int(-250, 280);
+		}else{
+			lightning.x = FlxG.random.int(780, 900);
+		}
+
+		boyfriend.color = CHARACTER_DARKEN_COLOR;
+		dad.color = CHARACTER_DARKEN_COLOR;
+		gf.color = CHARACTER_DARKEN_COLOR;
+
+		FlxTween.color(boyfriend, LIGHTNING_FADE_DURATION, CHARACTER_DARKEN_COLOR, 0xFFDEDEDE, {startDelay: LIGHTNING_HOLD_DURATION});
+		FlxTween.color(dad, LIGHTNING_FADE_DURATION, CHARACTER_DARKEN_COLOR, 0xFFDEDEDE, {startDelay: LIGHTNING_HOLD_DURATION});
+		FlxTween.color(gf, LIGHTNING_FADE_DURATION, CHARACTER_DARKEN_COLOR, 0xFF888888, {startDelay: LIGHTNING_HOLD_DURATION});
+
+		lightningSound = FlxG.sound.play(Paths.sound("Lightning" + FlxG.random.int(1, 3), "weekend1"));
+	}
+
+	function cleanupLightning(tween:FlxTween) {
+		scrollingSkyAdd.visible = false;
+		streetBlurMultiply.visible = false;
+		additionalLighten.visible = false;
+		lightning.visible = false;
+	}
+
+	function slowRain(tag:String):Void{
+		FlxTween.tween(rainShader, {timeScale: 0.07}, 2.5, {ease: FlxEase.quadOut});
+	}
+
+	function normalRain(tag:String):Void{
+		FlxTween.tween(rainShader, {timeScale: 1}, Conductor.crochet/1000, {ease: FlxEase.quadIn});
+	}
+
+	function toggleLightning(tag:String):Void{
+		lightningActive = !lightningActive;
 	}
 
 	override function stepHit()

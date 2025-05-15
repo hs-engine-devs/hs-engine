@@ -1,8 +1,8 @@
 {
 	"song": {
 		"speed": 2,
-		"player1": "PicoBlazin",
-		"player2": "DarnellBlazin",
+		"player1": "pico-blazin",
+		"player2": "darnell-blazin",
 		"notes": [
 			{
 			"lengthInSteps": 16,

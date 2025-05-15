@@ -42,16 +42,8 @@ class ModPaths {
     private static var modInfo:Array<{ folder:String, enabled:Bool }> = [];
 
     public static function loadMods():Void {
-        Logger.log("Loading mods...");
-
-        var mods = getModFolders();
-
-        for (mod in mods) {
-            var status = mod.enabled ? "enabled" : "disabled";
-            Logger.log('[Mod] "' + mod.folder + '" is ' + status);
-        }
-
-        Logger.log("Mod loading complete.");
+        modInfo = [];
+        loadModSettings();
     }
 
     inline static public function image(path:String):String {

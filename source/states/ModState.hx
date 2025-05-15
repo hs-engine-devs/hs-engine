@@ -6,6 +6,8 @@ import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 import flixel.addons.display.FlxBackdrop;
 
 class ModState extends MusicBeatState {
@@ -23,6 +25,7 @@ class ModState extends MusicBeatState {
     private var maxScrollOffset:Float = 0;
 
     private var restartNeeded:Bool = ModPaths.checkRestartStatus();
+    private var activeTweens:Array<FlxTween> = [];
 
     override function create():Void {
 		#if desktop
@@ -74,16 +77,17 @@ class ModState extends MusicBeatState {
         var modFolders:Array<{ folder:String, enabled:Bool }> = ModPaths.getModFolders();
         if (modFolders.length > 0) {
             for (modFolder in modFolders) {
-                var modText:FlxText = new FlxText(50, 100 + 50 * modGroup.members.length, 1180, "- " + modFolder.folder);
-                modText.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.NONE);
-                modText.alpha = ModPaths.isModEnabled(modFolder.folder) ? 1.0 : 0.5;
+                var modText:FlxText = new FlxText(70, 100 + 60 * modGroup.members.length, 1040, "- " + modFolder.folder);
+                modText.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+                modText.borderSize = 2;
+                modText.alpha = ModPaths.isModEnabled(modFolder.folder) ? 1.0 : 0.4;
                 modText.scrollFactor.set();
                 modGroup.add(modText);
             }
         } else {
             modList.text = "No mods found.";
         }
-        maxScrollOffset = Math.max(0, (modGroup.members.length * 50) - FlxG.height + 150);
+        maxScrollOffset = Math.max(0, (modGroup.members.length * 60) - FlxG.height + 150);
     }
 
     private function toggleMod(folder:String):Void {
@@ -132,6 +136,45 @@ class ModState extends MusicBeatState {
             updateSelection();
         } else if (FlxG.keys.justPressed.SEVEN) {
             FlxG.switchState(new states.editors.EditorMenuState());
+        } else if (FlxG.keys.justPressed.R) {
+            var blackOverlay:FlxSprite = new FlxSprite(0, 0);
+            blackOverlay.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+            blackOverlay.alpha = 0;
+            blackOverlay.scrollFactor.set();
+            add(blackOverlay);
+
+            var refreshText:FlxText = new FlxText(0, 0, FlxG.width, "Refreshing mods...");
+            refreshText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+            refreshText.borderSize = 1.5;
+            refreshText.scrollFactor.set();
+            refreshText.screenCenter();
+            refreshText.alpha = 0;
+            add(refreshText);
+
+            FlxG.sound.music.fadeOut(1.0);
+
+            FlxTween.tween(blackOverlay, {alpha: 1}, 1.0, {
+                onComplete: function(_) {
+                    ModPaths.loadMods();
+                    reloadMods();
+
+                    FlxTween.tween(refreshText, {alpha: 1}, 0.5);
+
+                    new flixel.util.FlxTimer().start(1.5, function(_) {
+                        FlxTween.tween(refreshText, { alpha: 0 }, 1.0, {
+                            ease: FlxEase.quadInOut
+                        });
+                        FlxTween.tween(blackOverlay, {alpha: 0}, 1.0, {
+                            ease: FlxEase.quadInOut,
+                            onComplete: function(_) {
+                                remove(refreshText);
+                                remove(blackOverlay);
+                            }
+                        });
+                        FlxG.sound.music.fadeIn(1.0, 0, 1.0);
+                    });
+                }
+            });
         } else if (controls.BACK) {
             if (restartNeeded) {
                 TitleState.initialized = false;
@@ -159,15 +202,28 @@ class ModState extends MusicBeatState {
             modList.y = 50 - scrollOffset;
             for (i in 0...modGroup.members.length) {
                 var modText:FlxText = cast(modGroup.members[i], FlxText);
-                modText.y = 100 + (50 * i) - scrollOffset;
+                modText.y = 100 + (60 * i) - scrollOffset;
             }
         }
     }
 
     private function updateSelection():Void {
+        for (t in activeTweens) {
+            if (t != null) t.cancel();
+        }
+        activeTweens = [];
+
         for (i in 0...modGroup.members.length) {
             var modText:FlxText = cast(modGroup.members[i], FlxText);
-            modText.color = (i == selectedIndex) ? FlxColor.YELLOW : FlxColor.WHITE;
+            if (i == selectedIndex) {
+                modText.color = FlxColor.YELLOW;
+                var tween:FlxTween = FlxTween.tween(modText.scale, {x: 1.035, y: 1.035}, 0.15, {ease: FlxEase.quadOut});
+                activeTweens.push(tween);
+            } else {
+                modText.color = FlxColor.WHITE;
+                var tween:FlxTween = FlxTween.tween(modText.scale, {x: 1.0, y: 1.0}, 0.15, {ease: FlxEase.quadOut});
+                activeTweens.push(tween);
+            }
         }
     }
 }

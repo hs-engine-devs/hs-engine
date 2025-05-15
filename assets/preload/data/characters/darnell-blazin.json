@@ -5,7 +5,7 @@
                 0,
                 0
             ],
-            "loop": false,
+            "loop": true,
             "anim": "idle",
             "fps": 24,
             "name": "Idle",
@@ -198,7 +198,7 @@
         0
     ],
     "spritePath": "darnellBlazin",
-    "healthIcon": "darnell (blazin')",
+    "healthIcon": "darnell",
     "singDuration": 999.0,
     "flipX": false,
     "scale": 1

@@ -5,7 +5,7 @@
                 0,
                 0
             ],
-            "loop": false,
+            "loop": true,
             "anim": "idle",
             "fps": 24,
             "name": "Idle",
@@ -231,7 +231,7 @@
         0
     ],
     "spritePath": "picoBlazin",
-    "healthIcon": "pico (blazin')",
+    "healthIcon": "pico",
     "singDuration": 999.0,
     "flipX": true,
     "scale": 1
