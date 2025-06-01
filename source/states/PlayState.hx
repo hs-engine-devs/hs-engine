@@ -1714,6 +1714,7 @@ class PlayState extends MusicBeatState
 	{
 		#if VIDEOS
 		inCutscene = true;
+		camHUD.visible = false;
 
 		var filepath:String = Paths.video(name);
 		#if sys
@@ -1750,6 +1751,8 @@ class PlayState extends MusicBeatState
 
 	function startAndEnd()
 	{
+		camHUD.visible = true;
+
 		if(endingSong)
 			endSong();
 		else
@@ -3132,6 +3135,7 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
 		seenCutscene = false;
+		inCutscene = false;
 		endingSong = true;
 
 		if (SONG.validScore)
