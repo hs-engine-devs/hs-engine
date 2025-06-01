@@ -1592,17 +1592,20 @@ class PlayState extends MusicBeatState
 		});
 	}
 
+    private var video:FlxVideo = null;
+    private var black:FlxSprite = null;
+
     function darnellVideo() {
 		inCutscene = true;
 		camHUD.visible = false;
 		FlxG.camera.zoom = 1.3;
 
 		#if VIDEOS
-		var black:FlxSprite = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
+		black = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
 		black.scrollFactor.set();
 		add(black);
 
-		var video:FlxVideo = new FlxVideo();
+		video = new FlxVideo();
 		video.load(Paths.video('darnellCutscene'));
 		video.onEndReached.add(function()
 		{
@@ -1724,7 +1727,11 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		var video:FlxVideo = new FlxVideo();
+		black = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
+		black.scrollFactor.set();
+		add(black);
+
+		video = new FlxVideo();
 		// Recent versions
 		video.load(filepath);
 		video.onEndReached.add(function()
@@ -2438,6 +2445,21 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+
+        #if VIDEOS
+        if (video != null && FlxG.keys.justPressed.ENTER) {
+			FlxTween.tween(video, {alpha: 0, volume: 0}, 0.4, {ease: FlxEase.quadInOut, onComplete: function(shit) {
+				video.dispose();
+                black.visible = false;
+			    if (SONG.song.toLowerCase() == 'darnell') {
+                    darnellIntro();
+			    } else {
+			    	startAndEnd();
+			    }
+			    return;
+			}});
+        }
+        #end
 
 		if (FlxG.keys.justPressed.NINE)
 		{
