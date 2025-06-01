@@ -1643,35 +1643,38 @@ class PlayState extends MusicBeatState
         camFollowPos.setPosition(picoPos.x + 250, picoPos.y);
 	    FlxTween.tween(FlxG.camera, {zoom: 1.3}, 2, { ease: FlxEase.quadInOut });
 
-		new FlxTimer().start(2, function(timer) {
+		var cutsceneManager = new CutsceneManager();
+		add(cutsceneManager);
+
+		cutsceneManager.addEvent(2, function() {
 			FlxTween.tween(camFollowPos, {x: darnellPos.x + 180, y: darnellPos.y}, 2.5, { ease: FlxEase.quadInOut });
 			FlxTween.tween(FlxG.camera, {zoom: 0.68}, 2.5, { ease: FlxEase.quadInOut });
 		});
 
-		new FlxTimer().start(beatTime * 12, function(timer) {
+		cutsceneManager.addEvent(beatTime * 12, function() {
 			dad.playAnim('lightCan', true);
 			FlxG.sound.play(Paths.sound("Darnell_Lighter", "weekend1"));
 		});
 
-		new FlxTimer().start(beatTime * 15, function(timer) {
+		cutsceneManager.addEvent(beatTime * 15, function() {
 			boyfriend.playAnim('reload-cutscene', true);
 			FlxG.sound.play(Paths.sound("Gun_Prep", "weekend1"));
 			createBullet();
 		});
 
-		new FlxTimer().start(beatTime * 16, function(timer) {
+		cutsceneManager.addEvent(beatTime * 16, function() {
 			dad.playAnim('kickUp', true);
 			FlxG.sound.play(Paths.sound("Kick_Can_UP", "weekend1"));
 			canKickSlow();
 		});
 
-		new FlxTimer().start(beatTime * 17.5, function(timer) {
+		cutsceneManager.addEvent(beatTime * 17.5, function() {
 			dad.playAnim('kneeForward', true);
 			FlxG.sound.play(Paths.sound("Kick_Can_FORWARD", "weekend1"));
 			canKickForward();
 		});
 
-		new FlxTimer().start(beatTime * 18, function(timer) {
+		cutsceneManager.addEvent(beatTime * 18, function() {
 			boyfriend.playAnim('shoot-cutscene', true);
 			FlxG.sound.play(Paths.sound("shot" + FlxG.random.int(1, 4), "weekend1"));
 			FlxTween.tween(camFollowPos, {x: darnellPos.x + 100, y: darnellPos.y}, 1, { ease: FlxEase.quadInOut });
@@ -1679,27 +1682,29 @@ class PlayState extends MusicBeatState
 			canShot();
 		});
 
-		new FlxTimer().start(beatTime * 19, function(timer) {
+		cutsceneManager.addEvent(beatTime * 19, function() {
 			dad.playAnim('idle', true);
 		});
 
-		new FlxTimer().start(beatTime * 20, function(timer) {
+		cutsceneManager.addEvent(beatTime * 20, function() {
 			dad.playAnim('laughCutscene', true);
 			FlxG.sound.play(Paths.sound("cutscene/darnell_laugh", "weekend1"));
 		});
 
-		new FlxTimer().start(beatTime * 20.5, function(timer) {
+		cutsceneManager.addEvent(beatTime * 20.5, function() {
 			gf.playAnim('laughCutscene', true);
 			FlxG.sound.play(Paths.sound("cutscene/nene_laugh", "weekend1"));
 		});
 
-		new FlxTimer().start(9, function(timer) {
+		cutsceneManager.addEvent(9, function() {
 			camHUD.visible = true;
 			startCountdown();
 
 			FlxTween.tween(camFollowPos, {x: darnellPos.x, y: darnellPos.y}, 2, { ease: FlxEase.sineInOut });
 			FlxTween.tween(FlxG.camera, {zoom: 0.75}, 2, { ease: FlxEase.sineInOut });
 		});
+
+		cutsceneManager.start();
 	}
 
 	public function startVideo(name:String)

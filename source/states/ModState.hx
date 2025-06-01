@@ -168,7 +168,7 @@ class ModState extends MusicBeatState {
 
                     FlxTween.tween(refreshText, {alpha: 1}, 0.5);
 
-                    new flixel.util.FlxTimer().start(1.5, function(_) {
+                    new FlxTimer().start(1.5, function(_) {
                         FlxTween.tween(refreshText, { alpha: 0 }, 1.0, {
                             ease: FlxEase.quadInOut
                         });

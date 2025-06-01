@@ -47,6 +47,7 @@ import system.Controls;
 import system.Discord;
 import system.Highscore;
 import system.PlayerSettings;
+import system.CutsceneManager;
 import system.Section;
 import system.Song;
 import system.Window;
