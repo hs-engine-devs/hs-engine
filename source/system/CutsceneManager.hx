@@ -15,6 +15,7 @@ class CutsceneManager extends FlxGroup {
     private var elapsedTime:Float = 0;
     private var isPlaying:Bool = false;
 
+    public var onStart:FlxSignal = new FlxSignal();
     public var onComplete:FlxSignal = new FlxSignal();
 
     public function new() {
@@ -29,6 +30,7 @@ class CutsceneManager extends FlxGroup {
     public function start():Void {
         elapsedTime = 0;
         isPlaying = true;
+        onStart.dispatch();
     }
 
     override public function update(elapsed:Float):Void {
