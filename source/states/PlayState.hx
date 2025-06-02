@@ -1733,6 +1733,10 @@ class PlayState extends MusicBeatState
 			FlxTween.tween(FlxG.camera, {zoom: 0.75}, 2, { ease: FlxEase.sineInOut });
 		});
 
+        cutsceneManager.onComplete.add(function() {
+		    cutsceneManager.isPlaying = false;
+		});
+
 		cutsceneManager.start();
 	}
 
@@ -3150,8 +3154,6 @@ class PlayState extends MusicBeatState
 			unpauseSoundCheck = false;
 			lightningSound.play(false);
 		}
-
-		cutsceneManager.isPlaying = false;
 
 		#if sys
 		script.callFunction("resume", []);
