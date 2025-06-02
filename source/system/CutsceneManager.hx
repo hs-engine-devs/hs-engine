@@ -13,7 +13,8 @@ typedef CutsceneEvent = {
 class CutsceneManager extends FlxGroup {
     private var events:Array<CutsceneEvent> = [];
     private var elapsedTime:Float = 0;
-    private var isPlaying:Bool = false;
+
+    public var isPlaying:Bool = false;
 
     public var onStart:FlxSignal = new FlxSignal();
     public var onComplete:FlxSignal = new FlxSignal();

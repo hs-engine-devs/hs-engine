@@ -3,15 +3,24 @@ package system;
 import haxe.Json;
 import flixel.FlxSprite;
 
+typedef AnimStuff = {
+	var anim:String;
+	var name:String;
+	var fps:Int;
+	var loop:Bool;
+	var indices:Array<Int>;
+}
+
 typedef ObjectData = {
-    var name:String;
-    var position:Array<Float>;
-    var image:String;
-    var scrollFactor:Float;
-    var antialiasing:Bool;
-    var alpha:Float;
-    var layer:Int;
-    var scale:Float;
+	var name:String;
+	var position:Array<Float>;
+	var image:String;
+	var scrollFactor:Float;
+	var antialiasing:Bool;
+	var alpha:Float;
+	var layer:Int;
+	var scale:Float;
+	var ?animation:Array<AnimStuff>;
 }
 
 typedef StageJson = {
@@ -57,12 +66,25 @@ class Stage {
     function createObjects() {
         for (i in 0...stageFile.objects.length) {
             var sprite:FlxSprite = new FlxSprite();
-            sprite.loadGraphic(Paths.image(stageFile.objects[i].image));
+			if (stageFile.objects[i].animation != null && stageFile.objects[i].animation.length > 0) {
+				sprite.frames = Paths.getSparrowAtlas(stageFile.objects[i].image);
+				for (anim in stageFile.objects[i].animation) {
+					if (anim.indices != null && anim.indices.length > 0) {
+						sprite.animation.addByIndices(anim.anim, anim.name, anim.indices, "", anim.fps, anim.loop);
+					} else {
+						sprite.animation.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
+					}
+				}
+			} else {
+				sprite.loadGraphic(Paths.image(stageFile.objects[i].image));
+			}
+
             sprite.scale.set(stageFile.objects[i].scale, stageFile.objects[i].scale);
             sprite.antialiasing = stageFile.objects[i].antialiasing;
             sprite.setPosition(stageFile.objects[i].position[0], stageFile.objects[i].position[1]);
             sprite.scrollFactor.set(stageFile.objects[i].scrollFactor, stageFile.objects[i].scrollFactor);
             sprite.alpha = stageFile.objects[i].alpha;
+
             switch (stageFile.objects[i].layer) {
                 case 0:
                     PlayState.instance.add(sprite);
@@ -71,6 +93,7 @@ class Stage {
                 default:
                     PlayState.instance.add(sprite);
             }
+
             objectMap.set(stageFile.objects[i].name, sprite);
             sprite.ID = i;
         }
