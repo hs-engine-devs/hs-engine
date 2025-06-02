@@ -1333,11 +1333,35 @@ class PlayState extends MusicBeatState
 		{
 			switch (curSong.toLowerCase())
 			{
+				case "monster":
+					var whiteScreen:FlxSprite = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.WHITE);
+					add(whiteScreen);
+					whiteScreen.scrollFactor.set();
+					whiteScreen.blend = ADD;
+					camHUD.visible = false;
+					snapCamFollowToPos(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+					inCutscene = true;
+
+					FlxTween.tween(whiteScreen, {alpha: 0}, 1, {
+						startDelay: 0.1,
+						ease: FlxEase.linear,
+						onComplete: function(twn:FlxTween)
+						{
+							camHUD.visible = true;
+							remove(whiteScreen);
+							startCountdown();
+						}
+					});
+
+					FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
+					if(gf != null) gf.playAnim('scared', true);
+					boyfriend.playAnim('scared', true);
 				case "winter-horrorland":
 					var blackScreen:FlxSprite = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
 					add(blackScreen);
 					blackScreen.scrollFactor.set();
 					camHUD.visible = false;
+					inCutscene = true;
 
 					new FlxTimer().start(0.1, function(tmr:FlxTimer)
 					{
@@ -1592,9 +1616,9 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	private var videoOver:Bool = false;
-    private var video:FlxVideo = null;
-    private var black:FlxSprite = null;
+	public var videoOver:Bool = false;
+    public var video:FlxVideo = null;
+    public var black:FlxSprite = null;
 
     function darnellVideo() {
 		inCutscene = true;
@@ -3127,7 +3151,6 @@ class PlayState extends MusicBeatState
 			lightningSound.play(false);
 		}
 
-        inCutscene = false;
 		cutsceneManager.isPlaying = false;
 
 		#if sys

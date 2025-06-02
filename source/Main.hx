@@ -81,7 +81,7 @@ class Main extends Sprite
 		#end
 
         #if windows
-		Window.darkMode(true);
+		Window.darkMode();
 		#end
 	}
 }

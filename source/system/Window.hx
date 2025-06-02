@@ -5,34 +5,34 @@ package system;
     <target id="haxe">
         <lib name="dwmapi.lib" if="windows" />
     </target>
-    ')
+')
 @:cppFileCode('
     #include <Windows.h>
-    #include <cstdio>
-    #include <iostream>
-    #include <tchar.h>
     #include <dwmapi.h>
-    #include <winuser.h>
-    ')
-#end
-@:dox(hide)
-class Window
-{
-	#if windows
-	@:functionCode('
-		int darkMode = enable ? 1 : 0;
-		HWND window = GetActiveWindow();
-		if (S_OK != DwmSetWindowAttribute(window, 19, &darkMode, sizeof(darkMode))) {
-			DwmSetWindowAttribute(window, 20, &darkMode, sizeof(darkMode));
-		}
-	')
-	public static function setDarkMode(enable:Bool) {}
+    #include <tchar.h>
 
-	public static function darkMode(enable:Bool)
-	{
-		setDarkMode(enable);
-		lime.app.Application.current.window.borderless = true;
-		lime.app.Application.current.window.borderless = false;
-	}
-	#end
+    #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+        #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+    #endif
+
+    void forceDarkMode() {
+        HWND hwnd = GetActiveWindow();
+        BOOL dark = TRUE;
+        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));
+    }
+')
+#end
+
+@:dox(hide)
+class Window {
+    #if windows
+    @:functionCode('forceDarkMode();')
+    public static function setDarkMode():Void {}
+
+    public static function darkMode():Void {
+        setDarkMode();
+        lime.app.Application.current.window.borderless = true;
+        lime.app.Application.current.window.borderless = false;
+    }
+    #end
 }
