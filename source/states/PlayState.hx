@@ -213,7 +213,7 @@ class PlayState extends MusicBeatState
 	public var scoreTxt:FlxText;
 
 	public static var campaignScore:Int = 0;
-	// public static var seenCutscene:Bool = false;
+	public static var seenCutscene:Bool = false;
 
 	public var defaultCamZoom:Float = 1.05;
 
@@ -1329,7 +1329,7 @@ class PlayState extends MusicBeatState
 		// cameras = [FlxG.cameras.list[1]];
 		startingSong = true;
 
-		if (isStoryMode)
+		if (isStoryMode && !seenCutscene)
 		{
 			switch (curSong.toLowerCase())
 			{
@@ -1408,7 +1408,7 @@ class PlayState extends MusicBeatState
 					#end
 					    startCountdown();
 			}
-			// seenCutscene = true;
+			seenCutscene = true;
 		}
 		else
 		{
@@ -1616,11 +1616,13 @@ class PlayState extends MusicBeatState
 		});
 	}
 
+	public var runVideo:Bool = false;
 	public var videoOver:Bool = false;
     public var video:FlxVideo = null;
     public var black:FlxSprite = null;
 
     function darnellVideo() {
+		runVideo = true;
 		inCutscene = true;
 		camHUD.visible = false;
 		FlxG.camera.zoom = 1.3;
@@ -1637,6 +1639,7 @@ class PlayState extends MusicBeatState
 			video.dispose();
 			black.visible = false;
 			videoOver = true;
+			runVideo = false;
 			darnellIntro();
 			return;
 		}, true);
@@ -1743,6 +1746,7 @@ class PlayState extends MusicBeatState
 	public function startVideo(name:String)
 	{
 		#if VIDEOS
+		runVideo = true;
 		inCutscene = true;
 		camHUD.visible = false;
 
@@ -1769,6 +1773,7 @@ class PlayState extends MusicBeatState
 		{
 			video.dispose();
 			videoOver = true;
+			runVideo = false;
 			black.visible = false;
 			startAndEnd();
 			return;
@@ -2482,7 +2487,7 @@ class PlayState extends MusicBeatState
 		}
 
         #if VIDEOS
-        if (!videoOver && isStoryMode) {
+        if (runVideo && !videoOver && isStoryMode) {
 			if (FlxG.keys.justPressed.ENTER) {
                 FlxTween.tween(video, {alpha: 0, volume: 0}, 0.4, {
                     ease: FlxEase.quadInOut,
@@ -2492,6 +2497,7 @@ class PlayState extends MusicBeatState
                         video.dispose();
                         black.visible = false;
 			    		videoOver = true;
+						runVideo = false;
 			    		if (SONG.song.toLowerCase() == 'darnell') {
                             darnellIntro();
                         } else {
@@ -3174,7 +3180,7 @@ class PlayState extends MusicBeatState
 		deathCounter = 0;
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
-		// seenCutscene = false;
+		seenCutscene = false;
 		inCutscene = false;
 		endingSong = true;
 
