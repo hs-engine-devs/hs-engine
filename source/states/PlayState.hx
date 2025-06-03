@@ -213,7 +213,7 @@ class PlayState extends MusicBeatState
 	public var scoreTxt:FlxText;
 
 	public static var campaignScore:Int = 0;
-	public static var seenCutscene:Bool = false;
+	// public static var seenCutscene:Bool = false;
 
 	public var defaultCamZoom:Float = 1.05;
 
@@ -1329,7 +1329,7 @@ class PlayState extends MusicBeatState
 		// cameras = [FlxG.cameras.list[1]];
 		startingSong = true;
 
-		if (isStoryMode && !seenCutscene)
+		if (isStoryMode)
 		{
 			switch (curSong.toLowerCase())
 			{
@@ -1408,7 +1408,7 @@ class PlayState extends MusicBeatState
 					#end
 					    startCountdown();
 			}
-			seenCutscene = true;
+			// seenCutscene = true;
 		}
 		else
 		{
@@ -1649,12 +1649,12 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
-	var beatTime:Float;
-	var picoPos:FlxPoint;
-	var darnellPos:FlxPoint;
-	var cutsceneManager:CutsceneManager;
-
     function darnellIntro() {
+	    var beatTime:Float;
+	    var picoPos:FlxPoint;
+	    var darnellPos:FlxPoint;
+	    var cutsceneManager:CutsceneManager;
+
 		picoPos = new FlxPoint(boyfriend.getMidpoint().x - 100 + boyfriend.cameraOffset[0], boyfriend.getMidpoint().y - 100 + boyfriend.cameraOffset[1]);
 		darnellPos = new FlxPoint(dad.getMidpoint().x + 150 + dad.cameraOffset[0], dad.getMidpoint().y - 100 + dad.cameraOffset[1]);
 
@@ -2482,23 +2482,25 @@ class PlayState extends MusicBeatState
 		}
 
         #if VIDEOS
-        if (!videoOver && FlxG.keys.justPressed.ENTER) {
-            FlxTween.tween(video, {alpha: 0, volume: 0}, 0.4, {
-                ease: FlxEase.quadInOut,
-                startDelay: 0.2,
-                type: FlxTween.ONESHOT,
-                onComplete: function(tween:FlxTween) {
-                    video.dispose();
-                    black.visible = false;
-					videoOver = true;
-					if (SONG.song.toLowerCase() == 'darnell') {
-                        darnellIntro();
-                    } else {
-                        startAndEnd();
+        if (!videoOver && isStoryMode) {
+			if (FlxG.keys.justPressed.ENTER) {
+                FlxTween.tween(video, {alpha: 0, volume: 0}, 0.4, {
+                    ease: FlxEase.quadInOut,
+                    startDelay: 0.2,
+                    type: FlxTween.ONESHOT,
+                    onComplete: function(tween:FlxTween) {
+                        video.dispose();
+                        black.visible = false;
+			    		videoOver = true;
+			    		if (SONG.song.toLowerCase() == 'darnell') {
+                            darnellIntro();
+                        } else {
+                            startAndEnd();
+                        }
+			    		return;
                     }
-					return;
-                }
-            });
+                });
+		    }
         }
         #end
 
@@ -3172,7 +3174,7 @@ class PlayState extends MusicBeatState
 		deathCounter = 0;
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
-		seenCutscene = false;
+		// seenCutscene = false;
 		inCutscene = false;
 		endingSong = true;
 
