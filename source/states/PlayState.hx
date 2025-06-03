@@ -1769,6 +1769,7 @@ class PlayState extends MusicBeatState
 		{
 			video.dispose();
 			videoOver = true;
+			black.visible = false;
 			startAndEnd();
 			return;
 		}, true);
