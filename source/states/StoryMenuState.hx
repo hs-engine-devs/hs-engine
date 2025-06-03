@@ -15,6 +15,7 @@ import flixel.group.FlxGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.net.curl.CURLCode;
@@ -30,7 +31,10 @@ class StoryMenuState extends MusicBeatState
 	var weekNames:Array<String> = [];
 	var weekTextures:Array<String> = [];
 	var weekDifficulties:Array<Dynamic> = [];
+	var weekColors:Array<String> = [];
 	var txtWeekTitle:FlxText;
+	var yellowBG:FlxSprite;
+	var colorTween:FlxTween;
 	var curWeek:Int = 0;
 	var txtTracklist:FlxText;
 	var grpWeekText:FlxTypedGroup<MenuItem>;
@@ -72,7 +76,16 @@ class StoryMenuState extends MusicBeatState
 		rankText.screenCenter(X);
 
 		var ui_tex = Paths.getSparrowAtlas('campaign_menu_UI_assets');
-		var yellowBG:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 400, 0xFFF9CF51);
+
+		yellowBG = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, FlxColor.WHITE, true);
+		yellowBG.color = 0xFFF9CF51;
+
+		var co = 0xFFF9CF51;
+		if (weekColors[curWeek] != null) {
+			var c = FlxColor.fromString(weekColors[curWeek]);
+			if (c != null) co = c;
+		}
+		yellowBG.color = co;
 
 		grpWeekText = new FlxTypedGroup<MenuItem>();
 		add(grpWeekText);
@@ -325,6 +338,16 @@ class StoryMenuState extends MusicBeatState
 		var diff:String = CoolUtil.songDifficulties[curDifficulty].toLowerCase().trim();
 		sprDifficulty.changeDiff(diff);
 
+	    FlxTween.cancelTweensOf(yellowBG);
+
+		if (colorTween != null) colorTween.cancel();
+		var co = 0xFFF9CF51;
+		if (weekColors[curWeek] != null) {
+			var c = FlxColor.fromString(weekColors[curWeek]);
+			if (c != null) co = c;
+		}
+		colorTween = FlxTween.color(yellowBG, 0.8, yellowBG.color, co, {ease : FlxEase.quintOut});
+
 		updateText();
 	}
 
@@ -362,6 +385,7 @@ class StoryMenuState extends MusicBeatState
 		weekData.push(weekDataDef.songs);
 		weekCharacters.push(weekDataDef.characters);
 		weekDifficulties.push(weekDataDef.difficulties);
+		weekColors.push(weekDataDef.color);
 	}
 
 	public function readWeekFile() {
@@ -395,4 +419,5 @@ typedef WeekData = {
 	var songs:Array<String>;
 	var characters:Array<String>;
 	var difficulties:Array<String>;
+	@:optional var color:String;
 }

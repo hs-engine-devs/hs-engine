@@ -61,7 +61,8 @@
             "texture": "weekend1",
             "songs": ["Darnell", "Lit-Up", "2hot"],
             "characters": ["darnell", "pico-player", "nene"],
-            "difficulties": ["easy", "normal", "hard"]
+            "difficulties": ["easy", "normal", "hard"],
+            "color": "0x6560D1"
         }
     ]
 }

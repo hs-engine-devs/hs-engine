@@ -1,10 +1,10 @@
 {
-	"idle": "M Pico Idle",
-	"spritePath": "Pico",
+	"idle": "idle",
+	"spritePath": "pico",
 	"offsets": [
 		0,
 		-120
 	],
 	"scale": 1,
-	"confirm": "M Dad Idle"
+	"confirm": "idle"
 }

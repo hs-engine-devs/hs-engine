@@ -1,10 +1,10 @@
 {
-	"spritePath": "BF",
+	"spritePath": "bf",
 	"offsets": [
 		15,
 		-40
 	],
 	"scale": 1,
-	"idle": "M BF Idle",
-	"confirm": "M bf HEY"
+	"idle": "idle",
+	"confirm": "confirm"
 }

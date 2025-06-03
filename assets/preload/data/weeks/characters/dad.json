@@ -1,10 +1,10 @@
 {
-	"spritePath": "Dad",
+	"spritePath": "dad",
 	"offsets": [
 		0,
 		0
 	],
 	"scale": 1,
-	"idle": "M Dad Idle",
-	"confirm": "M Dad Idle"
+	"idle": "idle",
+	"confirm": "idle"
 }
