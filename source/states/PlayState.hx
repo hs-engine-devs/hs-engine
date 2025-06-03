@@ -1692,13 +1692,13 @@ class PlayState extends MusicBeatState
 		});
 
 		cutsceneManager.addEvent(beatTime * 16, function() {
-			dad.playAnim('kickUp', true);
+			dad.playAnim('kickCan', true);
 			FlxG.sound.play(Paths.sound("Kick_Can_UP", "weekend1"));
 			canKickSlow();
 		});
 
 		cutsceneManager.addEvent(beatTime * 17.5, function() {
-			dad.playAnim('kneeForward', true);
+			dad.playAnim('kneeCan', true);
 			FlxG.sound.play(Paths.sound("Kick_Can_FORWARD", "weekend1"));
 			canKickForward();
 		});
