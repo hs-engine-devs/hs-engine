@@ -60,18 +60,18 @@
     }
 
     .download-btn {
-      background-color: var(--secondary-color);
-      color: var(--primary-color);
-      padding: 1rem 2rem;
+      background-color: var(--primary-color);
+      color: var(--secondary-color);
+      padding: 0.8rem 1.8rem;
       border: none;
-      border-radius: 8px;
-      font-size: 1.2rem;
+      border-radius: 6px;
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.25s ease;
     }
 
     .download-btn:hover {
-      background-color: #FFCCFF;
+      background-color: #e600b8;
     }
 
     .section-divider {
@@ -89,14 +89,8 @@
     }
 
     h3 {
-      font-size: 2.2rem;
+      font-size: 2.4rem;
       color: var(--primary-color);
-      margin-top: 2.5rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      font-weight: 700;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-      letter-spacing: 1px;
     }
 
     .credits-table {
@@ -168,6 +162,51 @@
         height: 56px;
       }
     }
+
+    .screenshots-gallery img {
+      padding-left: 50px;
+      border-radius: 12px;
+      transition: transform 0.3s ease;
+    }
+
+    .screenshots-gallery img:hover {
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+      .screenshots-gallery img {
+        max-width: 90%;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    #lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      cursor: pointer;
+    }
+
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    #lightbox.show img {
+      transform: scale(1);
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -175,7 +214,7 @@
     <h1><span>HS</span> Engine</h1>
     <nav>
       <a href="#">Home</a>
-      <a href="#">Mod API</a>
+      <a href="modapi.html">Mod API</a>
       <a href="https://github.com/Gidk-g/HS-Engine?tab=readme-ov-file">GitHub</a>
     </nav>
   </header>
@@ -184,6 +223,18 @@
     <h2>Unleash Your Modding Creativity</h2>
     <p>HS Engine is a powerful toolkit for creating Friday Night Funkin' mods with ease.</p>
     <button class="download-btn">Download Now</button>
+
+    <div class="section-divider"></div>
+
+    <section class="screenshots">
+      <h3>Game Screenshots</h3>
+      <div class="screenshots-gallery">
+        <img src="img/screen1.png" alt="Screenshot 1" />
+        <img src="img/screen2.png" alt="Screenshot 2" />
+        <img src="img/screen3.png" alt="Screenshot 3" />
+        <img src="img/screen4.png" alt="Screenshot 4" />
+      </div>
+    </section>
 
     <div class="section-divider"></div>
 
@@ -219,5 +270,35 @@
   <footer>
     &copy; 2025 HS Engine.
   </footer>
+  <div id="lightbox">
+    <img src="" alt="Expanded screenshot" />
+  </div>
+  <script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.querySelector('#lightbox img');
+    const screenshots = document.querySelectorAll('.screenshots-gallery img');
+
+    screenshots.forEach(img => {
+      img.addEventListener('click', () => {
+        lightboxImg.src = img.src;
+        lightbox.style.display = 'flex';
+        setTimeout(() => {
+          lightbox.classList.add('show');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.classList.remove('show');
+        setTimeout(() => {
+          lightbox.style.display = 'none';
+          lightboxImg.src = '';
+          document.body.style.overflow = 'auto';
+        }, 150);
+      }
+    });
+  </script>
 </body>
 </html>
