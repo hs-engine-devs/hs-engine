@@ -9,7 +9,7 @@ The HS Engine is a powerful engine designed for creating and running mods in Fri
 [image]
 src=img/hs-engine.png
 x=-175
-y=-20
+y=-10
 scale=1.1
 [/image]
 
@@ -18,13 +18,13 @@ With the HS Engine, you can:
 [/h1]
 
 [text]
-- Load custom images, sounds, and scripts from mod folders.
+- **Load custom images, sounds, and scripts from mod folders.**
 [/text]
 [text]
-- Enable or disable mods dynamically.
+- **Enable or disable mods dynamically.**
 [/text]
 [text]
-- Manage mod settings and resources efficiently.
+- **Manage mod settings and resources efficiently.**
 [/text]
 [text]
 
