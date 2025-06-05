@@ -9,7 +9,7 @@ The HS Engine is a powerful engine designed for creating and running mods in Fri
 [image]
 src=img/hs-engine.png
 x=-175
-y=0
+y=-20
 scale=1.1
 [/image]
 

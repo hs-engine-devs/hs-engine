@@ -137,8 +137,12 @@
       max-width: 100%;
       height: auto;
       display: block;
-      margin: 2rem auto;
+      margin: 0;
       border-radius: 12px;
+    }
+
+    .content p {
+      margin-top: 0.5rem;
     }
   </style>
 </head>
@@ -156,8 +160,10 @@
     <h2>Mod API</h2>
 
     <div class="sidebar-section">
-      <h3>Home</h3>
+      <h3>Start</h3>
       <a href="#" onclick="loadFile('txt/home.txt')">Home</a>
+      <br>
+      <a href="#" onclick="loadFile('txt/createModFolder.txt')">Create Mod Folder</a>
     </div>
   </div>
 
@@ -255,7 +261,7 @@
                 element.src = params.src;
                 element.alt = '';
                 element.style.display = 'block';
-                element.style.margin = '2rem auto';
+                element.style.margin = '2rem auto 0 auto';
 
                 if (params.x || params.y) {
                   const x = params.x ? `${params.x}px` : '0';
@@ -264,12 +270,29 @@
                   element.style.position = 'relative';
                 }
 
-                if (params.scale || params.scaleX || params.scaleY) {
-                  const scaleX = params.scaleX || params.scale || '1';
-                  const scaleY = params.scaleY || params.scale || '1';
+                if (params.scale) {
+                  const scale = parseFloat(params.scale) || 1;
+                  const newScale = scale < 1 ? scale : 1;
+
+                  function applyScale() {
+                    const naturalWidth = element.naturalWidth;
+                    const naturalHeight = element.naturalHeight;
+                
+                    if (naturalWidth && naturalHeight) {
+                      element.style.width = `${naturalWidth * newScale}px`;
+                      element.style.height = `${naturalHeight * newScale}px`;
+                    }
+                  }
+
+                  if (element.complete) {
+                    applyScale();
+                  } else {
+                    element.addEventListener('load', applyScale);
+                  }
+
                   const existingTransform = element.style.transform || '';
-                  element.style.transform = `${existingTransform} scale(${scaleX}, ${scaleY})`.trim();
-                  element.style.position = 'relative';
+                  const filteredTransform = existingTransform.replace(/scale\([^)]+\)/, '').trim();
+                  element.style.transform = filteredTransform;
                 }
               }
               break;

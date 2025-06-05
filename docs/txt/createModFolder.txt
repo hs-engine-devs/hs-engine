@@ -1,0 +1,47 @@
+[h1]
+Creating a Mod Folder
+[/h1]
+
+[text]
+To create a mod for the HS Engine, follow these steps:
+
+1. **Create a New Folder**: Inside the `mods/` directory, create a new folder named after your mod (e.g., `my_mod`).
+
+2. **Add Resources**: Inside your mod's folder, you can include the following types of resources:
+
+   - **Data**: Add JSON files and Haxe scripts in the `data/` subfolder.
+
+   - **Images**: Place custom images in the appropriate subfolders (e.g., `images/` for character sprites).
+
+   - **Sounds**: Add custom sounds in the `sounds/` folder.
+
+   - **Videos**: Include .mp4 video files in the `videos/` subfolder.
+
+[/text]
+
+[image]
+src=img/shitty-cr.gif
+scale=0.7
+x=-195
+y=-20
+[/image]
+
+[text]
+By following this structure, you can create and manage mods efficiently, enhancing your Friday Night Funkin' experience.
+
+3. **Load the Game**: When the game starts, the HS Engine will automatically load and apply your mod's resources.
+
+4. **Enabling/Disabling a Mod**: To enable or disable a mod, navigate to the in-game Mod Menu. Use the arrow keys to select the desired mod, then press Enter to toggle its status.
+
+[/text]
+
+[image]
+src=img/crmod.png
+scale=0.4
+y=-20
+x=-150
+[/image]
+
+[text]
+By following this structure, you can create and manage mods efficiently, enhancing your Friday Night Funkin' experience.
+[/text]
