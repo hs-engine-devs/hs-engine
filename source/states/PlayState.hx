@@ -2427,17 +2427,15 @@ class PlayState extends MusicBeatState
 	}
 
 	function calculateRatingPercent():Float {
-		var ratingPercent = songScore / ((songHits + songMisses) * 350);
+		var totalNotes = songHits + songMisses;
+		if (totalNotes <= 0) return -1;
 
-		if(!Math.isNaN(ratingPercent) && ratingPercent < 0)
-			ratingPercent = 0;
+		var accuracyy = songHits / totalNotes;
 
-		var rPercent:Float = FlxMath.roundDecimal(ratingPercent * 100, 2);
-
-		if (Math.isNaN(rPercent))
+		if (Math.isNaN(accuracyy) || accuracyy < 0)
 			return -1;
-		else
-			return rPercent;
+
+		return FlxMath.roundDecimal(accuracyy * 100, 2);
 	}
 
 	function funnyRatingText(ratingPercent:Float):String {
@@ -2547,7 +2545,9 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score:" + songScore + " / Misses:" + songMisses + " / Accuracy:" + funnyRatingText(calculateRatingPercent());
+		accuracy = calculateRatingPercent();
+
+		scoreTxt.text = "Score:" + songScore + " / Misses:" + songMisses + " / Accuracy:" + funnyRatingText(accuracy);
 
 		if (!startingSong)
 		{
