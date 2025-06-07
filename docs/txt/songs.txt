@@ -20,11 +20,11 @@ Your mod folder should be organized like this:
     'songs/'
       'your-song/'
         'Inst.ogg'        // - Instrumental audio track
-        'Voices.ogg'      // - Vocals audio track (optional)
+        'Voices.ogg'      // - Vocals audio track
     'data/'
       'charts/'
         'your-song/'
-          'your-song.json'      // - Chart data file (optional)
+          'your-song.json'      // - Chart data file
           'your-song-hard.json'
           'your-song-easy.json'
 [/code]
@@ -77,14 +77,11 @@ Example:
 CoolBeat:bf:0:easy,normal,hard
 [/text]
 
-[h1]
-Loading songs in the game
-[/h1]
-
-[text]
-The game automatically loads songs from enabled mods inside the mods/ folder.
-Make sure your audio files are in songs/your-song/ and charts in data/charts/your-song/.
-[/text]
+[image]
+src=img/coolbeat.png
+scale=0.6
+x=-250
+[/image]
 
 [text]
 
