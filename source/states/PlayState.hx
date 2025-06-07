@@ -227,6 +227,7 @@ class PlayState extends MusicBeatState
 	public var dadIsBetter:Bool = false;
 
 	public var songHits:Int = 0;
+	public var totalPlayed:Int = 0;
 
 	#if sys
 	public var script:ModScripts = new ModScripts();
@@ -3660,6 +3661,7 @@ class PlayState extends MusicBeatState
 			combo = 0;
 			songScore -= 10;
 			songMisses++;
+			totalPlayed++;
 
 			vocals.volume = 0;
 
@@ -3791,7 +3793,8 @@ class PlayState extends MusicBeatState
 			if (!note.isSustainNote)
 			{
 				popUpScore(note.strumTime, note);
-				++songHits;
+				songHits++;
+                totalPlayed++;
 				combo += 1;
 			}
 
