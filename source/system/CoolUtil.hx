@@ -63,6 +63,10 @@ class CoolUtil
         }
     }
 
+    public static function coalesce<T>(val:T, def:T):T {
+        return val != null ? val : def;
+    }
+
 	// thx maru
 	inline public static function formatClass(daClass:Dynamic, formatDir:Bool = true):String {
 		var className = Type.getClassName(Type.getClass(daClass));

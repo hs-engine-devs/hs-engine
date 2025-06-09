@@ -1,265 +1,156 @@
 package substates;
 
-/// Code created by Rozebud for FPS Plus (thanks rozebud)
-// modified by KadeDev for use in Kade Engine/Tricky
-
 import system.KeyBinds;
-import flixel.input.gamepad.FlxGamepad;
-import flixel.util.FlxAxes;
 import flixel.FlxSubState;
-import flixel.input.FlxInput;
-import flixel.input.keyboard.FlxKey;
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.effects.FlxFlicker;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import lime.app.Application;
-import lime.utils.Assets;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.input.FlxKeyManager;
-
+import flixel.util.FlxAxes;
 
 using StringTools;
 
-class KeyBindMenu extends FlxSubState
-{
+class KeyBindMenu extends FlxSubState {
+    var keyLabels:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+    var defaultKeys:Array<String> = ["A", "S", "W", "D"];
+    var keys:Array<String> = [];
 
-    var keyTextDisplay:FlxText;
-    var keyWarning:FlxText;
-    var warningTween:FlxTween;
-    var keyText:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
-    var defaultKeys:Array<String> = ["A", "S", "W", "D", "R"];
-    var curSelected:Int = 0;
-
-    var keys:Array<String> = [FlxG.save.data.leftBind,
-                              FlxG.save.data.downBind,
-                              FlxG.save.data.upBind,
-                              FlxG.save.data.rightBind];
+    var selected:Int = 0;
+    var state:String = "select";
     var tempKey:String = "";
     var blacklist:Array<String> = ["ESCAPE", "ENTER", "BACKSPACE", "SPACE", "TAB"];
 
-    var blackBox:FlxSprite;
+    var displayText:FlxText;
     var infoText:FlxText;
+    var warningText:FlxText;
+    var blackBox:FlxSprite;
 
-    var state:String = "select";
+    override function create() {
+        persistentUpdate = true;
 
-	override function create()
-	{	
+        keys = [
+            CoolUtil.coalesce(FlxG.save.data.leftBind, defaultKeys[0]),
+            CoolUtil.coalesce(FlxG.save.data.downBind, defaultKeys[1]),
+            CoolUtil.coalesce(FlxG.save.data.upBind, defaultKeys[2]),
+            CoolUtil.coalesce(FlxG.save.data.rightBind, defaultKeys[3])
+        ];
 
-        for (i in 0...keys.length)
-        {
-            var k = keys[i];
-            if (k == null)
-                keys[i] = defaultKeys[i];
-        }
-	
-		//FlxG.sound.playMusic('assets/music/configurator' + TitleState.soundExt);
-
-		persistentUpdate = true;
-
-        keyTextDisplay = new FlxText(-10, 0, 1280, "", 72);
-		keyTextDisplay.scrollFactor.set(0, 0);
-		keyTextDisplay.setFormat("VCR OSD Mono", 42, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		keyTextDisplay.borderSize = 2;
-		keyTextDisplay.borderQuality = 3;
-
-        blackBox = new FlxSprite(0,0).makeGraphic(FlxG.width,FlxG.height,FlxColor.BLACK);
+        blackBox = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+        blackBox.alpha = 0.7;
         add(blackBox);
 
-        infoText = new FlxText(30, 580, 1280, 'Press Escape to save. | Press Backspace to leave without saving.', 72);
-		infoText.scrollFactor.set(0, 0);
-		infoText.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		infoText.borderSize = 2;
-		infoText.borderQuality = 3;
-        infoText.alpha = 0;
-        infoText.screenCenter(FlxAxes.X);
+        displayText = new FlxText(-25, 0, FlxG.width, "", 46);
+        displayText.setFormat("VCR OSD Mono", 48, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+        displayText.y = (FlxG.height - displayText.height) / 3.5;
+        displayText.scrollFactor.set();
+        displayText.borderSize = 3;
+        displayText.borderQuality = 1;
+        add(displayText);
+
+        infoText = new FlxText(0, FlxG.height - 80, FlxG.width, "ESC = Save | BACKSPACE = Reset | ENTER = Change", 16);
+        infoText.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+        infoText.scrollFactor.set();
         add(infoText);
-        add(keyTextDisplay);
 
-        blackBox.alpha = 0;
-        keyTextDisplay.alpha = 0;
+        warningText = new FlxText(0, FlxG.height - 150, FlxG.width, "", 16);
+        warningText.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+        warningText.scrollFactor.set();
+        warningText.alpha = 0;
+        add(warningText);
 
-        FlxTween.tween(keyTextDisplay, {alpha: 1}, 1, {ease: FlxEase.expoInOut});
-        FlxTween.tween(infoText, {alpha: 1}, 1.4, {ease: FlxEase.expoInOut});
-        FlxTween.tween(blackBox, {alpha: 0.7}, 1, {ease: FlxEase.expoInOut});
-
-        textUpdate();
-
-		super.create();
-	}
-
-    var frames = 0;
-
-	override function update(elapsed:Float)
-	{
-        if (frames <= 10)
-            frames++;
-
-        switch(state){
-
-            case "select":
-                if (FlxG.keys.justPressed.UP)
-                {
-                    FlxG.sound.play(Paths.sound('scrollMenu'));
-                    changeItem(-1);
-                }
-
-                if (FlxG.keys.justPressed.DOWN)
-                {
-                    FlxG.sound.play(Paths.sound('scrollMenu'));
-                    changeItem(1);
-                }
-
-                if (FlxG.keys.justPressed.ENTER){
-                    FlxG.sound.play(Paths.sound('scrollMenu'));
-                    state = "input";
-                }
-                else if(FlxG.keys.justPressed.ESCAPE){
-                    quit();
-                }
-                else if (FlxG.keys.justPressed.BACKSPACE){
-                    reset();
-                }
-
-            case "input":
-                tempKey = keys[curSelected];
-                keys[curSelected] = "?";
-                textUpdate();
-                state = "waiting";
-
-            case "waiting":
-                if(FlxG.keys.justPressed.ESCAPE){
-                    keys[curSelected] = tempKey;
-                    state = "select";
-                    FlxG.sound.play(Paths.sound('confirmMenu'));
-                }
-                else if(FlxG.keys.justPressed.ENTER){
-                    addKey(defaultKeys[curSelected]);
-                    save();
-                    state = "select";
-                }
-                else if(FlxG.keys.justPressed.ANY){
-                    addKey(FlxG.keys.getIsDown()[0].ID.toString());
-                    save();
-                    state = "select";
-                }
-
-            case "exiting":
-
-            default:
-                state = "select";
-
-        }
-
-        if(FlxG.keys.justPressed.ANY)
-			textUpdate();
-
-		super.update(elapsed);
-		
-	}
-
-    function textUpdate(){
-
-        keyTextDisplay.text = "\n\n";
-
-        for(i in 0...4){
-            var textStart = (i == curSelected) ? "> " : "  ";
-            keyTextDisplay.text += textStart + keyText[i] + ": " + ((keys[i] != keyText[i]) ? (keys[i] + " / ") : "" ) + keyText[i] + " ARROW\n";
-        }
-
-        keyTextDisplay.screenCenter();
-
+        updateText();
+        super.create();
     }
 
-    function save(){
+    override function update(elapsed:Float) {
+        switch(state) {
+            case "select":
+                if (FlxG.keys.justPressed.UP) changeSelection(-1);
+                else if (FlxG.keys.justPressed.DOWN) changeSelection(1);
+                else if (FlxG.keys.justPressed.ENTER) enterKeyChange();
+                else if (FlxG.keys.justPressed.ESCAPE) saveAndExit();
+                else if (FlxG.keys.justPressed.BACKSPACE) resetKeys();
+            case "waiting":
+                if (FlxG.keys.justPressed.ESCAPE) {
+                    keys[selected] = tempKey;
+                    state = "select";
+                    FlxG.sound.play(Paths.sound("confirmMenu"));
+                } else if (FlxG.keys.justPressed.ENTER) {
+                    applyKey(defaultKeys[selected]);
+                    saveAndContinue();
+                } else if (FlxG.keys.justPressed.ANY) {
+                    applyKey(FlxG.keys.getIsDown()[0].ID.toString());
+                    saveAndContinue();
+                }
+        }
+        super.update(elapsed);
+    }
 
-        FlxG.save.data.upBind = keys[2];
-        FlxG.save.data.downBind = keys[1];
+    function changeSelection(offset:Int) {
+        selected = (selected + offset + 4) % 4;
+        FlxG.sound.play(Paths.sound("scrollMenu"));
+        updateText();
+    }
+
+    function enterKeyChange() {
+        tempKey = keys[selected];
+        keys[selected] = "?";
+        state = "waiting";
+        updateText();
+    }
+
+    function applyKey(key:String) {
+        for (i in 0...keys.length) {
+            if (keys[i] == key) keys[i] = defaultKeys[i];
+        }
+        keys[selected] = key;
+        FlxG.sound.play(Paths.sound("scrollMenu"));
+        state = "select";
+        updateText();
+    }
+
+    function updateText() {
+        displayText.text = "  Controls:\n\n";
+        for (i in 0...keyLabels.length) {
+            var prefix = (i == selected ? "> " : "  ");
+            displayText.text += prefix + keyLabels[i] + ": " + keys[i] + "\n";
+        }
+    }
+
+    function saveAndExit() {
         FlxG.save.data.leftBind = keys[0];
+        FlxG.save.data.downBind = keys[1];
+        FlxG.save.data.upBind = keys[2];
         FlxG.save.data.rightBind = keys[3];
-
         FlxG.save.flush();
+        PlayerSettings.player1.controls.loadKeyBinds();
+        close();
+    }
 
+    function saveAndContinue() {
+        FlxG.save.data.leftBind = keys[0];
+        FlxG.save.data.downBind = keys[1];
+        FlxG.save.data.upBind = keys[2];
+        FlxG.save.data.rightBind = keys[3];
+        FlxG.save.flush();
         PlayerSettings.player1.controls.loadKeyBinds();
 
+        state = "select";
+        FlxG.sound.play(Paths.sound("confirmMenu"));
     }
 
-    function reset(){
-
-        for(i in 0...5){
-            keys[i] = defaultKeys[i];
-        }
-        quit();
-
+    function resetKeys() {
+        keys = defaultKeys.copy();
+        updateText();
+        showWarning("Bindings reset to default.");
     }
 
-    function quit(){
-
-        state = "exiting";
-
-        save();
-
-        FlxTween.tween(keyTextDisplay, {alpha: 0}, 1, {ease: FlxEase.expoInOut});
-        FlxTween.tween(blackBox, {alpha: 0}, 1.1, {ease: FlxEase.expoInOut, onComplete: function(flx:FlxTween){close();}});
-        FlxTween.tween(infoText, {alpha: 0}, 1, {ease: FlxEase.expoInOut});
-    }
-
-	function addKey(r:String){
-
-        var shouldReturn:Bool = true;
-
-        var notAllowed:Array<String> = [];
-
-        for(x in blacklist){notAllowed.push(x);}
-
-        Logger.log(notAllowed);
-
-        for(x in 0...keys.length)
-            {
-                var oK = keys[x];
-                if(oK == r)
-                    keys[x] = null;
-                if (notAllowed.contains(oK))
-                {
-                    keys[x] = null;
-                    return;
-                }
-            }
-
-        if (r.contains("NUMPAD"))
-        {
-            keys[curSelected] = null;
-            return;
-        }
-
-        if(shouldReturn){
-            keys[curSelected] = r;
-            FlxG.sound.play(Paths.sound('scrollMenu'));
-        }
-        else{
-            keys[curSelected] = tempKey;
-            FlxG.sound.play(Paths.sound('scrollMenu'));
-            keyWarning.alpha = 1;
-            warningTween.cancel();
-            warningTween = FlxTween.tween(keyWarning, {alpha: 0}, 0.5, {ease: FlxEase.circOut, startDelay: 2});
-        }
-
-	}
-
-    function changeItem(_amount:Int = 0)
-    {
-        curSelected += _amount;
-                
-        if (curSelected > 3)
-            curSelected = 0;
-        if (curSelected < 0)
-            curSelected = 3;
+    function showWarning(msg:String) {
+        warningText.text = msg;
+        warningText.alpha = 1;
+        FlxTween.cancelTweensOf(warningText);
+        FlxTween.tween(warningText, { alpha: 0 }, 3, { ease: FlxEase.quadInOut, startDelay: 0.5 });
     }
 }

@@ -43,7 +43,9 @@ class GameOverSubstate extends MusicBeatSubstate
 				daBf = 'bf-holding-gf-dead';
 		}
 
+		#if sys
         PlayState.instance.script.interp.variables.set("daBf", daBf);
+		#end
 
 		super();
 
