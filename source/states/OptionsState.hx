@@ -4,6 +4,9 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.util.FlxTimer;
 import flixel.group.FlxGroup.FlxTypedGroup;
 
 using StringTools;
@@ -102,7 +105,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 	private var descText:FlxText;
 	private var bg:FlxSprite;
 
-	static var baseOptions:Array<Option> = [
+	public static var baseOptions:Array<Option> = [
 		{ name: 'GAMEPLAY', value: false, isUnselectable: true },
 		{ name: 'BotPlay', value: false, isUnselectable: false },
 		{ name: 'DownScroll', value: false, isUnselectable: false },
@@ -187,40 +190,55 @@ class PreferencesSubstate extends MusicBeatSubstate
 		reloadValues();
 	}
 
-	function buildOptions():Void {
-		options = baseOptions.copy();
+    function buildOptions():Void {
+        options = baseOptions.copy();
 
-		#if sys
-		var activeMods:Array<String> = [];
-		for (modFolder in ModPaths.getModFolders()) {
-			if (modFolder.enabled)
-				activeMods.push(modFolder.folder);
-		}
+        #if sys
+        var activeMods = [ for (modFolder in ModPaths.getModFolders()) if (modFolder.enabled) modFolder.folder ];
 
-		for (custom in Config.customOptions) {
-			if (custom.modSource != null && !activeMods.contains(custom.modSource))
-				continue;
+        for (mods in activeMods) {
+            var folder = 'mods/' + mods + '/data/options/';
+            if (!sys.FileSystem.exists(folder) || !sys.FileSystem.isDirectory(folder)) continue;
 
-			var found = false;
-			for (opt in options) {
-				if (opt.name == custom.name) {
-					opt.value = custom.value;
-					opt.isUnselectable = custom.isUnselectable;
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				options.push({
-					name: custom.name,
-					value: custom.value,
-					isUnselectable: custom.isUnselectable,
-					modSource: custom.modSource
-				});
-			}
-		}
-		#end
-	}
+            var files = sys.FileSystem.readDirectory(folder);
+            var jsonFiles = [ for (f in files) if (StringTools.endsWith(f, '.json')) f ];
+
+            for (i in (options.length - 1)...0) {
+                var opt = options[i];
+                if (opt.modSource != mods) continue;
+
+                var base = opt.name + '.json';
+                if (jsonFiles.indexOf(base, 0) == -1) {
+                    options.splice(i, 1);
+                }
+            }
+
+            for (f in jsonFiles) {
+                var name = f.substr(0, f.length - 5);
+                var existsOpt = false;
+                for (opt in options) {
+                    if (opt.modSource == mods && opt.name == name) {
+                        existsOpt = true;
+                        break;
+                    }
+                }
+                if (!existsOpt) {
+                    var jsonPath = folder + f;
+                    var content = sys.io.File.getContent(jsonPath);
+                    var parsed = haxe.Json.parse(content);
+                    for (item in (cast parsed : OptionsData).options) {
+                        options.push({
+                            name: item.name,
+                            value: item.value,
+                            isUnselectable: item.isUnselectable,
+                            modSource: mods
+                        });
+                    }
+                }
+            }
+        }
+        #end
+    }
 
 	var nextAccept:Int = 5;
 

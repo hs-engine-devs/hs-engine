@@ -1,6 +1,7 @@
 package system;
 
 import flixel.FlxG;
+import states.OptionsState;
 
 using StringTools;
 
@@ -85,37 +86,45 @@ class Config {
 
 	public static function loadCustomOptions() {
 		#if sys
-		customOptions = [];
-	
-		for (modFolder in ModPaths.getModFolders()) {
-			if (modFolder.enabled) {
-				var modFolderPath:String = 'mods/' + modFolder.folder + '/data/options/';
-				if (sys.FileSystem.isDirectory(modFolderPath)) {
-					for (optionJson in sys.FileSystem.readDirectory(modFolderPath)) {
-						if (optionJson != null && optionJson.endsWith('.json')) {
-							var jsonContent:String = sys.io.File.getContent(modFolderPath + optionJson);
-							parseCustomOption(jsonContent, modFolder.folder);
-						}
-					}
-				}
-			}
-		}
-		#end
-	}
+        var folderPath = 'mods/';
+        var found:Array<Option> = [];
+        customOptions = [];
 
-	private static function parseCustomOption(data:String, modSource:String) {
-		var jsonData:OptionsData = haxe.Json.parse(data);
-		if (jsonData != null) {
-			for (item in jsonData.options) {
-				var option:Option = {
-					name: item.name,
-					value: item.value,
-					isUnselectable: item.isUnselectable,
-					modSource: modSource
-				};
-				customOptions.push(option);
-			}
-		}
+        for (modFolder in ModPaths.getModFolders()) {
+            if (!modFolder.enabled) continue;
+            var optionsDirPath = folderPath + modFolder.folder + '/data/options/';
+            if (!sys.FileSystem.isDirectory(optionsDirPath)) continue;
+
+            for (optionJson in sys.FileSystem.readDirectory(optionsDirPath)) {
+                if (optionJson != null && optionJson.endsWith('.json')) {
+                    var fullPath = optionsDirPath + optionJson;
+                    if (!sys.FileSystem.exists(fullPath)) continue;
+
+                    var jsonContent = sys.io.File.getContent(fullPath);
+                    var jsonData: OptionsData = haxe.Json.parse(jsonContent);
+                    for (item in jsonData.options) {
+                        var opt:Option = {
+                            name: item.name,
+                            value: item.value,
+                            isUnselectable: item.isUnselectable,
+                            modSource: modFolder.folder
+                        };
+                        found.push(opt);
+                        customOptions.push(opt);
+                    }
+                }
+            }
+        }
+
+        var bo = PreferencesSubstate.baseOptions;
+        bo = bo.filter(o -> Lambda.exists(found, fn -> fn.name == o.name));
+
+        for (n in found) {
+            if (!Lambda.exists(bo, o -> o.name == n.name)) {
+                bo.push(n);
+            }
+        }
+		#end
 	}
 
 	public static function isCustomOption(name:String):Bool {
