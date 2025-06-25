@@ -38,24 +38,9 @@ This is the repository of Friday Night Funkin': HS Engine.
 | <img src="docs/img/evilsk8r.png" width="64" height="64"/> | [evilsk8r](https://twitter.com/evilsk8r) | Artist of Friday Night Funkin'
 | <img src="docs/img/kawaisprite.png" width="64" height="64"/> | [Kawai Sprite](https://twitter.com/kawaisprite) | Composer of Friday Night Funkin'
 
-## Build instructions
-
-**Warning: Make sure to use Haxe version 4.2.5 as versions like 4.3.4 will not work properly with this engine.**
-
-First you need to install Haxe and HaxeFlixel.
-1. [Install Haxe 4.2.5](https://haxe.org/download/version/4.2.5/) (Download 4.2.5 instead of 4.1.5, seriously stop using Haxe 4.1.5, it misses a lot of stuffs)
-2. Download [git-scm](https://git-scm.com/downloads). Works for Windows, Mac, and Linux, just select your build.
-3. Next go install the necessary Haxe libraries in order to compile your mod by typing these commands in:
-```cmd
-haxelib install hmm
-haxelib run hmm install
-```
-
-You should have everything ready for compiling the engine! Follow the guide below to continue!
-
 <details>
 	<summary>
-		<h1>TODOS:</h1>
+		<h2>TODOS:</h2>
 	</summary>
 	<details>
 		<summary>Done</summary>
@@ -80,3 +65,18 @@ You should have everything ready for compiling the engine! Follow the guide belo
 		</ul>
 	</details>
 </details>
+
+## Build instructions
+
+**Warning: Make sure to use Haxe version 4.2.5 as versions like 4.3.4 will not work properly with this engine.**
+
+First you need to install Haxe and HaxeFlixel.
+1. [Install Haxe 4.2.5](https://haxe.org/download/version/4.2.5/) (Download 4.2.5 instead of 4.1.5, seriously stop using Haxe 4.1.5, it misses a lot of stuffs)
+2. Download [git-scm](https://git-scm.com/downloads). Works for Windows, Mac, and Linux, just select your build.
+3. Next go install the necessary Haxe libraries in order to compile your mod by typing these commands in:
+```cmd
+haxelib install hmm
+haxelib run hmm install
+```
+
+You should have everything ready for compiling the engine! Follow the guide below to continue!
