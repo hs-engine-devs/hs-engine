@@ -52,3 +52,31 @@ haxelib run hmm install
 ```
 
 You should have everything ready for compiling the engine! Follow the guide below to continue!
+
+<details>
+	<summary>
+		<h1>TODOS:</h1>
+	</summary>
+	<details>
+		<summary>Done</summary>
+		<ul>
+			<li>Template thing</li>
+            <li>Template thing</li>
+            <li>Template thing</li>
+		</ul>
+	</details>
+	<details>
+		<summary>In Progress</summary>
+		<ul>
+			<li>Template thing</li>
+            <li>Template thing</li>
+		</ul>
+	</details>
+	<details>
+		<summary>Not started</summary>
+		<ul>
+			<li>Template thing</li>
+			<li>Add a Playable Photoshop Flowey Fight /j</li>
+		</ul>
+	</details>
+</details>
