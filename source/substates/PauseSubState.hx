@@ -22,6 +22,9 @@ class PauseSubState extends MusicBeatSubstate
 
 	var pauseMusic:FlxSound;
 
+    public static var goToStory:Bool = true;
+	public static var goToFreeplay:Bool = true;
+
 	public function new(x:Float, y:Float)
 	{
 		super();
@@ -120,10 +123,14 @@ class PauseSubState extends MusicBeatSubstate
 					FlxG.resetState();
 				case "Exit to menu":
 					PlayState.deathCounter = 0;
-					if (PlayState.isStoryMode)
-						FlxG.switchState(new StoryMenuState());
-					else
-						FlxG.switchState(new FreeplayState());
+					if (PlayState.isStoryMode) {
+						if (goToStory)
+						    FlxG.switchState(new StoryMenuState());
+					} else {
+						if (goToFreeplay)
+						    FlxG.switchState(new FreeplayState());
+					}
+					scriptSubstate.callFunction("exitToMenu", []);
 			}
 		}
 

@@ -114,6 +114,7 @@ class PlayState extends MusicBeatState
 	public var goToGame:Bool = true;
 	public var goToGameOver:Bool = true;
 	public var goToPause:Bool = true;
+	public var goToFreeplay:Bool = true;
 
 	public var gfSpeed:Int = 1;
 	public var health:Float = 1;
@@ -3038,6 +3039,14 @@ class PlayState extends MusicBeatState
 					daNote.destroy();
 				}
 
+				if (daNote.mustPress) {
+					daNote.visible = playerStrums.members[Math.floor(Math.abs(daNote.noteData))].visible;
+					daNote.alpha = playerStrums.members[Math.floor(Math.abs(daNote.noteData))].alpha;
+				} else if (!daNote.wasGoodHit) {
+					daNote.visible = strumLineNotes.members[Math.floor(Math.abs(daNote.noteData))].visible;
+					daNote.alpha = strumLineNotes.members[Math.floor(Math.abs(daNote.noteData))].alpha;
+				}
+
 				var doKill:Bool = daNote.y < -daNote.height;
 				if(Config.downScroll) doKill = daNote.y > FlxG.height;
 
@@ -3264,7 +3273,8 @@ class PlayState extends MusicBeatState
 		else
 		{
 			Logger.log('WENT BACK TO FREEPLAY??');
-			FlxG.switchState(new FreeplayState());
+			if (goToFreeplay)
+			    FlxG.switchState(new FreeplayState());
 		}
 	}
 
