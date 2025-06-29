@@ -242,6 +242,8 @@ class ModScripts {
 		interp.allowStaticVariables = true;
         interp.allowPublicVariables = true;
 
+		interp.errorHandler = _errorHandler;
+
 		interp.variables.set("Int", Int);
 		interp.variables.set("String", String);
 		interp.variables.set("Float", Float);
@@ -362,11 +364,18 @@ class ModScripts {
 			var func:Dynamic = interp.variables.get(funcName);
 			if (func != null && Reflect.isFunction(func))
 				return Reflect.callMethod(null, func, args);
-		} catch (error:Dynamic) {
-			FlxG.log.add(error.details());
-            Logger.log("Error:" + error);
+		} catch (error:hscript.Expr.Error) {
+            _errorHandler(error);
 		}
 		return true;
+	}
+
+	private function _errorHandler(error:hscript.Expr.Error) {
+		var fileName = error.origin;
+		var fn = '$fileName:${error.line}: ';
+		var err = error.toString();
+		if (err.startsWith(fn)) err = err.substr(fn.length);
+        Logger.log("Error: " + err);
 	}
 }
 
@@ -413,6 +422,8 @@ class ModScriptState extends MusicBeatState {
 
 		interp.allowStaticVariables = true;
         interp.allowPublicVariables = true;
+
+		interp.errorHandler = _errorHandler;
 
 		interp.variables.set("Int", Int);
 		interp.variables.set("String", String);
@@ -552,11 +563,18 @@ class ModScriptState extends MusicBeatState {
 			var func:Dynamic = interp.variables.get(funcName);
 			if (func != null && Reflect.isFunction(func))
 				return Reflect.callMethod(null, func, args);
-		} catch (error:Dynamic) {
-			FlxG.log.add(error.details());
-            Logger.log("Error:" + error);
+		} catch (error:hscript.Expr.Error) {
+            _errorHandler(error);
 		}
 		return true;
+	}
+
+	private function _errorHandler(error:hscript.Expr.Error) {
+		var fileName = error.origin;
+		var fn = '$fileName:${error.line}: ';
+		var err = error.toString();
+		if (err.startsWith(fn)) err = err.substr(fn.length);
+        Logger.log("Error: " + err);
 	}
 }
 
@@ -607,6 +625,8 @@ class ModScriptSubstate extends MusicBeatSubstate {
 
 		interp.allowStaticVariables = true;
         interp.allowPublicVariables = true;
+
+		interp.errorHandler = _errorHandler;
 
 		interp.variables.set("Int", Int);
 		interp.variables.set("String", String);
@@ -749,11 +769,18 @@ class ModScriptSubstate extends MusicBeatSubstate {
 			var func:Dynamic = interp.variables.get(funcName);
 			if (func != null && Reflect.isFunction(func))
 				return Reflect.callMethod(null, func, args);
-		} catch (error:Dynamic) {
-			FlxG.log.add(error.details());
-            Logger.log("Error:" + error);
+		} catch (error:hscript.Expr.Error) {
+            _errorHandler(error);
 		}
 		return true;
+	}
+
+	private function _errorHandler(error:hscript.Expr.Error) {
+		var fileName = error.origin;
+		var fn = '$fileName:${error.line}: ';
+		var err = error.toString();
+		if (err.startsWith(fn)) err = err.substr(fn.length);
+        Logger.log("Error: " + err);
 	}
 }
 #end
