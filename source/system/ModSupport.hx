@@ -305,6 +305,20 @@ class ModScripts {
         interp.variables.set("FlxTextBorderStyle", system.classes.FlxTextBorderStyleHelper);
         interp.variables.set("StringHelper", system.classes.StringHelper);
 
+        interp.variables.set("importScript", function(path:String):Dynamic {
+            var scriptPath = ModPaths.script(path);
+            if (scriptPath == null) {
+                Logger.log("Error: could not resolve path '" + path + "'");
+            }
+            if (!FileSystem.exists(scriptPath)) {
+                Logger.log("Error: script not found at '" + scriptPath + "'");
+            }
+
+            var src = File.getContent(scriptPath);
+            var expr = parser.parseString(src);
+            return interp.execute(expr);
+        });
+
         interp.variables.set("switchState", function(state:String):Void {
             var modStatePath = ModPaths.script("data/states/" + state);
             if (modStatePath != null) {
@@ -358,16 +372,13 @@ class ModScripts {
     }
 
 	public function callFunction(funcName:String, ?args:Array<Dynamic>):Dynamic {
-		if (args == null)
-			args = [];
-		try {
-			var func:Dynamic = interp.variables.get(funcName);
-			if (func != null && Reflect.isFunction(func))
-				return Reflect.callMethod(null, func, args);
-		} catch (error:hscript.Expr.Error) {
-            _errorHandler(error);
-		}
-		return true;
+        if (interp == null) return null;
+        if (!interp.variables.exists(funcName)) return null;
+
+        var func = interp.variables.get(funcName);
+        if (func != null && Reflect.isFunction(func)) return Reflect.callMethod(null, func, args);
+
+        return null;
 	}
 
 	private function _errorHandler(error:hscript.Expr.Error) {
@@ -491,6 +502,20 @@ class ModScriptState extends MusicBeatState {
 	    interp.variables.set("controls", controls);
 	    interp.variables.set("curBeat", curBeat);
 		interp.variables.set("curStep", curStep);
+
+        interp.variables.set("importScript", function(path:String):Dynamic {
+            var scriptPath = ModPaths.script(path);
+            if (scriptPath == null) {
+                Logger.log("Error: could not resolve path '" + path + "'");
+            }
+            if (!FileSystem.exists(scriptPath)) {
+                Logger.log("Error: script not found at '" + scriptPath + "'");
+            }
+
+            var src = File.getContent(scriptPath);
+            var expr = parser.parseString(src);
+            return interp.execute(expr);
+        });
 
         interp.variables.set("switchState", function(state:String):Void {
             var modStatePath = ModPaths.script("data/states/" + state);
@@ -693,6 +718,20 @@ class ModScriptSubstate extends MusicBeatSubstate {
 	    interp.variables.set("controls", controls);
 	    interp.variables.set("curBeat", curBeat);
 		interp.variables.set("curStep", curStep);
+
+        interp.variables.set("importScript", function(path:String):Dynamic {
+            var scriptPath = ModPaths.script(path);
+            if (scriptPath == null) {
+                Logger.log("Error: could not resolve path '" + path + "'");
+            }
+            if (!FileSystem.exists(scriptPath)) {
+                Logger.log("Error: script not found at '" + scriptPath + "'");
+            }
+
+            var src = File.getContent(scriptPath);
+            var expr = parser.parseString(src);
+            return interp.execute(expr);
+        });
 
         interp.variables.set("switchState", function(state:String):Void {
             var modStatePath = ModPaths.script("data/states/" + state);

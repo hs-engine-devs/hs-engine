@@ -27,7 +27,7 @@ class Logger {
             FileSystem.createDirectory(logsFolderPath);
         }
         #end
-    }    
+    }
 
     public static function log(message:Dynamic, ?pos:haxe.PosInfos) {
         var className = pos.className;
