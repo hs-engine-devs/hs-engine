@@ -419,5 +419,5 @@ typedef WeekData = {
 	var songs:Array<String>;
 	var characters:Array<String>;
 	var difficulties:Array<String>;
-	@:optional var color:String;
+	var ?color:String;
 }

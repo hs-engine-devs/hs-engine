@@ -39,14 +39,14 @@ class WeekEditorState extends MusicBeatState {
         loadWeekFile();
 
 		characterFile = {
-            spritePath: "Dad",
+            spritePath: "dad",
             offsets: [
                 0,
                 0
             ],
             scale: 1,
-            idle: "M Dad Idle",
-            confirm: "M Dad Idle"
+            idle: "idle",
+            confirm: "idle"
 		};
 
         txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, "", 32);
@@ -276,12 +276,12 @@ class WeekEditorState extends MusicBeatState {
 		var opText:FlxText = new FlxText(input_weekDifficulties.x, input_weekDifficulties.y - 15, FlxG.width, "Week Difficulties", 8);
 		tab_group_week.add(opText);
 
-        var button:FlxButton = new FlxButton(275, 20, 'Save Week', function() {
+        var button:FlxButton = new FlxButton(260, 20, 'Save Week', function() {
             saveWeek(weekFile);
         });
         tab_group_week.add(button);
 
-        var button2:FlxButton = new FlxButton(275, button.y + button.height + 10, 'Load Week', function() {
+        var button2:FlxButton = new FlxButton(260, button.y + button.height + 10, 'Load Week', function() {
             loadWeek();
         });
         tab_group_week.add(button2);
@@ -347,12 +347,12 @@ class WeekEditorState extends MusicBeatState {
 
 		confirmDescText = new FlxText(10, confirmInputText.y - 18, 0, 'Start Press animation:');
 
-        var button:FlxButton = new FlxButton(275, 20, 'Save Character', function() {
+        var button:FlxButton = new FlxButton(260, 20, 'Save Character', function() {
             saveCharacter();
         });
         tab_group_characters.add(button);
 
-        var button2:FlxButton = new FlxButton(275, button.y + button.height + 10, 'Load Character', function() {
+        var button2:FlxButton = new FlxButton(260, button.y + button.height + 10, 'Load Character', function() {
             loadCharacter();
         });
         tab_group_characters.add(button2);
