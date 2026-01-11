@@ -39,6 +39,7 @@ import shaders.FunkinShader;
 import shaders.BlendModeEffect;
 import shaders.OverlayShader;
 import shaders.WiggleEffect;
+import shaders.SelectionShader;
 
 // system
 import system.Config;

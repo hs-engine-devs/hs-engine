@@ -2955,6 +2955,14 @@ class PlayState extends MusicBeatState
 					}
 				}
 
+				if (daNote.mustPress) {
+					daNote.visible = playerStrums.members[Math.floor(Math.abs(daNote.noteData))].visible;
+					daNote.alpha = playerStrums.members[Math.floor(Math.abs(daNote.noteData))].alpha;
+				} else if (!daNote.wasGoodHit) {
+					daNote.visible = strumLineNotes.members[Math.floor(Math.abs(daNote.noteData))].visible;
+					daNote.alpha = strumLineNotes.members[Math.floor(Math.abs(daNote.noteData))].alpha;
+				}
+
 				var strum = daNote.mustPress ? playerStrums.members[daNote.noteData] : dadStrums.members[daNote.noteData];
 				if (Config.middleScroll)
 				{
@@ -2967,6 +2975,9 @@ class PlayState extends MusicBeatState
 						daNote.alpha = strum.alpha;
 					}
 				}
+
+                if (daNote.isSustainNote)
+                	daNote.alpha = Math.min(daNote.alpha, 0.6);
 
 				if (!daNote.mustPress && daNote.wasGoodHit && !daNote.ignoreNote)
 				{
@@ -3037,14 +3048,6 @@ class PlayState extends MusicBeatState
 					daNote.kill();
 					notes.remove(daNote, true);
 					daNote.destroy();
-				}
-
-				if (daNote.mustPress) {
-					daNote.visible = playerStrums.members[Math.floor(Math.abs(daNote.noteData))].visible;
-					daNote.alpha = playerStrums.members[Math.floor(Math.abs(daNote.noteData))].alpha;
-				} else if (!daNote.wasGoodHit) {
-					daNote.visible = strumLineNotes.members[Math.floor(Math.abs(daNote.noteData))].visible;
-					daNote.alpha = strumLineNotes.members[Math.floor(Math.abs(daNote.noteData))].alpha;
 				}
 
 				var doKill:Bool = daNote.y < -daNote.height;
