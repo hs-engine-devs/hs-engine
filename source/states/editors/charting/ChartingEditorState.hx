@@ -956,8 +956,9 @@ class ChartingEditorState extends MusicBeatState
             copyBuffer = [];
             for (note in selectedNotesGroup) {
                 for (songNote in _song.notes[curSection].sectionNotes) {
-                    if (Math.abs(songNote[0] - note.strumTime) < 2 && songNote[1] == note.noteData) {
-                        copyBuffer.push([songNote[0], songNote[1], songNote[2], songNote[3]]); 
+                    if (Math.abs(songNote[0] - note.strumTime) < 2 && Std.int(songNote[1] % 4) == note.noteData) {
+                        var noteType:String = (songNote.length > 3) ? songNote[3] : "";
+                        copyBuffer.push([songNote[0], songNote[1], songNote[2], noteType]);
                         break;
                     }
                 }
@@ -972,8 +973,10 @@ class ChartingEditorState extends MusicBeatState
                 var newTime:Float = curStep * Conductor.stepCrochet + (n[0] - minTime);
                 var newData:Int = n[1];
                 var newSus:Float = n[2];
-                var newType:String = n[3];
-
+                var newType:String = ""; 
+                if (n.length > 3 && n[3] != null) {
+                    newType = n[3];
+                }
                 _song.notes[curSection].sectionNotes.push([newTime, newData, newSus, newType]);
             }
             updateGrid();
