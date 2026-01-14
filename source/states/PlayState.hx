@@ -2921,7 +2921,7 @@ class PlayState extends MusicBeatState
 							}
 						} 
 						daNote.y += (Note.swagWidth / 2) - (60.5 * (roundedSpeed - 1));
-						daNote.y += 27.5 * ((SONG.bpm / 100) - 1) * (roundedSpeed - 1);
+						daNote.y += 27.5 * ((SONG.bpm / 100) - 1) * (roundedSpeed - 1) + 19;
 
 						if(daNote.mustPress || !daNote.ignoreNote)
 						{
