@@ -119,6 +119,11 @@ class ChartingEditorState extends MusicBeatState
 
 	var copyBuffer:Array<Array<Dynamic>> = [];
 
+    var waveformSprite:FlxSprite;
+    var showWaveform:Bool = false;
+	var waveColor:Int = 0xFF6666FF;
+	var wavData:Array<Array<Array<Float>>> = [[[0], [0]], [[0], [0]]];
+
 	override function create()
 	{
 		curSection = lastSection;
@@ -180,6 +185,12 @@ class ChartingEditorState extends MusicBeatState
 
 		var gridEventLine:FlxSprite = new FlxSprite(0, gridBG.height * -1).makeGraphic(2, Std.int(gridBG.height * 3), FlxColor.BLACK);
 		add(gridEventLine);
+
+        waveformSprite = new FlxSprite(gridBG.x, gridBG.y - gridBG.height); 
+        waveformSprite.makeGraphic(Std.int(gridBG.width), Std.int(gridBG.height * 3), 0x00000000);
+		waveformSprite.antialiasing = true;
+		waveformSprite.alpha = 0.8;
+        add(waveformSprite);
 
 		curRenderedNotes = new FlxTypedGroup<Note>();
 		curRenderedEvents = new FlxTypedGroup<Event>();
@@ -490,6 +501,14 @@ class ChartingEditorState extends MusicBeatState
 			FlxG.sound.music.volume = vol;
 		};
 
+        var check_waveform = new FlxUICheckBox(10, 220, null, null, "Show Waveform", 100);
+        check_waveform.checked = showWaveform;
+        check_waveform.callback = function()
+        {
+            showWaveform = check_waveform.checked;
+            updateGrid();
+        };
+
 		var saveButton:FlxButton = new FlxButton(110, 8, "Save", function()
 		{
 			saveLevel();
@@ -577,6 +596,7 @@ class ChartingEditorState extends MusicBeatState
 
 		tab_group_song.add(check_voices);
 		tab_group_song.add(check_mute_inst);
+		tab_group_song.add(check_waveform);
 		tab_group_song.add(saveButton);
 		tab_group_song.add(reloadSong);
 		tab_group_song.add(reloadSongJson);
@@ -931,7 +951,7 @@ class ChartingEditorState extends MusicBeatState
                                 if (moveTime) {
                                     var multiplier:Int = (FlxG.keys.justPressed.UP) ? -1 : 1;
                                     songNote[0] += Conductor.stepCrochet * multiplier;
-                                    
+
                                     var start:Float = sectionStartTime(sec);
                                     var end:Float = start + (_song.notes[sec].lengthInSteps * Conductor.stepCrochet);
 
@@ -1401,6 +1421,129 @@ class ChartingEditorState extends MusicBeatState
 		updateHeads();
 	}
 
+    function generateWaveform():Void
+    {
+        if (waveformSprite == null) return;
+
+        waveformSprite.pixels.fillRect(
+            new openfl.geom.Rectangle(0, 0, waveformSprite.width, waveformSprite.height), 
+            0x00000000
+        );
+
+        if (!showWaveform) return;
+
+        for (i in -1...2) 
+        {
+            var sectionIdx:Int = curSection + i;
+            if (sectionIdx >= 0 && sectionIdx < _song.notes.length) 
+            {
+                drawSectionWaveform(sectionIdx, i + 1);
+            }
+        }
+
+        waveformSprite.dirty = true;
+        waveformSprite.y = gridBG.y - gridBG.height;
+    }
+
+    function drawSectionWaveform(sec:Int, blockIdx:Int):Void
+    {
+        var st:Float = 0;
+        for (i in 0...sec) st += _song.notes[i].lengthInSteps * Conductor.stepCrochet;
+        var et:Float = st + (_song.notes[sec].lengthInSteps * Conductor.stepCrochet);
+
+        var tempWavData:Array<Array<Array<Float>>> = [
+            [new Array<Float>(), new Array<Float>()], 
+            [new Array<Float>(), new Array<Float>()]
+        ];
+
+        @:privateAccess
+        if (_song.needsVoices && vocals != null && vocals._sound != null) {
+            var buffer = vocals._sound.__buffer;
+            if (buffer != null) {
+                tempWavData = getWaveformData(buffer, buffer.data, st, et, 0.8, tempWavData, gridBG.height);
+            }
+        }
+
+        var hWidth:Int = Std.int(gridBG.width / 2);
+        var yOffset:Float = blockIdx * gridBG.height;
+
+        for (i in 0...Std.int(gridBG.height)) {
+            var lmin:Float = 0; var lmax:Float = 0;
+            var rmin:Float = 0; var rmax:Float = 0;
+
+            if (i < tempWavData[0][0].length) lmin = tempWavData[0][0][i];
+            if (i < tempWavData[0][1].length) lmax = tempWavData[0][1][i];
+            if (i < tempWavData[1][0].length) rmin = tempWavData[1][0][i];
+            if (i < tempWavData[1][1].length) rmax = tempWavData[1][1][i];
+
+            var leftSize:Float = (lmin + lmax) * hWidth;
+            var rightSize:Float = (rmin + rmax) * hWidth;
+            var finalWidth:Float = leftSize + rightSize;
+            if (finalWidth < 1) finalWidth = 1;
+
+            waveformSprite.pixels.fillRect(
+                new openfl.geom.Rectangle(hWidth - leftSize, yOffset + i, finalWidth, 1),
+                waveColor
+            );
+        }
+    }
+    
+    function getWaveformData(buffer:Dynamic, bytes:lime.utils.UInt8Array, time:Float, endTime:Float, multiply:Float, array:Array<Array<Array<Float>>>, steps:Float):Array<Array<Array<Float>>>
+    {
+        var khz:Float = (buffer.sampleRate / 1000);
+        var channels:Int = buffer.channels;
+        var index:Int = Std.int(time * khz);
+        var samplesToProcess:Float = (endTime - time) * khz;
+        var samplesPerRow:Float = samplesToProcess / steps;
+
+        var gotIndex:Int = 0;
+        var rows:Float = 0;
+        var lmin:Float = 0; var lmax:Float = 0;
+        var rmin:Float = 0; var rmax:Float = 0;
+
+        while (index < (bytes.length / (channels * 2)) && gotIndex < steps) {
+            var byteIdx:Int = index * channels * 2;
+            if (byteIdx + 1 < bytes.length) {
+                var raw:Int = (bytes[byteIdx + 1] << 8) | bytes[byteIdx];
+                if (raw > 32767) raw -= 65536;
+                var sample:Float = raw / 32768;
+
+                if (sample > 0) { if (sample > lmax) lmax = sample; }
+                else { if (sample < lmin) lmin = Math.abs(sample); }
+
+                if (channels >= 2 && byteIdx + 3 < bytes.length) {
+                    var rawR:Int = (bytes[byteIdx + 3] << 8) | bytes[byteIdx + 2];
+                    if (rawR > 32767) rawR -= 65536;
+                    var sampleR:Float = rawR / 32768;
+                    if (sampleR > 0) { if (sampleR > rmax) rmax = sampleR; }
+                    else { if (sampleR < rmin) rmin = Math.abs(sampleR); }
+                }
+            }
+
+            if (rows >= samplesPerRow) {
+                if (array[0][0].length <= gotIndex) {
+                    array[0][0].push(lmin * multiply);
+                    array[0][1].push(lmax * multiply);
+                    array[1][0].push(rmin * multiply);
+                    array[1][1].push(rmax * multiply);
+                } else {
+                    array[0][0][gotIndex] += lmin * multiply;
+                    array[0][1][gotIndex] += lmax * multiply;
+                    array[1][0][gotIndex] += rmin * multiply;
+                    array[1][1][gotIndex] += rmax * multiply;
+                }
+
+                lmin = 0; lmax = 0; rmin = 0; rmax = 0;
+                rows = 0;
+                gotIndex++;
+            }
+
+            index++;
+            rows++;
+        }
+        return array;
+    }
+
 	function updateHeads():Void
 	{
         var healthIconP1:String = loadHealthIconFromCharacter(_song.player1);
@@ -1532,6 +1675,8 @@ class ChartingEditorState extends MusicBeatState
 	    } else if (_song.events[curSection] == null) {
 	    	addEventSection();
 	    }
+
+		generateWaveform();
 	}
 
     function generateSection(i:Array<Dynamic>, ?addToSection:Int = 0, currentSection:Int) {
