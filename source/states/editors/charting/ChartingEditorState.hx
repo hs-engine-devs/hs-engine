@@ -879,7 +879,12 @@ class ChartingEditorState extends MusicBeatState
 		FlxG.watch.addQuick('daBeat', curBeat);
 		FlxG.watch.addQuick('daStep', curStep);
 
-        if (FlxG.keys.pressed.SHIFT && FlxG.mouse.justPressed && FlxG.mouse.x >= 0 && FlxG.mouse.x <= gridBG.width) {
+        var mouseOverlappingNote:Bool = false;
+        curRenderedNotes.forEachAlive(function(n:Note) {
+            if (FlxG.mouse.overlaps(n)) mouseOverlappingNote = true;
+        });
+
+        if (FlxG.keys.pressed.SHIFT && FlxG.mouse.justPressed && FlxG.mouse.x >= 0 && FlxG.mouse.x <= gridBG.width && !mouseOverlappingNote) {
             isSelecting = true;
             startMousePos.set(FlxG.mouse.x, FlxG.mouse.y);
             selectionBox.visible = true;
@@ -891,12 +896,7 @@ class ChartingEditorState extends MusicBeatState
 
         if (FlxG.mouse.justPressed && !FlxG.keys.pressed.SHIFT && !isSelecting) 
         {
-            var clickedOnNote:Bool = false;
-            curRenderedNotes.forEachAlive(function(n:Note) {
-                if (FlxG.mouse.overlaps(n)) clickedOnNote = true;
-            });
-
-            if (!clickedOnNote) {
+            if (!mouseOverlappingNote) {
                 for (note in selectedNotesGroup) if (note != null) note.shader = null;
                 selectedNotesGroup = [];
                 oldSelectionData = [];
@@ -1061,10 +1061,6 @@ class ChartingEditorState extends MusicBeatState
             updateGrid();
         }
 
-		var shiftThing:Int = 1;
-		if (FlxG.keys.pressed.SHIFT)
-			shiftThing = 4;
-
 		if (FlxG.keys.justPressed.SPACE && !typingShit.hasFocus)
 		{
 			if (FlxG.sound.music.playing)
@@ -1122,7 +1118,7 @@ class ChartingEditorState extends MusicBeatState
 			}
 		}
 
-		if (!isSelecting && !FlxG.keys.pressed.SHIFT &&FlxG.mouse.x <= gridBG.width && FlxG.mouse.x >= 0)
+		if (!isSelecting && FlxG.mouse.x <= gridBG.width && FlxG.mouse.x >= 0)
 		{
 			if (FlxG.mouse.justPressed)
 				{
@@ -1156,16 +1152,12 @@ class ChartingEditorState extends MusicBeatState
 					}
 				}
 
-				if (FlxG.mouse.x > gridBG.x
-					&& FlxG.mouse.x < gridBG.x + gridBG.width
-					&& FlxG.mouse.y > gridBG.y
-					&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * _song.notes[curSection].lengthInSteps))
-				{
-					dummyArrow.x = Math.floor(FlxG.mouse.x / GRID_SIZE) * GRID_SIZE;
-					if (FlxG.keys.pressed.SHIFT)
-						dummyArrow.y = FlxG.mouse.y;
-					else
-						dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
+                if (FlxG.mouse.x > gridBG.x && FlxG.mouse.x < gridBG.x + gridBG.width) {
+                    dummyArrow.x = Math.floor(FlxG.mouse.x / GRID_SIZE) * GRID_SIZE;
+                    if (FlxG.keys.pressed.ALT) 
+                        dummyArrow.y = FlxG.mouse.y;
+                    else
+                        dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
 				}
 
 				if (FlxG.keys.justPressed.ENTER)
