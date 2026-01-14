@@ -937,7 +937,7 @@ class ChartingEditorState extends MusicBeatState
 
                                     if (songNote[0] < start && sec > 0) {
                                         _song.notes[sec - 1].sectionNotes.push(songNote);
-                                        _song.notes[sec].sectionNotes.remove(songNote);k
+                                        _song.notes[sec].sectionNotes.remove(songNote);
                                         if (sec == curSection) shouldChangeSection = -1;
                                     } 
                                     else if (songNote[0] >= end && sec < _song.notes.length - 1) {
