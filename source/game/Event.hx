@@ -23,12 +23,6 @@ typedef ChartEvent = {
     var ?variable2:String;
 }
 
-typedef EventSection = {
-	var eventNotes:Array<ChartEvent>;
-	var lengthInSteps:Int;
-	var typeOfSection:Int;
-}
-
 typedef EventListData = {
     var eventName:String;
     var ?var1Hint:String;

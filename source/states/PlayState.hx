@@ -257,16 +257,14 @@ class PlayState extends MusicBeatState
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
-		if (SONG.events != null) {
-			for (section in SONG.events) {
-				if (section != null) {
-					for (event in section.eventNotes) {
-						if (event != null)
-							songEvents.push(event);
-					}
-				}
-			}
-		}
+        songEvents = [];
+        if (SONG.events != null) {
+            for (event in SONG.events) {
+                if (event != null)
+                    songEvents.push(event);
+            }
+        }
+        songEvents.sort(function(a, b) return Reflect.compare(a.strumtime, b.strumtime));
 
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new FlxCamera();
@@ -2479,14 +2477,13 @@ class PlayState extends MusicBeatState
 		perfectMode = false;
 		#end
 
-		if (!inCutscene && !paused && generatedMusic && FlxG.sound.music.playing) {
-			for (event in songEvents) {
-				if (Conductor.songPosition >= event.strumtime) {
-					performEvent(event);
-					songEvents.remove(event);
-				}
-			}
-		}
+        if (!inCutscene && !paused && generatedMusic && FlxG.sound.music.playing) {
+            while (songEvents.length > 0 && Conductor.songPosition >= songEvents[0].strumtime) {
+                var event = songEvents[0];
+                performEvent(event);
+                songEvents.shift();
+            }
+        }
 
         #if VIDEOS
         if (runVideo && !videoOver && isStoryMode) {

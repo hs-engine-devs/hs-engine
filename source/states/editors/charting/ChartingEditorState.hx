@@ -3,7 +3,6 @@ package states.editors.charting;
 import game.Event;
 import game.Event.ChartEvent;
 import game.Event.EventListData;
-import game.Event.EventSection;
 import system.Conductor.BPMChangeEvent;
 import system.Section.SwagSection;
 import system.Song.SwagSong;
@@ -233,7 +232,6 @@ class ChartingEditorState extends MusicBeatState
 		tempBpm = _song.bpm;
 
 		addSection();
-		addEventSection();
 
 		// sections = _song.notes;
 
@@ -387,27 +385,24 @@ class ChartingEditorState extends MusicBeatState
 		});
 
 		var addNewEventButton = new FlxButton(200, 60, "Add New Event", function() {
-			if (curSelectedEvents.length > 0) {
-				var selected = curSelectedEvents[curEditingEventIndex];
-				selected.variable1 = eventVar1.text;
-				selected.variable2 = eventVar2.text;
-			}
-
             var noteStrum:Float = (curSelectedEvents.length > 0) 
                 ? curSelectedEvents[curEditingEventIndex].strumtime 
                 : getStrumTime(dummyArrow.y) + sectionStartTime();
 
-			var newEvent:ChartEvent = {
-				strumtime: noteStrum,
-				event: eventDropDown.selectedLabel,
-				variable1: eventVar1.text,
-				variable2: eventVar2.text
-			};
+            var newEvent:ChartEvent = {
+                strumtime: noteStrum,
+                event: eventDropDown.selectedLabel,
+                variable1: eventVar1.text,
+                variable2: eventVar2.text
+            };
 
-			_song.events[curSection].eventNotes.push(newEvent);
+            if (_song.events == null) _song.events = [];
+            _song.events.push(newEvent);
 
-			curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == noteStrum);
-			curEditingEventIndex = curSelectedEvents.length - 1;
+            _song.events.sort(function(a, b) return Reflect.compare(a.strumtime, b.strumtime));
+
+            curSelectedEvents = _song.events.filter(function(e) return Math.abs(e.strumtime - noteStrum) < 2);
+            curEditingEventIndex = curSelectedEvents.length - 1;
 
 			updateGrid();
 			autosaveSong();
@@ -423,19 +418,20 @@ class ChartingEditorState extends MusicBeatState
 
 		var removeEventButton = new FlxButton(200, 140, "Remove Event", function() {
 			if (curSelectedEvents.length > 0) {
-				var selected = curSelectedEvents[curEditingEventIndex];
-				_song.events[curSection].eventNotes.remove(selected);
+                var selected = curSelectedEvents[curEditingEventIndex];
+                _song.events.remove(selected);
 
-				curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == selected.strumtime);
+                curSelectedEvents = _song.events.filter(function(e) return Math.abs(e.strumtime - selected.strumtime) < 2);
 
-				if (curSelectedEvents.length > 0) {
-					curEditingEventIndex = curEditingEventIndex % curSelectedEvents.length;
-				} else {
-					curEditingEventIndex = 0;
-				}
+                if (curSelectedEvents.length > 0) {
+                    curEditingEventIndex = curEditingEventIndex % curSelectedEvents.length;
+                } else {
+                    curEditingEventIndex = 0;
+                }
 
-				updateGrid();
-				loadCurEvent();
+                updateGrid();
+                loadCurEvent();
+                autosaveSong();
 			}
 		});
 
@@ -501,7 +497,7 @@ class ChartingEditorState extends MusicBeatState
 			FlxG.sound.music.volume = vol;
 		};
 
-        var check_waveform = new FlxUICheckBox(10, 220, null, null, "Show Waveform", 100);
+        var check_waveform = new FlxUICheckBox(10, 220, null, null, "Show Waveform (vocals)", 100);
         check_waveform.checked = showWaveform;
         check_waveform.callback = function()
         {
@@ -1250,9 +1246,9 @@ class ChartingEditorState extends MusicBeatState
 					curRenderedEvents.forEach(function(event:Event) {
 						if (FlxG.mouse.overlaps(event)) {
 							if (FlxG.keys.pressed.CONTROL) {
-								var strum = event.thisEvent.strumtime;
-								curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == strum);
-								curEditingEventIndex = 0;
+                                var strum = event.thisEvent.strumtime;
+                                curSelectedEvents = _song.events.filter(function(e) return Math.abs(e.strumtime - strum) < 2);
+                                curEditingEventIndex = 0;
 								loadCurEvent();
 							} else {
 								deleteEvent(event);
@@ -1270,9 +1266,9 @@ class ChartingEditorState extends MusicBeatState
 					curSelectedEvents = [];
 					curRenderedEvents.forEach(function(event:Event) {
 						if (FlxG.mouse.overlaps(event)) {
-							var strum = event.thisEvent.strumtime;
-							curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == strum);
-							curEditingEventIndex = 0;
+                            var strum = event.thisEvent.strumtime;
+                            curSelectedEvents = _song.events.filter(function(e) return Math.abs(e.strumtime - strum) < 2);
+                            curEditingEventIndex = 0;
 							loadCurEvent();
 						}
 					});
@@ -1635,46 +1631,31 @@ class ChartingEditorState extends MusicBeatState
 			}
 		*/
 
-        if ((curSection - 1) >= 0 && curSection < _song.notes.length - 1 && _song.notes[curSection - 1] != null)
-	    {
-	    	for (i in _song.notes[curSection - 1].sectionNotes)
-	    	{
-	    		generateSection(i, -1, curSection);
-	    	}
-	    	if (_song.events[curSection - 1] != null && _song.events[curSection - 1].eventNotes != null) {
-	    		for (i in _song.events[curSection - 1].eventNotes) {
-	    			if (i != null)
-	    				generateEventSection(i, -1, curSection);
-	    		}
-	    	}
-	    }
+        if ((curSection - 1) >= 0 && _song.notes[curSection - 1] != null) {
+            for (i in _song.notes[curSection - 1].sectionNotes) generateSection(i, -1, curSection);
+        }
+        if (curSection < _song.notes.length - 1 && _song.notes[curSection + 1] != null) {
+            for (i in _song.notes[curSection + 1].sectionNotes) generateSection(i, 1, curSection);
+        }
+        for (i in sectionInfo) generateSection(i, 0, curSection);
 
-	    if (curSection < _song.notes.length - 1)
-	    {
-	    	for (i in _song.notes[curSection + 1].sectionNotes)
-	    	{
-	    		generateSection(i, 1, curSection);
-	    	}
-	    	if (_song.events[curSection + 1] != null && _song.events[curSection + 1].eventNotes != null) {
-	    		for (i in _song.events[curSection + 1].eventNotes) {
-	    			if (i != null)
-	    				generateEventSection(i, 1, curSection);
-	    		}
-	    	}
-	    }
-
-	    for (i in sectionInfo)
-	    {
-	    	generateSection(i, 0, curSection);
-	    }
-	    if (_song.events[curSection] != null && _song.events[curSection].eventNotes != null) {
-	    	for (i in _song.events[curSection].eventNotes) {
-	    		if (i != null)
-	    			generateEventSection(i, 0, curSection);
-	    	}
-	    } else if (_song.events[curSection] == null) {
-	    	addEventSection();
-	    }
+        if (_song.events != null) 
+        {
+            var viewStart:Float = sectionStartTime(curSection - 1);
+            var viewEnd:Float = sectionStartTime(curSection + 2);
+            for (e in _song.events) 
+            {
+                if (e != null && e.strumtime >= viewStart && e.strumtime < viewEnd) 
+                {
+                    var visualOffset:Int = 0;
+                    if (e.strumtime < sectionStartTime(curSection)) 
+                        visualOffset = -1;
+                    else if (e.strumtime >= sectionStartTime(curSection + 1)) 
+                        visualOffset = 1;
+                    generateEventSection(e, visualOffset, curSection);
+                }
+            }
+        }
 
 		generateWaveform();
 	}
@@ -1746,8 +1727,8 @@ class ChartingEditorState extends MusicBeatState
 		event.setGraphicSize(GRID_SIZE, GRID_SIZE);
 		event.updateHitbox();
 		event.x = -40;
-		event.y = Math.floor(getYfromStrum((i.strumtime - sectionStartTime(section)) % (Conductor.stepCrochet * _song.events[section].lengthInSteps),
-			eventSectionBGs.members[addToSection + 1]));
+		event.y = Math.floor(getYfromStrum((i.strumtime - sectionStartTime(section)) % (Conductor.stepCrochet * _song.notes[section].lengthInSteps),
+            eventSectionBGs.members[addToSection + 1]));
 
 		if (addToSection == 0) {
 			curRenderedEvents.add(event);
@@ -1770,22 +1751,6 @@ class ChartingEditorState extends MusicBeatState
 		};
 
 		_song.notes.push(sec);
-	}
-
-	private function addEventSection(lengthInSteps:Int = 16):Void
-	{
-		var sec:EventSection = {
-			lengthInSteps: lengthInSteps,
-			eventNotes: [],
-			typeOfSection: 0
-		};
-
-		if (_song.events != null)
-			_song.events.push(sec);
-		else{
-			_song.events = [];
-			_song.events.push(sec);
-		}
 	}
 
 	function selectNote(note:Note):Void
@@ -1859,39 +1824,28 @@ class ChartingEditorState extends MusicBeatState
 		autosaveSong();
 	}
 
-	private function addEvent():Void {
-		if (curSelectedEvents.length > 0) {
-			var selected = curSelectedEvents[curEditingEventIndex];
-			selected.variable1 = eventVar1.text;
-			selected.variable2 = eventVar2.text;
-		}
+    private function addEvent():Void {
+        if (_song.events == null) _song.events = [];
 
-		var noteStrum = getStrumTime(dummyArrow.y) + sectionStartTime();
+        var noteStrum = getStrumTime(dummyArrow.y) + sectionStartTime();
 
-		var newEvent:ChartEvent = {
-			strumtime: noteStrum,
-			event: eventDropDown.selectedLabel,
-			variable1: eventVar1.text,
-			variable2: eventVar2.text
-		};
+        var newEvent:ChartEvent = {
+            strumtime: noteStrum,
+            event: eventDropDown.selectedLabel,
+            variable1: eventVar1.text,
+            variable2: eventVar2.text
+        };
 
-		_song.events[curSection].eventNotes.push(newEvent);
-		curSelectedEvents = _song.events[curSection].eventNotes.filter(function(e) return e.strumtime == noteStrum);
-		curEditingEventIndex = curSelectedEvents.length - 1;
+        _song.events.push(newEvent);
+        _song.events.sort(function(a, b) return Reflect.compare(a.strumtime, b.strumtime));
 
-		updateGrid();
-		autosaveSong();
-	}
+        updateGrid();
+        autosaveSong();
+    }
 
-    function deleteEvent(event:Event):Void
-    {
-        for (i in _song.events[curSection].eventNotes)
-        {
-            if (Math.abs(i.strumtime - event.strumTime) < 2 && i.event == event.thisEvent.event)
-            {
-                _song.events[curSection].eventNotes.remove(i);
-                break;
-            }
+    function deleteEvent(event:Event):Void {
+        if (_song.events != null) {
+            _song.events.remove(event.thisEvent);
         }
         updateGrid();
     }
@@ -1972,7 +1926,7 @@ class ChartingEditorState extends MusicBeatState
 			"song": _song
 		};
 
-		var data:String = Json.stringify(json);
+		var data:String = Json.stringify(json, "\t");
 
 		if ((data != null) && (data.length > 0))
 		{

@@ -1,6 +1,6 @@
 package system;
 
-import game.Event.EventSection;
+import game.Event.ChartEvent;
 import system.Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
@@ -17,7 +17,7 @@ typedef SwagSong =
 {
 	var song:String;
 	var notes:Array<SwagSection>;
-	var ?events:Array<EventSection>;
+	var ?events:Array<ChartEvent>;
 	var bpm:Float;
 	var needsVoices:Bool;
 	var speed:Float;
