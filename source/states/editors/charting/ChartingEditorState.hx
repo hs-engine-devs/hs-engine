@@ -1226,7 +1226,7 @@ class ChartingEditorState extends MusicBeatState
 		if (FlxG.mouse.x < 0 && FlxG.mouse.x >= -40 && FlxG.mouse.y >= eventGridBG.y && FlxG.mouse.y < eventGridBG.height) {
 			dummyArrow.x = eventGridBG.x;
 
-			if (FlxG.keys.pressed.SHIFT)
+			if (FlxG.keys.pressed.ALT)
 				dummyArrow.y = FlxG.mouse.y;
 			else
 				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
