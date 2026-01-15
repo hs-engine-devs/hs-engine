@@ -3124,16 +3124,6 @@ class PlayState extends MusicBeatState
 				if (!Math.isNaN(x) && !Math.isNaN(y)) {
 					camFollowPos.setPosition(x, y);
 				}
-            case "camera zoom lerp":
-                var targetZoom = Std.parseFloat(event.variable1);
-                var duration = Std.parseFloat(event.variable2);
-                if (!Math.isNaN(targetZoom)) {
-                    if (duration <= 0) {
-                        defaultCamZoom = targetZoom;
-                    } else {
-                        FlxTween.tween(this, {defaultCamZoom: targetZoom}, duration, {ease: FlxEase.quadInOut});
-                    }
-                }
 			case "change character":
 				var target = event.variable1;
 				var charName = event.variable2;

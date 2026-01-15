@@ -50,7 +50,6 @@ class ChartingEditorState extends MusicBeatState
 		{ eventName: "screen shake", var1Hint: "Intensity", var2Hint: "Duration (seconds)", info: "Shakes the screen" },
 		{ eventName: "flash", var1Hint: "Duration (seconds)", var2Hint: "Color (e.g., 'red', '#FF0000')", info: "Screen flash with specified color" },
 		{ eventName: "add camera zoom", var1Hint: "Game Zoom", var2Hint: "HUD Zoom", info: "Adds instant zoom to Game and HUD" },
-		{ eventName: "camera zoom lerp", var1Hint: "Target Zoom", var2Hint: "Duration (sec)", info: "Smoothly changes the default camera zoom" },
 		{ eventName: "tween hud alpha", var1Hint: "Alpha value (0-1)", var2Hint: "Duration (seconds)", info: "Animates HUD transparency" },
 		{ eventName: "set hud alpha", var1Hint: "Alpha value (0-1)", var2Hint: null, info: "Sets HUD transparency" }
 	];
@@ -908,8 +907,10 @@ class ChartingEditorState extends MusicBeatState
             if (!mouseOverlappingNote) {
                 for (note in selectedNotesGroup) if (note != null) note.shader = null;
                 selectedNotesGroup = [];
+
 				for (ev in selectedEventsGroup) if (ev != null) ev.shader = null;
 				selectedEventsGroup = [];
+
                 oldSelectionData = [];
                 updateGrid(); 
             }
