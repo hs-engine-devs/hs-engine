@@ -3124,6 +3124,16 @@ class PlayState extends MusicBeatState
 				if (!Math.isNaN(x) && !Math.isNaN(y)) {
 					camFollowPos.setPosition(x, y);
 				}
+            case "camera zoom lerp":
+                var targetZoom = Std.parseFloat(event.variable1);
+                var duration = Std.parseFloat(event.variable2);
+                if (!Math.isNaN(targetZoom)) {
+                    if (duration <= 0) {
+                        defaultCamZoom = targetZoom;
+                    } else {
+                        FlxTween.tween(this, {defaultCamZoom: targetZoom}, duration, {ease: FlxEase.quadInOut});
+                    }
+                }
 			case "change character":
 				var target = event.variable1;
 				var charName = event.variable2;
@@ -3152,12 +3162,15 @@ class PlayState extends MusicBeatState
 					}
 					camGame.flash(color, duration);
 				}
-			case "add camera zoom":
-				var zoom = Std.parseFloat(event.variable1);
-				if (!Math.isNaN(zoom)) {
-					FlxG.camera.zoom += zoom;
-					camHUD.zoom += zoom * 2;
-				}
+            case "add camera zoom":
+                var zoomGame = Std.parseFloat(event.variable1);
+                var zoomHUD = Std.parseFloat(event.variable2);
+                if (!Math.isNaN(zoomGame)) {
+                    FlxG.camera.zoom += zoomGame;
+                }
+                if (!Math.isNaN(zoomHUD)) {
+                    camHUD.zoom += zoomHUD;
+                }
 			case "tween hud alpha":
 				var alpha = Std.parseFloat(event.variable1);
 				var duration = Std.parseFloat(event.variable2);

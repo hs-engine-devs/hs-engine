@@ -49,7 +49,8 @@ class ChartingEditorState extends MusicBeatState
 		{ eventName: "change character", var1Hint: "Target (bf/dad/gf)", var2Hint: "Character name", info: "Changes the character during the song" },
 		{ eventName: "screen shake", var1Hint: "Intensity", var2Hint: "Duration (seconds)", info: "Shakes the screen" },
 		{ eventName: "flash", var1Hint: "Duration (seconds)", var2Hint: "Color (e.g., 'red', '#FF0000')", info: "Screen flash with specified color" },
-		{ eventName: "add camera zoom", var1Hint: "Zoom value", var2Hint: null, info: "Adds zoom to the camera" },
+		{ eventName: "add camera zoom", var1Hint: "Game Zoom", var2Hint: "HUD Zoom", info: "Adds instant zoom to Game and HUD" },
+		{ eventName: "camera zoom lerp", var1Hint: "Target Zoom", var2Hint: "Duration (sec)", info: "Smoothly changes the default camera zoom" },
 		{ eventName: "tween hud alpha", var1Hint: "Alpha value (0-1)", var2Hint: "Duration (seconds)", info: "Animates HUD transparency" },
 		{ eventName: "set hud alpha", var1Hint: "Alpha value (0-1)", var2Hint: null, info: "Sets HUD transparency" }
 	];
@@ -115,8 +116,10 @@ class ChartingEditorState extends MusicBeatState
     var selectedNotesGroup:Array<Note> = [];
 	var oldSelectionData:Array<{time:Float, data:Int}> = [];
 	var selectShader:SelectionShader = new SelectionShader();
-
 	var copyBuffer:Array<Array<Dynamic>> = [];
+
+    var selectedEventsGroup:Array<Event> = [];
+    var copyBufferEvents:Array<Dynamic> = [];
 
     var waveformSprite:FlxSprite;
     var showWaveform:Bool = false;
@@ -884,13 +887,19 @@ class ChartingEditorState extends MusicBeatState
             if (FlxG.mouse.overlaps(n)) mouseOverlappingNote = true;
         });
 
-        if (FlxG.keys.pressed.SHIFT && FlxG.mouse.justPressed && FlxG.mouse.x >= 0 && FlxG.mouse.x <= gridBG.width && !mouseOverlappingNote) {
+        var isMouseOverAnyGrid:Bool = (FlxG.mouse.x >= 0 && FlxG.mouse.x <= gridBG.width) || (FlxG.mouse.x < 0 && FlxG.mouse.x >= -40);
+
+        if (FlxG.keys.pressed.SHIFT && FlxG.mouse.justPressed && isMouseOverAnyGrid && !mouseOverlappingNote) {
             isSelecting = true;
             startMousePos.set(FlxG.mouse.x, FlxG.mouse.y);
             selectionBox.visible = true;
 
             for (note in selectedNotesGroup) if (note != null) note.shader = null;
             selectedNotesGroup = []; 
+
+            for (ev in selectedEventsGroup) if (ev != null) ev.shader = null;
+            selectedEventsGroup = [];
+
             oldSelectionData = [];
         }
 
@@ -899,6 +908,8 @@ class ChartingEditorState extends MusicBeatState
             if (!mouseOverlappingNote) {
                 for (note in selectedNotesGroup) if (note != null) note.shader = null;
                 selectedNotesGroup = [];
+				for (ev in selectedEventsGroup) if (ev != null) ev.shader = null;
+				selectedEventsGroup = [];
                 oldSelectionData = [];
                 updateGrid(); 
             }
@@ -927,58 +938,82 @@ class ChartingEditorState extends MusicBeatState
                         }
                     }
                 });
+
+                curRenderedEvents.forEachAlive(function(event:Event) {
+                    if (selectionBox.getHitbox().overlaps(event.getHitbox())) {
+                        if (!selectedEventsGroup.contains(event)) {
+                            selectedEventsGroup.push(event);
+                            event.shader = selectShader;
+                        }
+                    }
+                });
             }
         }
 
         var movedSomething:Bool = false;
-        if (selectedNotesGroup.length > 0 && !typingShit.hasFocus && !isSelecting) {
+
+        if ((selectedNotesGroup.length > 0 || selectedEventsGroup.length > 0) && !typingShit.hasFocus && !isSelecting) {
             var moveTime:Bool = FlxG.keys.justPressed.UP || FlxG.keys.justPressed.DOWN;
             var moveData:Bool = FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT;
-            if (moveTime || moveData) {
+
+            if (moveTime || moveData)  {
                 movedSomething = true;
-                var newSelectionData:Array<{time:Float, data:Int}> = [];
+                var multiplier:Int = (FlxG.keys.justPressed.UP) ? -1 : 1;
                 var shouldChangeSection:Int = 0;
-                for (noteObject in selectedNotesGroup) {
-                    var actualCol:Int = Math.floor(noteObject.x / GRID_SIZE);
-                    var foundInSong:Bool = false;
-                    for (sec in 0..._song.notes.length) {
-                        for (songNote in _song.notes[sec].sectionNotes) {
-                            if (Math.abs(songNote[0] - noteObject.strumTime) < 2 && Std.int(songNote[1]) == actualCol) {
-                                if (moveTime) {
-                                    var multiplier:Int = (FlxG.keys.justPressed.UP) ? -1 : 1;
-                                    songNote[0] += Conductor.stepCrochet * multiplier;
 
-                                    var start:Float = sectionStartTime(sec);
-                                    var end:Float = start + (_song.notes[sec].lengthInSteps * Conductor.stepCrochet);
+                var newNoteSelectionData:Array<{time:Float, data:Int}> = [];
+                var nextEventSelectionTimes:Array<Float> = [];
 
-                                    if (songNote[0] < start && sec > 0) {
-                                        _song.notes[sec - 1].sectionNotes.push(songNote);
-                                        _song.notes[sec].sectionNotes.remove(songNote);
-                                        if (sec == curSection) shouldChangeSection = -1;
-                                    } 
-                                    else if (songNote[0] >= end && sec < _song.notes.length - 1) {
-                                        _song.notes[sec + 1].sectionNotes.push(songNote);
-                                        _song.notes[sec].sectionNotes.remove(songNote);
-                                        if (sec == curSection) shouldChangeSection = 1;
+                if (selectedNotesGroup.length > 0) {
+                    for (noteObject in selectedNotesGroup) {
+                        var actualCol:Int = Math.floor(noteObject.x / GRID_SIZE);
+                        var foundInSong:Bool = false;
+                        for (sec in 0..._song.notes.length) {
+                            for (songNote in _song.notes[sec].sectionNotes) {
+                                if (Math.abs(songNote[0] - noteObject.strumTime) < 2 && Std.int(songNote[1]) == actualCol) {
+                                    if (moveTime) {
+                                        songNote[0] += Conductor.stepCrochet * multiplier;
+                                        var start:Float = sectionStartTime(sec);
+                                        var end:Float = start + (_song.notes[sec].lengthInSteps * Conductor.stepCrochet);
+                                        if (songNote[0] < start && sec > 0) {
+                                            _song.notes[sec - 1].sectionNotes.push(songNote);
+                                            _song.notes[sec].sectionNotes.remove(songNote);
+                                            if (sec == curSection) shouldChangeSection = -1;
+                                        } else if (songNote[0] >= end && sec < _song.notes.length - 1) {
+                                            _song.notes[sec + 1].sectionNotes.push(songNote);
+                                            _song.notes[sec].sectionNotes.remove(songNote);
+                                            if (sec == curSection) shouldChangeSection = 1;
+                                        }
                                     }
+                                    if (moveData) {
+                                        var addCol:Int = (FlxG.keys.justPressed.RIGHT) ? 1 : -1;
+                                        songNote[1] = (Std.int(songNote[1]) + addCol) % 8;
+                                        if (songNote[1] < 0) songNote[1] = 7;
+                                    }
+                                    newNoteSelectionData.push({time: songNote[0], data: Std.int(songNote[1])});
+                                    foundInSong = true; break;
                                 }
-                                if (moveData) {
-                                    var addCol:Int = (FlxG.keys.justPressed.RIGHT) ? 1 : -1;
-                                    songNote[1] = (Std.int(songNote[1]) + addCol) % 8;
-                                    if (songNote[1] < 0) songNote[1] = 7;
-                                }
-                                newSelectionData.push({time: songNote[0], data: Std.int(songNote[1])});
-                                foundInSong = true;
-                                break;
                             }
+                            if (foundInSong) break;
                         }
-                        if (foundInSong) break;
                     }
                 }
 
-                oldSelectionData = newSelectionData;
-                selectedNotesGroup = []; 
+                if (selectedEventsGroup.length > 0 && moveTime) {
+                    for (ev in selectedEventsGroup) {
+                        ev.thisEvent.strumtime += Conductor.stepCrochet * multiplier;
+                        if (ev.thisEvent.strumtime < 0) ev.thisEvent.strumtime = 0;
 
+                        nextEventSelectionTimes.push(ev.thisEvent.strumtime);
+
+                        var start:Float = sectionStartTime(curSection);
+                        var end:Float = start + (_song.notes[curSection].lengthInSteps * Conductor.stepCrochet);
+                        if (ev.thisEvent.strumtime < start && curSection > 0) shouldChangeSection = -1;
+                        else if (ev.thisEvent.strumtime >= end && curSection < _song.notes.length - 1) shouldChangeSection = 1;
+                    }
+                }
+
+                oldSelectionData = newNoteSelectionData;
                 if (shouldChangeSection != 0) {
                     curSection += shouldChangeSection;
                     if (shouldChangeSection == -1) {
@@ -992,42 +1027,76 @@ class ChartingEditorState extends MusicBeatState
 
                 updateGrid(); 
 
-                var reselectNote = function(note:Note) {
-                    var visualCol:Int = Math.floor(note.x / GRID_SIZE);
-                    for (sel in newSelectionData) {
-                        if (Math.abs(sel.time - note.strumTime) < 2 && sel.data == visualCol) {
-                            note.shader = selectShader;  
-                            if (!selectedNotesGroup.contains(note))
-                                selectedNotesGroup.push(note);
+                selectedNotesGroup = [];
+                selectedEventsGroup = [];
+
+                var reselectNote = function(n:Note) {
+                    var visualCol:Int = Math.floor(n.x / GRID_SIZE);
+                    for (sel in newNoteSelectionData) {
+                        if (Math.abs(sel.time - n.strumTime) < 2 && sel.data == visualCol) {
+                            n.shader = selectShader;
+                            if (!selectedNotesGroup.contains(n)) selectedNotesGroup.push(n);
+                        }
+                    }
+                };
+
+                var reselectEvent = function(e:Event) {
+                    for (t in nextEventSelectionTimes) {
+                        if (Math.abs(e.thisEvent.strumtime - t) < 2) {
+                            e.shader = selectShader;
+                            if (!selectedEventsGroup.contains(e)) selectedEventsGroup.push(e);
                         }
                     }
                 };
 
                 curRenderedNotes.forEachAlive(reselectNote);
+                curRenderedEvents.forEachAlive(reselectEvent);
 
                 if (ignoreRenderShit != null) {
                     ignoreRenderShit.forEachAlive(function(basic:flixel.FlxBasic) {
-                        if (Std.isOfType(basic, Note)) {
-                            reselectNote(cast(basic, Note));
-                        }
+                        if (Std.isOfType(basic, Note)) reselectNote(cast(basic, Note));
+                        if (Std.isOfType(basic, Event)) reselectEvent(cast(basic, Event));
                     });
                 }
             }
         }
 
-        if (selectedNotesGroup.length > 0 && FlxG.keys.justPressed.BACKSPACE) {
-            for (note in selectedNotesGroup) {
-                for (songNote in _song.notes[curSection].sectionNotes) {
-                    var actualCol:Int = Math.floor(note.x / GRID_SIZE);
-                    if (Math.abs(songNote[0] - note.strumTime) < 2 && songNote[1] == actualCol) {
-                        _song.notes[curSection].sectionNotes.remove(songNote);
-                        break;
+        if (FlxG.keys.justPressed.BACKSPACE && !typingShit.hasFocus) {
+            var deletedAnything:Bool = false;
+
+            if (selectedNotesGroup.length > 0) {
+                for (note in selectedNotesGroup) {
+                    for (songNote in _song.notes[curSection].sectionNotes) {
+                        var actualCol:Int = Math.floor(note.x / GRID_SIZE);
+                        if (Math.abs(songNote[0] - note.strumTime) < 2 && songNote[1] == actualCol) {
+                            _song.notes[curSection].sectionNotes.remove(songNote);
+                            break;
+                        }
                     }
                 }
+                selectedNotesGroup = [];
+                deletedAnything = true;
             }
-            selectedNotesGroup = [];
-            oldSelectionData = [];
-            updateGrid();
+
+            if (selectedEventsGroup.length > 0) {
+                var timesToRemove:Array<Float> = [];
+                for (ev in selectedEventsGroup) timesToRemove.push(ev.thisEvent.strumtime);
+
+                _song.events = _song.events.filter(function(e) {
+                    for (time in timesToRemove) {
+                        if (Math.abs(e.strumtime - time) < 2) return false;
+                    }
+                    return true;
+                });
+
+                selectedEventsGroup = [];
+                deletedAnything = true;
+            }
+
+            if (deletedAnything) {
+                oldSelectionData = [];
+                updateGrid();
+            }
         }
 
         if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C && selectedNotesGroup.length > 0) {
@@ -1223,7 +1292,36 @@ class ChartingEditorState extends MusicBeatState
                 }
 		}
 
-		if (FlxG.mouse.x < 0 && FlxG.mouse.x >= -40 && FlxG.mouse.y >= eventGridBG.y && FlxG.mouse.y < eventGridBG.height) {
+        if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C && selectedEventsGroup.length > 0) {
+            copyBufferEvents = [];
+            for (ev in selectedEventsGroup) {
+                copyBufferEvents.push([
+                    ev.thisEvent.strumtime,
+                    ev.thisEvent.event,
+                    ev.thisEvent.variable1,
+                    ev.thisEvent.variable2
+                ]);
+            }
+        }
+
+        if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V && copyBufferEvents.length > 0) {
+            var minTime:Float = copyBufferEvents[0][0];
+            for (e in copyBufferEvents) if (e[0] < minTime) minTime = e[0];
+
+            for (e in copyBufferEvents) {
+                var newTime:Float = curStep * Conductor.stepCrochet + (e[0] - minTime);
+                var newEventData = {
+                    strumtime: newTime,
+                    event: e[1],
+                    variable1: e[2],
+                    variable2: e[3]
+                };
+                _song.events.push(newEventData);
+            }
+            updateGrid();
+        }
+
+		if (!isSelecting && FlxG.mouse.x < 0 && FlxG.mouse.x >= -40 && FlxG.mouse.y >= eventGridBG.y && FlxG.mouse.y < eventGridBG.height) {
 			dummyArrow.x = eventGridBG.x;
 
 			if (FlxG.keys.pressed.ALT)
@@ -1586,6 +1684,7 @@ class ChartingEditorState extends MusicBeatState
         }
 
         selectedNotesGroup = [];
+		selectedEventsGroup = [];
 
 		curRenderedNotes.clear();
 		curRenderedSustains.clear();
