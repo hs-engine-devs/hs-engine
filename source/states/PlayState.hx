@@ -231,7 +231,7 @@ class PlayState extends MusicBeatState
 	public var totalPlayed:Int = 0;
 
 	#if sys
-	public var script:ModScripts = new ModScripts();
+	public var scripts:Array<ModScripts> = [];
 	#end
 
 	public var foreground:FlxTypedGroup<FlxSprite>;
@@ -1132,7 +1132,7 @@ class PlayState extends MusicBeatState
 
         #if sys
 		if (dadIsBetter == false) {
-			script.callFunction("betweenCharacters", []);
+			callOnScripts("betweenCharacters", []);
 		}
 		#end
 
@@ -1149,7 +1149,7 @@ class PlayState extends MusicBeatState
 
         #if sys
 		if (dadIsBetter == true) {
-			script.callFunction("betweenCharacters", []);
+			callOnScripts("betweenCharacters", []);
 		}
 		#end
 
@@ -1401,10 +1401,13 @@ class PlayState extends MusicBeatState
 					darnellVideo();
 				default:
 					#if sys
-					if (sys.FileSystem.exists(ModPaths.script("data/cutscenes/" + SONG.song.toLowerCase()))) {
-						script.loadScript(ModPaths.script("data/cutscenes/" + SONG.song.toLowerCase()));
-						script.callFunction('startCutscene', []);
-					} else
+                    var cutscenePath:String = ModPaths.script("data/cutscenes/" + SONG.song.toLowerCase());
+                    if (sys.FileSystem.exists(cutscenePath)) {
+                        addScript(cutscenePath); 
+                        callOnScripts('startCutscene', []);
+                    } else {
+                        startCountdown();
+                    }
 					#end
 					    startCountdown();
 			}
@@ -1422,52 +1425,36 @@ class PlayState extends MusicBeatState
 		super.create();
 
 		#if sys
-		script.callFunction("createPost", []);
+		callOnScripts("createPost", []);
 		#end
 	}
 
 	#if sys
-    function setScriptFunction() {
-		if (sys.FileSystem.exists(ModPaths.script("data/charts/" + SONG.song.toLowerCase() + "/script"))) {
-			script.loadScript(ModPaths.script("data/charts/" + SONG.song.toLowerCase() + "/script"));
-		}
+    function addScript(path:String) {
+        if (!sys.FileSystem.exists(path)) return;
 
-		for (modFolder in ModPaths.getModFolders()) {
-			if (modFolder.enabled) {
-				var modScriptFolderPath:String = 'mods/' + modFolder.folder + '/data/scripts/';
-				if (sys.FileSystem.exists(modScriptFolderPath)) {
-					for (file in sys.FileSystem.readDirectory(modScriptFolderPath)) {
-						if (file != null && file.endsWith('.hx')) {
-							script.loadScript(haxe.io.Path.join([modScriptFolderPath, file]));
-						}
-					}
-				}
-			}
-		}
+        var newScript:ModScripts = new ModScripts();
+        var variables = newScript.interp.variables;
 
-		if (sys.FileSystem.exists(ModPaths.script("data/stages/" + SONG.stage))) {
-			script.loadScript(ModPaths.script("data/stages/" + SONG.stage));
-		}
-
-		script.interp.variables.set("add", function(value:FlxObject) {
+		variables.set("add", function(value:FlxObject) {
 			add(value);
 		});
 
-		script.interp.variables.set("remove", function(value:FlxObject) {
+		variables.set("remove", function(value:FlxObject) {
 			remove(value);
 		});
 
-		script.interp.variables.set("insert", function(position:Int, value:FlxObject) {
+		variables.set("insert", function(position:Int, value:FlxObject) {
 			insert(position, value);
 		});
 
-		script.interp.variables.set("removeStage", function() {
+		variables.set("removeStage", function() {
             remove(stageBg);
             remove(stageFront);
             remove(stageCurtains);
 		});
 
-		script.interp.variables.set("startVideo", function(videoFile:String) {
+		variables.set("startVideo", function(videoFile:String) {
 			#if VIDEOS
 			if(sys.FileSystem.exists(Paths.video(videoFile))) {
 				startVideo(videoFile);
@@ -1484,52 +1471,94 @@ class PlayState extends MusicBeatState
 			#end
 		});
 
-		script.interp.variables.set("getObject", function(object:String) {
+		variables.set("getObject", function(object:String) {
 			var object:FlxSprite = Stage.objectMap.get(object);
 			return object;
 		});
 
-		script.interp.variables.set("members", members);
+		variables.set("members", members);
 
-		script.interp.variables.set("camFollow", camFollow);
-		script.interp.variables.set("camFollowPos", camFollowPos);
+		variables.set("camFollow", camFollow);
+		variables.set("camFollowPos", camFollowPos);
 
-		script.interp.variables.set("boyfriend", boyfriend);
-		script.interp.variables.set("dad", dad);
-		script.interp.variables.set("gf", gf);
+		variables.set("boyfriend", boyfriend);
+		variables.set("dad", dad);
+		variables.set("gf", gf);
 
-		script.interp.variables.set("boyfriendGroup", boyfriendGroup);
-		script.interp.variables.set("dadGroup", dadGroup);
-		script.interp.variables.set("gfGroup", gfGroup);
+		variables.set("boyfriendGroup", boyfriendGroup);
+		variables.set("dadGroup", dadGroup);
+		variables.set("gfGroup", gfGroup);
 
-		script.interp.variables.set("camHUD", camHUD);
-		script.interp.variables.set("camGame", camGame);
-		script.interp.variables.set("camOther", camOther);
+		variables.set("camHUD", camHUD);
+		variables.set("camGame", camGame);
+		variables.set("camOther", camOther);
 
-		script.interp.variables.set("defaultCamZoom", defaultCamZoom);
-		script.interp.variables.set("curSong", SONG.song);
-		script.interp.variables.set("SONG", SONG);
-		script.interp.variables.set("curStage", curStage);
+		variables.set("defaultCamZoom", defaultCamZoom);
+		variables.set("curSong", SONG.song);
+		variables.set("SONG", SONG);
+		variables.set("curStage", curStage);
 
-		script.interp.variables.set("this", this);
+		variables.set("this", this);
 
-		script.interp.variables.set("inCutscene", inCutscene);
-		script.interp.variables.set("curBeat", curBeat);
-		script.interp.variables.set("curStep", curStep);
+		variables.set("inCutscene", inCutscene);
+		variables.set("curBeat", curBeat);
+		variables.set("curStep", curStep);
 
-		script.interp.variables.set("playerStrums", playerStrums);
-		script.interp.variables.set("dadStrums", dadStrums);
-		script.interp.variables.set("strumLineNotes", strumLineNotes);
+		variables.set("playerStrums", playerStrums);
+		variables.set("dadStrums", dadStrums);
+		variables.set("strumLineNotes", strumLineNotes);
 
-		script.interp.variables.set("noteSplashes", bigSplashy);
+		variables.set("noteSplashes", bigSplashy);
 
 		if (SONG.notes[Math.floor(curStep / 16)] != null){
-			script.interp.variables.set('mustHitSection', SONG.notes[Math.floor(curStep / 16)].mustHitSection);
-			script.interp.variables.set('altAnim', SONG.notes[Math.floor(curStep / 16)].altAnim);
+			variables.set('mustHitSection', SONG.notes[Math.floor(curStep / 16)].mustHitSection);
+			variables.set('altAnim', SONG.notes[Math.floor(curStep / 16)].altAnim);
 		}
 
-        script.callFunction('create', []);
+        newScript.loadScript(path);
+        scripts.push(newScript);
 	}
+
+    function setScriptFunction() {
+        scripts = [];
+
+        var chartScript = ModPaths.script("data/charts/" + SONG.song.toLowerCase() + "/script");
+        addScript(chartScript);
+
+        for (modFolder in ModPaths.getModFolders()) {
+            if (modFolder.enabled) {
+                var modScriptFolderPath:String = 'mods/' + modFolder.folder + '/data/scripts/';
+                if (sys.FileSystem.exists(modScriptFolderPath)) {
+                    for (file in sys.FileSystem.readDirectory(modScriptFolderPath)) {
+                        if (file != null && file.endsWith('.hx')) {
+                            addScript(haxe.io.Path.join([modScriptFolderPath, file]));
+                        }
+                    }
+                }
+            }
+        }
+
+        var stageScript = ModPaths.script("data/stages/" + SONG.stage);
+        addScript(stageScript);
+
+        callOnScripts('create', []);
+    }
+
+    public function setOnScripts(varName:String, value:Dynamic) {
+        for (s in scripts) {
+            if (s != null && s.interp != null) {
+                s.interp.variables.set(varName, value);
+            }
+        }
+    }
+
+    public function callOnScripts(funcName:String, args:Array<Dynamic>) {
+        for (s in scripts) {
+            if (s != null) {
+                s.callFunction(funcName, args);
+            }
+        }
+    }
     #end
 
 	function schoolIntro(?dialogueBox:DialogueBox):Void
@@ -1831,7 +1860,7 @@ class PlayState extends MusicBeatState
 		}
 
 		#if sys
-		script.callFunction('startCountdown', []);
+		callOnScripts('startCountdown', []);
         #end
 
 		startTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
@@ -2087,7 +2116,7 @@ class PlayState extends MusicBeatState
 		#end
 
 		#if sys
-		script.callFunction('songStart', []);
+		callOnScripts('songStart', []);
         #end
 	}
 
@@ -2285,8 +2314,8 @@ class PlayState extends MusicBeatState
 			}
 
 			#if sys
-			script.interp.variables.set("babyArrow", babyArrow);
-			script.callFunction('generateStaticArrows', [player]);
+		    setOnScripts("babyArrow", babyArrow);
+			callOnScripts('generateStaticArrows', [player]);
 			#end
 
 			babyArrow.updateHitbox();
@@ -2545,7 +2574,7 @@ class PlayState extends MusicBeatState
 		}
 
 		#if sys
-		script.callFunction("update", [elapsed]);
+		callOnScripts("update", [elapsed]);
 		#end
 
 		super.update(elapsed);
@@ -2589,7 +2618,7 @@ class PlayState extends MusicBeatState
 		    }
 
 			#if sys
-		    script.callFunction("pause", []);
+		    callOnScripts("pause", []);
 			#end
 
 			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) if(!tmr.finished) tmr.active = false);
@@ -2683,7 +2712,7 @@ class PlayState extends MusicBeatState
 				camFollow.set(dad.getMidpoint().x + 150 + dad.cameraOffset[0], dad.getMidpoint().y - 100 + dad.cameraOffset[1]);
 
 				#if sys
-                script.callFunction("dadTurn", []);
+                callOnScripts("dadTurn", []);
 				#end
 
 				if (abotLookDir) {
@@ -2717,7 +2746,7 @@ class PlayState extends MusicBeatState
 				camFollow.set(boyfriend.getMidpoint().x - 100 + boyfriend.cameraOffset[0], boyfriend.getMidpoint().y - 100 + boyfriend.cameraOffset[1]);
 
 				#if sys
-                script.callFunction("bfTurn", []);
+                callOnScripts("bfTurn", []);
 				#end
 
 				if (!abotLookDir) {
@@ -2806,7 +2835,7 @@ class PlayState extends MusicBeatState
 			}
 
 			#if sys
-            script.callFunction('gameOver', []);
+            callOnScripts('gameOver', []);
 			#end
 
 			deathCounter += 1;
@@ -3034,7 +3063,7 @@ class PlayState extends MusicBeatState
 					}
 
 					#if sys
-					script.callFunction("dadNoteHit", [daNote]);
+					callOnScripts("dadNoteHit", [daNote]);
 					#end
 
 					dad.holdTimer = 0;
@@ -3097,7 +3126,7 @@ class PlayState extends MusicBeatState
 		#end
 
 		#if sys
-		script.callFunction("updatePost", [elapsed]);
+		callOnScripts("updatePost", [elapsed]);
 		#end
 	}
 
@@ -3174,7 +3203,7 @@ class PlayState extends MusicBeatState
 				}
 		}
 		#if sys
-		script.callFunction("performEvent", [event]);
+		callOnScripts("performEvent", [event]);
 		#end
 	}
 
@@ -3185,7 +3214,7 @@ class PlayState extends MusicBeatState
 		}
 
 		#if sys
-		script.callFunction("resume", []);
+		callOnScripts("resume", []);
 		#end
 	}
 
@@ -3212,7 +3241,7 @@ class PlayState extends MusicBeatState
 		}
 
 		#if sys
-		script.callFunction('endSong', []);
+		callOnScripts('endSong', []);
 		#end
 
 		if (isStoryMode)
@@ -3446,8 +3475,8 @@ class PlayState extends MusicBeatState
 		}
 
 		#if sys
-		script.interp.variables.set("daRating", daRating);
-        script.callFunction("popUpScore", [strumtime, note]);
+		setOnScripts("daRating", daRating);
+        callOnScripts("popUpScore", [strumtime, note]);
 		#end
 
 		songScore += score;
@@ -3576,7 +3605,7 @@ class PlayState extends MusicBeatState
 		add(bigSplashy);
 
 		#if sys
-		script.callFunction('createNoteSplash', [note]);
+		callOnScripts('createNoteSplash', [note]);
 		#end
 	}
 
@@ -3716,7 +3745,7 @@ class PlayState extends MusicBeatState
 			}
 
 			#if sys
-			script.callFunction("noteMiss", [note]);
+			callOnScripts("noteMiss", [note]);
 			#end
 
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
@@ -3769,7 +3798,7 @@ class PlayState extends MusicBeatState
 		if (!note.wasGoodHit)
 		{
 			#if sys
-			script.callFunction("goodNoteHit", [note]);
+			callOnScripts("goodNoteHit", [note]);
 			#end
 
             if (note.noteType == "weekend-1-cockgun") {
@@ -4228,7 +4257,7 @@ class PlayState extends MusicBeatState
 
     override function destroy():Void {
 		#if sys
-		script.callFunction("destroy", []);
+		callOnScripts("destroy", []);
 		#end
         super.destroy();
 	}
@@ -4238,7 +4267,7 @@ class PlayState extends MusicBeatState
 		super.stepHit();
 
 		#if sys
-		script.callFunction("stepHit", [curStep]);
+		callOnScripts("stepHit", [curStep]);
 		#end
 
 		if (FlxG.sound.music.time > Conductor.songPosition + 20 || FlxG.sound.music.time < Conductor.songPosition - 20)
@@ -4290,7 +4319,7 @@ class PlayState extends MusicBeatState
 		super.beatHit();
 
 		#if sys
-		script.callFunction("beatHit", [curBeat]);
+		callOnScripts("beatHit", [curBeat]);
 		#end
 
 		if (generatedMusic)

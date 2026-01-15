@@ -44,7 +44,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		}
 
 		#if sys
-        PlayState.instance.script.interp.variables.set("daBf", daBf);
+        PlayState.instance.setOnScripts("daBf", daBf);
 		#end
 
 		super();
