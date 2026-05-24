@@ -146,7 +146,7 @@ class Note extends FlxSprite
 		    		setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 		    		updateHitbox();
 		    	default:
-		    		frames = Paths.getSparrowAtlas(PlayState.instance.noteSkinPath);
+		    		frames = Paths.getSparrowAtlas('NOTE_assets');
 
 		    		animation.addByPrefix('greenScroll', 'green0');
 		    		animation.addByPrefix('redScroll', 'red0');
@@ -164,7 +164,7 @@ class Note extends FlxSprite
 		    		animation.addByPrefix('bluehold', 'blue hold piece');
 
 		    		setGraphicSize(Std.int(width * 0.7));
-		    		updateHitbox();
+				    updateHitbox();
 		    		antialiasing = true;
 		    }
 		}

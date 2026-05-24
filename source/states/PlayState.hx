@@ -136,7 +136,7 @@ class PlayState extends MusicBeatState
 	public var cameraSpeed:Float = 1;
 
 	public var introSoundsSuffix:String = '';
-	public var noteSkinPath:String = 'NOTE_assets';
+	// public var noteSkinPath:String = 'NOTE_assets';
 	public var noteSplashesPath:String = 'noteSplashes';
 
 	public var accuracy:Float;
@@ -2279,7 +2279,7 @@ class PlayState extends MusicBeatState
 					}
 
 				default:
-					babyArrow.frames = Paths.getSparrowAtlas(noteSkinPath);
+					babyArrow.frames = Paths.getSparrowAtlas('NOTE_assets');
 					babyArrow.animation.addByPrefix('green', 'arrowUP');
 					babyArrow.animation.addByPrefix('blue', 'arrowDOWN');
 					babyArrow.animation.addByPrefix('purple', 'arrowLEFT');
@@ -3541,6 +3541,7 @@ class PlayState extends MusicBeatState
 		for (i in seperatedScore)
 		{
 			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y += 80;

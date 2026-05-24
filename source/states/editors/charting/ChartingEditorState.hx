@@ -51,7 +51,9 @@ class ChartingEditorState extends MusicBeatState
 		{ eventName: "flash", var1Hint: "Duration (seconds)", var2Hint: "Color (e.g., 'red', '#FF0000')", info: "Screen flash with specified color" },
 		{ eventName: "add camera zoom", var1Hint: "Game Zoom", var2Hint: "HUD Zoom", info: "Adds instant zoom to Game and HUD" },
 		{ eventName: "tween hud alpha", var1Hint: "Alpha value (0-1)", var2Hint: "Duration (seconds)", info: "Animates HUD transparency" },
-		{ eventName: "set hud alpha", var1Hint: "Alpha value (0-1)", var2Hint: null, info: "Sets HUD transparency" }
+		{ eventName: "set hud alpha", var1Hint: "Alpha value (0-1)", var2Hint: null, info: "Sets HUD transparency" },
+		//TODO
+		//{ eventName: "change noteskin", var1Hint: "Skin name", var2Hint: "Target (bf/dad/all)", info: "Changes Note/Strum skin (add 'pixel' for pixel UI)" }
 	];
 
 	/**
@@ -91,6 +93,61 @@ class ChartingEditorState extends MusicBeatState
 	var funnyCamObj:FlxSprite;
 
 	var _song:SwagSong;
+
+	var undoStack:Array<String> = [];
+	var redoStack:Array<String> = [];
+	var historyLimit:Int = 50;
+
+	function snapshotSong():String {
+		return Json.stringify({ song: _song });
+	}
+
+	function recordUndoState(?clearRedo:Bool = true):Void {
+		undoStack.push(snapshotSong());
+		if (undoStack.length > historyLimit) undoStack.shift();
+		if (clearRedo) redoStack = [];
+	}
+
+	function recordRedoState():Void {
+		redoStack.push(snapshotSong());
+		if (redoStack.length > historyLimit) redoStack.shift();
+	}
+
+	function restoreSongState(state:String):Void {
+		var parsed:Dynamic = Json.parse(state);
+		_song = parsed.song;
+		if (_song.events == null) _song.events = [];
+		if (_song.notes == null) _song.notes = [];
+		if (_song.notes.length == 0) {
+			_song.notes = [{
+				lengthInSteps: 16,
+				bpm: _song.bpm,
+				changeBPM: false,
+				mustHitSection: true,
+				sectionNotes: [],
+				typeOfSection: 0,
+				altAnim: false
+			}];
+		}
+		if (curSection >= _song.notes.length) curSection = _song.notes.length - 1;
+		if (curSection < 0) curSection = 0;
+		updateGrid();
+		updateSectionUI();
+	}
+
+	function undo():Void {
+		if (undoStack.length == 0) return;
+		recordRedoState();
+		var state:String = undoStack.pop();
+		restoreSongState(state);
+	}
+
+	function redo():Void {
+		if (redoStack.length == 0) return;
+		recordUndoState(false);
+		var state:String = redoStack.pop();
+		restoreSongState(state);
+	}
 
 	var typingShit:FlxInputText;
 	/*
@@ -243,6 +300,8 @@ class ChartingEditorState extends MusicBeatState
 		Conductor.changeBPM(_song.bpm);
 		Conductor.mapBPMChanges(_song);
 
+		recordUndoState();
+
 		bpmTxt = new FlxText(1000, 50, 0, "", 16);
 		bpmTxt.scrollFactor.set();
 		add(bpmTxt);
@@ -270,6 +329,16 @@ class ChartingEditorState extends MusicBeatState
 		UI_box.x = FlxG.width / 2;
 		UI_box.y = 20;
 		add(UI_box);
+
+		var undoBtn:FlxButton = new FlxButton(10, 10, "Undo", function() undo());
+		undoBtn.scrollFactor.set(0, 0);
+		undoBtn.setGraphicSize(64, 24);
+		add(undoBtn);
+
+		var redoBtn:FlxButton = new FlxButton(80, 10, "Redo", function() redo());
+		redoBtn.scrollFactor.set(0, 0);
+		redoBtn.setGraphicSize(64, 24);
+		add(redoBtn);
 
 		addSongUI();
 		addSectionUI();
@@ -358,7 +427,8 @@ class ChartingEditorState extends MusicBeatState
 		eventVar2 = new FlxUIInputText(10, 120);
 		var eventVar2InfoText = new FlxText(eventVar2.x, eventVar2.y - 20);
 
-		var eventInstructionText = new FlxText(10, 170);
+		var eventInstructionText = new FlxText(10, 170, 280);
+		eventInstructionText.setFormat(null, 8, FlxColor.WHITE, "left");
 		eventInstructionText.text = "Left click to add or remove an event.\nRight click to edit events.\nClick 'Update' to save Event Changes.\nPlacing an event also saves.\n\nUse 'Add New Event' to\nadd multiple events to the same note.\n\nUse 'Next Event' to switch between\nevents of the same strumtime.\n\nUse 'Remove Event' to delete the current event.";
 
 		eventDropDown = new FlxUIDropDownMenu(10, 20, FlxUIDropDownMenu.makeStrIdLabelArray(eventNames, true), function(selectedLabel:String) {
@@ -379,6 +449,7 @@ class ChartingEditorState extends MusicBeatState
 
 		var saveButton:FlxButton = new FlxButton(200, 20, "Update", function() {
 			if (curSelectedEvents.length > 0) {
+				recordUndoState();
 				var selected = curSelectedEvents[curEditingEventIndex];
 				selected.event = eventDropDown.selectedLabel;
 				selected.variable1 = eventVar1.text;
@@ -387,6 +458,7 @@ class ChartingEditorState extends MusicBeatState
 		});
 
 		var addNewEventButton = new FlxButton(200, 60, "Add New Event", function() {
+            recordUndoState();
             var noteStrum:Float = (curSelectedEvents.length > 0) 
                 ? curSelectedEvents[curEditingEventIndex].strumtime 
                 : getStrumTime(dummyArrow.y) + sectionStartTime();
@@ -420,6 +492,7 @@ class ChartingEditorState extends MusicBeatState
 
 		var removeEventButton = new FlxButton(200, 140, "Remove Event", function() {
 			if (curSelectedEvents.length > 0) {
+                recordUndoState();
                 var selected = curSelectedEvents[curEditingEventIndex];
                 _song.events.remove(selected);
 
@@ -768,10 +841,9 @@ class ChartingEditorState extends MusicBeatState
 			switch (label)
 			{
 				case 'Must hit section':
-					_song.notes[curSection].mustHitSection = check.checked;
-
+				    recordUndoState();
+				    _song.notes[curSection].mustHitSection = check.checked;
 					updateHeads();
-
 				case 'Change BPM':
 					_song.notes[curSection].changeBPM = check.checked;
 					FlxG.log.add('changed bpm shit');
@@ -958,6 +1030,7 @@ class ChartingEditorState extends MusicBeatState
             var moveData:Bool = FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT;
 
             if (moveTime || moveData)  {
+                recordUndoState();
                 movedSomething = true;
                 var multiplier:Int = (FlxG.keys.justPressed.UP) ? -1 : 1;
                 var shouldChangeSection:Int = 0;
@@ -1065,6 +1138,10 @@ class ChartingEditorState extends MusicBeatState
         if (FlxG.keys.justPressed.BACKSPACE && !typingShit.hasFocus) {
             var deletedAnything:Bool = false;
 
+            if (selectedNotesGroup.length > 0 || selectedEventsGroup.length > 0) {
+                recordUndoState();
+            }
+
             if (selectedNotesGroup.length > 0) {
                 for (note in selectedNotesGroup) {
                     for (songNote in _song.notes[curSection].sectionNotes) {
@@ -1129,6 +1206,13 @@ class ChartingEditorState extends MusicBeatState
                 _song.notes[curSection].sectionNotes.push([newTime, newData, newSus, newType]);
             }
             updateGrid();
+        }
+
+        if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.Z && !typingShit.hasFocus) {
+            undo();
+        }
+        if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.Y && !typingShit.hasFocus) {
+            redo();
         }
 
 		if (FlxG.keys.justPressed.SPACE && !typingShit.hasFocus)
@@ -1482,6 +1566,8 @@ class ChartingEditorState extends MusicBeatState
 
 	function copySection(?sectionNum:Int = 1)
 	{
+		recordUndoState();
+
 		var daSec = FlxMath.maxInt(curSection, sectionNum);
 
 		for (note in _song.notes[daSec - sectionNum].sectionNotes)
@@ -1865,6 +1951,7 @@ class ChartingEditorState extends MusicBeatState
 
     function deleteNote(note:Note):Void
     {
+        recordUndoState();
         var col:Int = Math.floor(note.x / GRID_SIZE);
         for (songNote in _song.notes[curSection].sectionNotes)
         {
@@ -1879,6 +1966,7 @@ class ChartingEditorState extends MusicBeatState
 
 	function clearSection():Void
 	{
+		recordUndoState();
 		_song.notes[curSection].sectionNotes = [];
 
 		updateGrid();
@@ -1886,6 +1974,7 @@ class ChartingEditorState extends MusicBeatState
 
 	function clearSong():Void
 	{
+		recordUndoState();
 		for (daSection in 0..._song.notes.length)
 		{
 			_song.notes[daSection].sectionNotes = [];
@@ -1896,10 +1985,11 @@ class ChartingEditorState extends MusicBeatState
 
 	private function addNote():Void
 	{
-        var noteStrum = getStrumTime(dummyArrow.y) + sectionStartTime();
-        var noteData = Math.floor(FlxG.mouse.x / GRID_SIZE);
-        var noteSus = 0;
-        var noteType = inputNoteType.text;
+		recordUndoState();
+		var noteStrum:Float = getStrumTime(dummyArrow.y) + sectionStartTime();
+		var noteData:Int = Math.floor(FlxG.mouse.x / GRID_SIZE);
+		var noteSus:Float = 0;
+		var noteType:String = inputNoteType.text;
 
 		_song.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, noteType]);
 
@@ -1917,6 +2007,7 @@ class ChartingEditorState extends MusicBeatState
 	}
 
     private function addEvent():Void {
+        recordUndoState();
         if (_song.events == null) _song.events = [];
 
         var noteStrum = getStrumTime(dummyArrow.y) + sectionStartTime();
@@ -1936,6 +2027,7 @@ class ChartingEditorState extends MusicBeatState
     }
 
     function deleteEvent(event:Event):Void {
+        recordUndoState();
         if (_song.events != null) {
             _song.events.remove(event.thisEvent);
         }
